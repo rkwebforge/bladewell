@@ -8,7 +8,7 @@ Widgets are copied into your app, so a new release changes nothing until you run
 
 What you build on is only ever added to, never renamed or removed: component names, props and the values they take, `data-*` hooks, JS exports, the `bladewell:*` commands and their flags, and the config keys. A release can still get stricter about input that never worked, such as a mistyped value that used to be ignored and now throws. Those changes are listed under **Changed**, with the widgets they affect.
 
-## [Unreleased]
+## [1.1.0] - 2026-10-11
 
 ### Added
 
@@ -152,7 +152,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/rkwebforge/bladewell/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/rkwebforge/bladewell/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/rkwebforge/bladewell/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/rkwebforge/bladewell/compare/v0.2.2...v0.2.3
