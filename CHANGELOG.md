@@ -8,6 +8,12 @@ Widgets are copied into your app, so a new release changes nothing until you run
 
 What you build on is only ever added to, never renamed or removed: component names, props and the values they take, `data-*` hooks, JS exports, the `bladewell:*` commands and their flags, and the config keys. A release can still get stricter about input that never worked, such as a mistyped value that used to be ignored and now throws. Those changes are listed under **Changed**, with the widgets they affect.
 
+## [Unreleased]
+
+### Added
+
+- Guidelines for [Laravel Boost](https://github.com/laravel/boost), in `resources/boost/guidelines`: tick `bladewell/bladewell` when `php artisan boost:install` or `boost:update` asks which packages to include, and your agent's rules (`CLAUDE.md`, `AGENTS.md`…) say how to find and add widgets and what not to do with them: no Alpine or inline scripts, `readonly` rather than `disabled`, `confirm` on buttons, toasts, the shared row menu, and dates.
+
 ## [1.1.0] - 2026-10-11
 
 ### Added

@@ -221,6 +221,10 @@ gemini mcp add bladewell php /path/to/your-app/artisan bladewell:mcp
 
 Any other client: the command `php`, with the arguments `/path/to/your-app/artisan bladewell:mcp`. Where a client may not start the server in your app's folder, the full path to `artisan` is what makes it work. If a desktop app can't find `php`, give it the full path too (`which php`).
 
+### Laravel Boost
+
+The package ships guidelines for [Laravel Boost](https://github.com/laravel/boost) in `resources/boost/guidelines`: how to find and add widgets, and the rules an agent would otherwise get wrong (no Alpine or inline scripts, `readonly` rather than `disabled`, `confirm` on buttons, toasts, the shared row menu). Boost asks which packages' guidelines to include when you run `php artisan boost:install`, or `php artisan boost:update` after adding Bladewell: tick `bladewell/bladewell`, and they're written into your `CLAUDE.md`, `AGENTS.md` and the rest.
+
 ## Values from your data
 
 A prop that takes one of a set of values (`variant`, `size`, `tone`…) throws on anything else, so a typo shows up in development instead of shipping the wrong look. A value that comes from your data, such as an order's status or a size from settings, can be one you didn't expect, and then the page fails. Map it to the widget's values first, with a default:
