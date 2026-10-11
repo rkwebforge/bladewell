@@ -431,7 +431,8 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('keydown', (event) => {
     const segment = event.target.closest?.('[data-time-picker-segment]');
-    if (segment && segment.getAttribute('aria-disabled') !== 'true') {
+    // A readonly time keeps its keys to itself: Tab still moves on, nothing else changes it.
+    if (segment && segment.getAttribute('aria-disabled') !== 'true' && segment.getAttribute('aria-readonly') !== 'true') {
         segmentKey(segment.closest(ROOT), segment, event);
 
         return;

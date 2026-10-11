@@ -30,7 +30,10 @@ const textareaSizes = new ResizeObserver((entries) => {
         }
         const height = target.offsetHeight;
         if (lastHeight.has(target) && lastHeight.get(target) !== height) {
-            target.dispatchEvent(new CustomEvent('textarea-resize', { bubbles: true, detail: { height } }));
+            // textarea:resize matches the other widgets' events; textarea-resize is the name it was first sent as, and stays.
+            for (const name of ['textarea:resize', 'textarea-resize']) {
+                target.dispatchEvent(new CustomEvent(name, { bubbles: true, detail: { height } }));
+            }
         }
         lastHeight.set(target, height);
     }

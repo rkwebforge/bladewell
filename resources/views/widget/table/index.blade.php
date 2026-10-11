@@ -68,7 +68,17 @@
 ])
 
 @php
+    // What other widgets call these: say what this one calls them, rather than let them through as plain attributes
+    // that do nothing.
+    foreach (['no-results' => 'empty'] as $other => $own) {
+        if ($attributes->hasAny([$other, \Illuminate\Support\Str::camel($other)])) {
+            throw new \InvalidArgumentException("<x-widget.table> calls it {$own}, not {$other}.");
+        }
+    }
     // A typo fails loudly, naming the values that work, instead of quietly rendering something else.
+    if ($pagination === 'load-more') {
+        throw new \InvalidArgumentException('<x-widget.table> calls it infinite, not load-more: pagination="infinite" loads more rows as you scroll. (load-more is <x-widget.pagination type="load-more">.)');
+    }
     if (! in_array($pagination, ['drawer', 'numbers', 'segmented', 'jump', 'footer', 'summary', 'infinite', false], true)) {
         throw new \InvalidArgumentException("Unknown pagination [{$pagination}] for <x-widget.table>. Use one of: drawer, numbers, segmented, jump, footer, summary, infinite, or false for none.");
     }

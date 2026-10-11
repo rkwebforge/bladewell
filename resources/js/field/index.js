@@ -12,6 +12,22 @@ export const on = (type, selector, handler) => {
     });
 };
 
+// --- Readonly checkboxes, switches and radios ----------------------------------------
+
+// HTML's readonly only works on text. A click on a readonly box, switch or radio (or its label, or Space, which clicks
+// it) is cancelled, which puts it back as it was; in a readonly radio group the arrow keys don't pick another. Capture
+// phase, so wire:model and your own listeners never see a change.
+document.addEventListener('click', (event) => {
+    if (event.target.matches?.('input[data-readonly]')) {
+        event.preventDefault();
+    }
+}, true);
+document.addEventListener('keydown', (event) => {
+    if (event.target.matches?.('input[type="radio"][data-readonly]') && event.key.startsWith('Arrow')) {
+        event.preventDefault();
+    }
+}, true);
+
 // --- Clear a server-side error as soon as the user edits the field --------------------
 
 // The error was about the old value; once it changes, showing it is just noise. The server

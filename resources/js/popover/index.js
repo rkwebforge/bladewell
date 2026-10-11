@@ -1,7 +1,8 @@
 // Drives <x-widget.popover>. Opening, Esc and click-outside come from the native popover (popovertarget); this places
 // the panel beside its trigger (flipping above when there's no room below), moves focus into it as it opens and back to
 // the trigger as it closes, closes it when focus leaves it (Tab past its end), and closes it on [data-popover-close]
-// inside. From JS: popover.open(id), popover.close(id), popover.toggle(id), with the trigger's id.
+// inside. From JS: popover.open(target), popover.close(target), popover.toggle(target), with the trigger's id or any
+// element of the popover; also on window.popover.
 // Events on the panel: popover:opened and popover:closed. Delegated from `document`, so popovers added later (a
 // Livewire render, fetched HTML) work without setting up.
 
@@ -17,10 +18,15 @@ const parts = (panel) => {
 
     return { root, trigger: root.querySelector('[data-popover-trigger]') };
 };
-const panelOf = (id) => {
-    const trigger = document.getElementById(id);
+// The trigger's id (or the panel's), or any element of the popover: its trigger, panel or wrapper.
+const panelOf = (target) => {
+    const element = typeof target === 'string' ? document.getElementById(target) : target;
+    const panel = element?.closest?.('[data-popover]')?.querySelector(PANEL);
+    if (!panel) {
+        console.warn('Bladewell popover: no popover on this page for', target);
+    }
 
-    return trigger?.matches('[data-popover-trigger]') ? document.getElementById(trigger.getAttribute('aria-controls')) : null;
+    return panel ?? null;
 };
 
 // Whether any of the trigger can still be seen: not scrolled out of a container that clips it (a table that scrolls
@@ -169,25 +175,29 @@ document.addEventListener('click', (event) => {
     closer?.closest(PANEL).hidePopover();
 });
 
-function open(id) {
-    const panel = panelOf(id);
+function open(target) {
+    const panel = panelOf(target);
     if (panel && !panel.matches(':popover-open')) {
         panel.showPopover();
     }
 }
 
-function close(id) {
-    const panel = panelOf(id);
+function close(target) {
+    const panel = panelOf(target);
     if (panel?.matches(':popover-open')) {
         panel.hidePopover();
     }
 }
 
-export const popover = {
-    open,
-    close,
-    toggle: (id) => (panelOf(id)?.matches(':popover-open') ? close(id) : open(id)),
-};
+function toggle(target) {
+    const panel = panelOf(target);
+    panel?.togglePopover();
+}
+
+export const popover = { open, close, toggle };
+
+// Global, as modal and toast are, so a script on the page can call it without an import.
+window.popover = popover;
 
 // From a Livewire component ($this->dispatch('popover-close', id: 'filters')) or any script.
 window.addEventListener('popover-open', (event) => open(event.detail?.id));

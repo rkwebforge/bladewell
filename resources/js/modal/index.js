@@ -11,7 +11,12 @@
 const MODAL = 'dialog[data-modal]';
 
 function resolve(target) {
-    return typeof target === 'string' ? document.getElementById(target) : target;
+    const dialog = typeof target === 'string' ? document.getElementById(target) : target;
+    if (!dialog) {
+        console.warn('Bladewell modal: no modal on this page for', target);
+    }
+
+    return dialog;
 }
 
 function open(target) {
@@ -51,9 +56,9 @@ document.addEventListener('click', (event) => {
         return;
     }
 
-    const closer = event.target.closest?.('[data-modal-close]');
+    const closer = event.target.closest?.('[data-modal-close]')?.closest(MODAL);
     if (closer) {
-        close(closer.closest(MODAL));
+        close(closer);
     }
 });
 

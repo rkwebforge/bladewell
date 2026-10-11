@@ -19,6 +19,9 @@
     'confirmLabel' => null,
     // With confirm: the cancel button's text. Defaults to "Cancel".
     'confirmCancel' => null,
+    // In a shared menu (x-widget.dropdown.menu): the name of a value that shows the item only for rows where it is true, such as
+    // 'can_delete'. It only hides the item: the controller must still authorize the request itself.
+    'onlyIf' => null,
 ])
 
 @php
@@ -54,6 +57,7 @@
         'data-confirm-message' => $confirmMessage,
         'data-confirm-label' => $confirmLabel,
         'data-confirm-cancel' => $confirmCancel,
+        'data-dropdown-only-if' => $onlyIf,
     ];
 @endphp
 

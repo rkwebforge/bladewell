@@ -7,6 +7,7 @@
     'label' => null,
     // A list (['Red', 'Blue']), a value => label map, or rows: ['value' => 1, 'label' => 'Savings', 'meta' => '$120',
     // 'disabled' => true]; id and name work as value and label. meta shows at the end of the option's line, e.g. a count.
+    // Every option is about 0.8 KB of HTML on the page: past about 100, use search-url and send only the chosen one(s).
     'options' => [],
     // The chosen value (an array with multiple). Old input wins after a failed submit. With wire:model and no value,
     // it comes from the bound Livewire property.
@@ -21,6 +22,8 @@
     'bag' => 'default',
     // Greyed out: it can't be opened or changed (its value still submits).
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed: the list doesn't open. With disabled, disabled wins.
+    'readonly' => false,
     // A search box at the top of the list, once there are at least search-min options.
     'searchable' => false,
     // How many options it takes before searchable shows the search box.
@@ -54,6 +57,16 @@
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
+    // Nothing to clear when it can't be changed.
+    $clearable = $clearable && ! $readonly;
+    // What other widgets call these: say what this one calls them, rather than let them through as plain attributes
+    // that do nothing.
+    foreach (['suggest-url' => 'search-url', 'suggest-min' => 'search-min-length', 'empty' => 'no-results'] as $other => $own) {
+        if ($attributes->hasAny([$other, \Illuminate\Support\Str::camel($other)])) {
+            throw new \InvalidArgumentException("<x-widget.select> calls it {$own}, not {$other}.");
+        }
+    }
     $field = \Bladewell\Support\FormField::make($name, $id, $errors ?? null, $error, $bag, 'select', attributes: $attributes);
     $id = $field->id;
     // multiple submits name[] (one hidden input per choice); a single select submits name. name="tags" and
@@ -110,7 +123,7 @@
 
 {{-- data-required-message: the value is in hidden inputs, which the browser never validates, so resources/js/widget/field
      stops an empty submit itself and shows this. --}}
-<x-widget.field :required="$attributes->has('required')" :data-required-message="$attributes->has('required') && ! $disabled ? $requiredMessage : false" data-select :data-multiple="$multiple ? 'true' : false" :data-search-url="$remote ? $searchUrl : false" :data-search-min-length="$remote ? max(1, (int) $searchMinLength) : false" :data-display="$display" :data-count-label="$display === 'count' ? $countLabel : false" :id="$id" :label="$innerLabel ? null : $label" :error="$field->errors" :info="$info" :disabled="$disabled" box="relative min-h-12 items-stretch" :class="$attributes->get('class')">
+<x-widget.field :required="$attributes->has('required')" :data-required-message="$attributes->has('required') && ! $disabled ? $requiredMessage : false" data-select :data-multiple="$multiple ? 'true' : false" :data-search-url="$remote ? $searchUrl : false" :data-search-min-length="$remote ? max(1, (int) $searchMinLength) : false" :data-display="$display" :data-count-label="$display === 'count' ? $countLabel : false" :id="$id" :label="$innerLabel ? null : $label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" box="relative min-h-12 items-stretch" :class="$attributes->get('class')">
     @if ($display === 'chips')
         {{-- Chips sit above the trigger, which fills the box behind them: clicking any empty spot opens the list,
              and only the chips' remove buttons take clicks of their own (a button can't sit inside the trigger). --}}
@@ -144,6 +157,7 @@
         @if ($innerLabel && $label) aria-label="{{ $label }}" @endif
         {{ $field->aria($attributes, (bool) $info) }}
         @disabled($disabled)
+        @if ($readonly) aria-readonly="true" @endif
         data-select-trigger
         @class([
             'group/trigger flex min-w-0 text-start outline-none disabled:cursor-not-allowed disabled:opacity-70',

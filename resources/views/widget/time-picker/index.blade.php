@@ -22,6 +22,8 @@
     'bag' => 'default',
     // Greyed out: it can't be changed.
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed: the button opens nothing. With disabled, disabled wins.
+    'readonly' => false,
     // The earliest time that can be picked, within one day: "09:00". Defaults to 00:00.
     'min' => null,
     // The latest time that can be picked, within one day: "17:30". Defaults to 23:59.
@@ -40,6 +42,7 @@
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     // A typo fails loudly, naming the values that work, instead of quietly rendering something else.
     if (! in_array($variant, ['list', 'columns', 'segmented', 'slots'], true)) {
         throw new \InvalidArgumentException("Unknown variant [{$variant}] for <x-widget.time-picker>. Use one of: list, columns, segmented, slots.");
@@ -110,6 +113,7 @@
     :error="$field->errors"
     :info="$info"
     :disabled="$disabled"
+    :readonly="$readonly"
     :bare="$variant === 'slots'"
     :labels-control="! in_array($variant, ['segmented', 'slots'], true)"
     box="h-12 items-center"
@@ -121,16 +125,19 @@
             type="button"
             id="{{ $id }}"
             wire:ignore.self
-            popovertarget="{{ $id }}-popover"
-            aria-haspopup="{{ $variant === 'list' ? 'listbox' : 'dialog' }}"
-            aria-expanded="false"
+            {{-- Readonly: a button that opens nothing, so it says it has no popup; "read only" joins its name instead, as a
+                 button can't carry aria-readonly. --}}
+            @unless ($readonly) popovertarget="{{ $id }}-popover" aria-haspopup="{{ $variant === 'list' ? 'listbox' : 'dialog' }}" aria-expanded="false" @endunless
             {{-- A <label> would otherwise be the button's whole name, and the chosen time inside it would never be read. --}}
-            @if ($label) aria-labelledby="{{ $id }}-label {{ $id }}-display" @endif
+            @if ($label) aria-labelledby="{{ $id }}-label {{ $id }}-display{{ $readonly ? " {$id}-readonly" : '' }}" @endif
             {{ $field->aria($attributes, (bool) $info) }}
             @disabled($disabled)
             data-time-picker-trigger
-            class="flex h-full w-full min-w-0 items-center justify-between gap-2.5 px-5 text-start whitespace-nowrap outline-none select-none enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            class="flex h-full w-full min-w-0 items-center justify-between gap-2.5 px-5 text-start whitespace-nowrap outline-none select-none disabled:cursor-not-allowed disabled:opacity-50 {{ $readonly ? 'cursor-default' : 'enabled:cursor-pointer' }}"
         >
+            @if ($readonly)
+                <span id="{{ $id }}-readonly" class="sr-only">read only</span>
+            @endif
             <span
                 id="{{ $id }}-display"
                 data-time-picker-display
@@ -167,6 +174,7 @@
                     aria-valuemax="{{ $high }}"
                     @if ($partValue !== null) aria-valuenow="{{ $partValue }}" aria-valuetext="{{ $partValue }}" @else aria-valuetext="Empty" @endif
                     @if ($disabled) aria-disabled="true" @endif
+                    @if ($readonly) aria-readonly="true" @endif
                     data-time-picker-segment="{{ $part }}"
                     {{-- What goes here while it's empty: hh, mm. The script puts it back when a part is cleared. --}}
                     data-placeholder="{{ $empty }}"
@@ -183,6 +191,7 @@
                     aria-valuemax="1"
                     @if ($hour !== null) aria-valuenow="{{ $isPm ? 1 : 0 }}" aria-valuetext="{{ $periods[$isPm ? 1 : 0] }}" @else aria-valuetext="Empty" @endif
                     @if ($disabled) aria-disabled="true" @endif
+                    @if ($readonly) aria-readonly="true" @endif
                     data-time-picker-segment="period"
                     data-placeholder="{{ implode('/', $periods) }}"
                     class="focus:bg-primary/15 data-empty:text-muted ms-1.5 rounded-md px-1 text-center outline-none"
@@ -197,15 +206,16 @@
         {{-- Real radio buttons: the arrow keys, required and wire:model work as the browser has them, with no script. --}}
         <div
             role="radiogroup"
+            @if ($readonly) aria-readonly="true" @endif
             @if ($label) aria-labelledby="{{ $id }}-label" @endif
             {{ $field->aria($attributes, (bool) $info) }}
-            class="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2"
+            @class(['grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2', 'opacity-70' => $readonly])
         >
             @foreach ($times as $i => $slot)
                 <label @class([
                     'border-line text-foreground relative grid h-11 place-items-center rounded-xl border text-sm font-medium tabular-nums transition-colors select-none',
                     'has-checked:bg-primary-fill has-checked:text-on-primary has-checked:border-primary-fill has-focus-visible:ring-primary has-focus-visible:ring-2 has-focus-visible:ring-offset-2 has-focus-visible:ring-offset-surface',
-                    'hover:border-primary cursor-pointer' => ! $slot['disabled'] && ! $disabled,
+                    'hover:border-primary cursor-pointer' => ! $slot['disabled'] && ! $disabled && ! $readonly,
                     'text-muted cursor-not-allowed line-through opacity-60' => $slot['disabled'] || $disabled,
                     'group-data-invalid/field:border-error',
                 ])>
@@ -216,6 +226,7 @@
                         value="{{ $slot['time'] }}"
                         @checked($value === $slot['time'])
                         @disabled($slot['disabled'] || $disabled)
+                        @if ($readonly) data-readonly @endif
                         {{ $field->forwarded($attributes)->except(['aria-describedby']) }}
                         class="sr-only"
                     >

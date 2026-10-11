@@ -22,9 +22,12 @@
     'bag' => 'default',
     // Greyed out: it can't be changed.
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed: no typing, and no remove buttons. With disabled, disabled wins.
+    'readonly' => false,
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     $field = \Bladewell\Support\FormField::make($name, $id, $errors ?? null, $error, $bag, 'tags', attributes: $attributes);
     $tags = collect(\Illuminate\Support\Arr::wrap($field->old($value)))
         ->map(fn (mixed $tag): string => trim((string) ($tag instanceof \BackedEnum ? $tag->value : $tag)))
@@ -44,12 +47,14 @@
     typed, a pasted list adds each item, and Backspace in the empty box removes the last tag. resources/js/widget/tags
     keeps the hidden select, which is what submits and what wire:model binds, in step with the chips.
 --}}
-<x-widget.field :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :required="$required" box="min-h-12 flex-wrap items-center gap-1.5 px-3 py-2" :class="$attributes->get('class')">
+<x-widget.field :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" :required="$required" box="min-h-12 flex-wrap items-center gap-1.5 px-3 py-2" :class="$attributes->get('class')">
     <ul data-tags-list @if ($label) aria-label="{{ $label }}" @endif class="contents">
         @foreach ($tags as $tag)
             <li data-tags-chip data-value="{{ $tag }}" class="bg-primary/10 text-primary inline-flex max-w-full items-center gap-1 rounded-full py-1 ps-3 pe-1 text-sm">
                 <span class="truncate">{{ $tag }}</span>
-                <button type="button" data-tags-remove aria-label="Remove {{ $tag }}" @disabled($disabled) class="hover:bg-primary/20 focus-visible:ring-primary grid size-6 place-items-center rounded-full outline-none focus-visible:ring-2"><x-widget.icon name="x" class="size-3.5" /></button>
+                @unless ($readonly)
+                    <button type="button" data-tags-remove aria-label="Remove {{ $tag }}" @disabled($disabled) class="hover:bg-primary/20 focus-visible:ring-primary grid size-6 place-items-center rounded-full outline-none focus-visible:ring-2"><x-widget.icon name="x" class="size-3.5" /></button>
+                @endunless
             </li>
         @endforeach
     </ul>
@@ -61,10 +66,11 @@
         @if ($max) data-max="{{ (int) $max }}" @endif
         @if ($suggestions->isNotEmpty()) list="{{ $field->id }}-suggestions" @endif
         @if ($required) aria-required="true" @endif
-        placeholder="{{ $placeholder }}"
+        @unless ($readonly) placeholder="{{ $placeholder }}" @endunless
         autocomplete="off"
         enterkeyhint="enter"
         @disabled($disabled)
+        @readonly($readonly)
         {{ $inputAttributes->class(['placeholder:text-muted h-8 min-w-32 flex-1 bg-transparent ps-1 outline-none disabled:cursor-not-allowed disabled:opacity-50']) }}
     >
 

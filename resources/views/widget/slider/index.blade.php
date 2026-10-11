@@ -33,9 +33,12 @@
     'bag' => 'default',
     // Greyed out: it can't be changed.
     'disabled' => false,
+    // Shown, and submitted, but it can't be moved. With disabled, disabled wins.
+    'readonly' => false,
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     $field = \Bladewell\Support\FormField::make($name, $id, $errors ?? null, $error, $bag, 'slider', attributes: $attributes);
     $min = (float) $min;
     $max = (float) $max;
@@ -84,13 +87,13 @@
     // Two thumbs: two native inputs would lie on top of each other, one target over the other, so each thumb is its own
     // element instead (role="slider", as in the ARIA two-thumb slider), moved by the script, with a hidden input each
     // carrying its value. Each thumb's span ends at the other.
-    $knob = 'bg-surface border-primary absolute top-1/2 size-5 -translate-y-1/2 cursor-grab touch-none rounded-full border-2 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface data-front:z-10 group-data-invalid/field:border-error aria-disabled:cursor-not-allowed';
+    $knob = 'bg-surface border-primary absolute top-1/2 size-5 -translate-y-1/2 cursor-grab touch-none rounded-full border-2 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface data-front:z-10 group-data-invalid/field:border-error aria-disabled:cursor-not-allowed aria-readonly:cursor-default';
     // Where each sits: its share of the track, which runs between the two thumbs' centres at the ends.
     $knobPlace = ['from' => 'start-[calc((100%-1.25rem)*var(--slider-from)/100)]', 'to' => 'start-[calc((100%-1.25rem)*var(--slider-to)/100)]'];
     $locale = str_replace('_', '-', app()->getLocale());
 @endphp
 
-<x-widget.field :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :required="$attributes->has('required')" :labels-control="! $range" bare :class="$attributes->get('class')">
+<x-widget.field :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" :required="$attributes->has('required')" :labels-control="! $range" bare :class="$attributes->get('class')">
     {{-- Under the label: the value, or from – to, as people read it. Screen readers hear each thumb's own value instead. --}}
     <x-slot:before>
         <output data-slider-output for="{{ $range ? "{$field->id}-from {$field->id}" : $field->id }}" aria-hidden="true" class="text-foreground -mt-1.5 mb-2 block text-sm font-medium tabular-nums">{{ $range ? $show($values[0]).' – '.$show($values[1]) : $show($values[0]) }}</output>
@@ -109,7 +112,7 @@
     >
         {{-- The track, and the filled part between the ends (or from the start), placed from the CSS variables: the
              server sets where they start, the script moves them. Logical sides, so right to left fills from the right. --}}
-        <div aria-hidden="true" class="bg-line pointer-events-none absolute inset-x-2.5 top-1/2 h-1.5 -translate-y-1/2 rounded-full">
+        <div aria-hidden="true" @class(['bg-line pointer-events-none absolute inset-x-2.5 top-1/2 h-1.5 -translate-y-1/2 rounded-full', 'opacity-70' => $readonly])>
             <div class="bg-primary-fill absolute inset-y-0 start-[calc(var(--slider-from)*1%)] end-[calc(100%-var(--slider-to)*1%)] rounded-full group-data-invalid/field:bg-error"></div>
         </div>
 
@@ -127,12 +130,13 @@
                     aria-valuenow="{{ $plain($values[$at]) }}"
                     aria-valuetext="{{ $show($values[$at]) }}"
                     @if ($disabled) aria-disabled="true" @endif
+                    @if ($readonly) aria-readonly="true" @endif
                     {{ $field->aria($attributes, (bool) $info)->class([$knob, $knobPlace[$end]]) }}
                 ></div>
                 <input type="hidden" data-slider-value="{{ $end }}" @if ($inputName) name="{{ $inputName }}" @endif value="{{ $plain($values[$at]) }}" @disabled($disabled) {{ new \Illuminate\View\ComponentAttributeBag($bindingFor($at)) }}>
             @endforeach
         @else
-            <input type="range" id="{{ $field->id }}" data-slider-to @if ($inputName) name="{{ $inputName }}" @endif min="{{ $plain($min) }}" max="{{ $plain($max) }}" step="{{ $plain($step) }}" value="{{ $plain($values[0]) }}" aria-valuetext="{{ $show($values[0]) }}" @disabled($disabled) {{ $inputAttributes->merge($bindingFor(0))->class([$thumb]) }}>
+            <input type="range" id="{{ $field->id }}" data-slider-to @if ($inputName) name="{{ $inputName }}" @endif min="{{ $plain($min) }}" max="{{ $plain($max) }}" step="{{ $plain($step) }}" value="{{ $plain($values[0]) }}" aria-valuetext="{{ $show($values[0]) }}" @disabled($disabled) @if ($readonly) aria-readonly="true" data-readonly @endif {{ $inputAttributes->merge($bindingFor(0))->class([$thumb, 'pointer-events-none' => $readonly]) }}>
         @endif
     </div>
 

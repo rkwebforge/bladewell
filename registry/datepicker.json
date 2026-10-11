@@ -25,6 +25,7 @@
     ],
     "examples": [
         "basic",
+        "future",
         "birthday",
         "states"
     ]

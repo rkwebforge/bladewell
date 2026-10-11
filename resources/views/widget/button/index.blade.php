@@ -23,6 +23,15 @@
     // type="submit": once its form submits, the button shows as loading so the form can't be sent twice.
     // false turns it off.
     'submitGuard' => true,
+    // A question, e.g. "Delete this order?": asked first, and the button only acts (submits, follows its link, runs
+    // wire:click) once it's confirmed. In the modal's dialog when the app has the modal widget, otherwise the browser's.
+    'confirm' => null,
+    // With confirm: more text under the question.
+    'confirmMessage' => null,
+    // With confirm: the confirm button's text. Defaults to the button's own text.
+    'confirmLabel' => null,
+    // With confirm: the cancel button's text. Defaults to "Cancel".
+    'confirmCancel' => null,
 ])
 
 @php
@@ -94,6 +103,14 @@
         @if ($type === 'submit' && $submitGuard) data-submit-guard @endif
     @endif
     @if ($iconOnly) aria-label="{{ $label }}" title="{{ $label }}" @endif
+    @if ($confirm)
+        {{-- resources/js/widget/button holds the click until the question is answered; a danger button asks in red. --}}
+        data-confirm="{{ $confirm }}"
+        @if ($confirmMessage) data-confirm-message="{{ $confirmMessage }}" @endif
+        @if ($confirmLabel) data-confirm-label="{{ $confirmLabel }}" @endif
+        @if ($confirmCancel) data-confirm-cancel="{{ $confirmCancel }}" @endif
+        @if ($variant === 'danger') data-danger @endif
+    @endif
     {{ $attributes->class($classes) }}
 >
     @if ($spinnerSlot === 'start' && ! $isLink)

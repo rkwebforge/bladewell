@@ -18,8 +18,11 @@ function otpSync(root) {
     hidden.dispatchEvent(new Event('input', { bubbles: true }));
     hidden.dispatchEvent(new Event('change', { bubbles: true }));
     if (value.length === boxes.length) {
-        // Hook for auto-submit: root.addEventListener('otp-complete', (e) => form.requestSubmit()).
-        root.dispatchEvent(new CustomEvent('otp-complete', { bubbles: true, detail: { value } }));
+        // Hook for auto-submit: root.addEventListener('otp:complete', (e) => form.requestSubmit()). The colon name matches the
+        // other widgets' events; otp-complete is the name it was first sent as, and stays.
+        for (const name of ['otp:complete', 'otp-complete']) {
+            root.dispatchEvent(new CustomEvent(name, { bubbles: true, detail: { value } }));
+        }
     }
 }
 
@@ -64,7 +67,10 @@ on('keydown', '[data-otp-box]', (event, box) => {
     const boxes = otpBoxes(root);
     const index = boxes.indexOf(box);
 
-    if (event.key === 'Backspace') {
+    // Readonly boxes take no Backspace, as the browser's own readonly takes no typing.
+    if (event.key === 'Backspace' && box.readOnly) {
+        event.preventDefault();
+    } else if (event.key === 'Backspace') {
         event.preventDefault();
         if (box.value) {
             box.value = '';
@@ -84,6 +90,9 @@ on('keydown', '[data-otp-box]', (event, box) => {
 
 on('paste', '[data-otp-box]', (event, box) => {
     event.preventDefault();
+    if (box.readOnly) {
+        return;
+    }
     const root = box.closest('[data-otp]');
     const digits = otpClean(root, event.clipboardData?.getData('text') ?? '');
     if (digits) {

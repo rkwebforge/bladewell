@@ -14,10 +14,14 @@
     'placeholder' => '0',
     // An error message of your own; otherwise the validation error for the name, from the session or Livewire.
     'error' => null,
+    // A hint under the boxes.
+    'info' => null,
     // Which error bag to read the error from.
     'bag' => 'default',
     // Greyed out: it can't be changed.
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed. With disabled, disabled wins.
+    'readonly' => false,
     // Focuses the first box when the page loads.
     'autofocus' => false,
     // filled, outline or underline.
@@ -31,6 +35,7 @@
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     $length = max(1, (int) $length);
     // Resolved twice: once for the base id the boxes share (otp-0, otp-1 …), once for the first box,
     // which the frame keys its label and messages off.
@@ -40,7 +45,7 @@
     $allowed = $alphanumeric ? '/[^A-Za-z0-9]/' : '/\D/';
     $value = strtoupper(substr((string) preg_replace($allowed, '', (string) $field->old($value)), 0, $length));
     $digits = array_map(fn (int $i): string => $value[$i] ?? '', range(0, $length - 1));
-    $aria = $field->aria($attributes);
+    $aria = $field->aria($attributes, (bool) $info);
     // group="3" puts a dash after every third box (123 – 456), which is easier to read and copy.
     $group = $group !== null && (int) $group > 0 && (int) $group < $length ? (int) $group : null;
     $variants = [
@@ -56,7 +61,7 @@
     $look = $variants[$variant];
 @endphp
 
-<x-widget.field :required="$attributes->has('required')" :id="$field->id" :label="$label" :error="$field->errors" :disabled="$disabled" bare :class="$attributes->get('class')">
+<x-widget.field :required="$attributes->has('required')" :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" bare :class="$attributes->get('class')">
     {{-- The boxes have no name; the hidden input carries the joined code on submit, with the caller's attributes. --}}
     {{-- dir="ltr": a code reads left to right in every language, so the boxes and the arrow keys do too. --}}
     <div data-otp dir="ltr" @if ($alphanumeric) data-alphanumeric @endif role="group" aria-label="{{ $label ?? 'One-time code' }}" class="flex w-full items-start gap-2 sm:gap-3">
@@ -77,9 +82,10 @@
                     @if ($alphanumeric) autocapitalize="characters" @endif
                     data-otp-box
                     @disabled($disabled)
+                    @readonly($readonly)
                     @if ($autofocus && $i === 0) autofocus @endif
                     {{ $aria->class([
-                        'text-foreground h-full w-full text-center text-[clamp(18px,5vw,24px)] font-medium uppercase outline-none transition-colors placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50',
+                        'text-foreground h-full w-full text-center text-[clamp(18px,5vw,24px)] font-medium uppercase outline-none transition-colors placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 read-only:opacity-70',
                         $look,
                         'text-[clamp(28px,8vw,40px)] leading-none' => $masked,
                         'group-data-invalid/field:border-error group-data-invalid/field:bg-error/10 group-data-invalid/field:text-error group-data-invalid/field:hover:border-error group-data-invalid/field:focus:border-error',

@@ -38,6 +38,10 @@
     $id = app(\Bladewell\Support\ElementIds::class)->claim($id ?? 'popover', explicit: $id !== null);
     $panelId = "{$id}-panel";
     $custom = $trigger instanceof \Illuminate\View\ComponentSlot;
+    // Checked here, not left to the button, so the error names the tag that was written.
+    if (! $custom && ! (is_string($trigger) && $trigger !== '') && ($label === null || trim($label) === '')) {
+        throw new \InvalidArgumentException("<x-widget.popover> without a trigger is an icon-only button, so it needs a label, e.g. label=\"About this plan\": it is the button's only name for screen readers.");
+    }
     $triggerAttributes = new \Illuminate\View\ComponentAttributeBag([
         'id' => $id,
         'popovertarget' => $panelId,

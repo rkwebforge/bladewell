@@ -9,11 +9,13 @@
         "ElementIds"
     ],
     "usage": [
+        "in-scripts",
         "in-a-table",
         "livewire"
     ],
     "examples": [
         "row-actions",
+        "shared-menu",
         "account-menu",
         "text-trigger"
     ]

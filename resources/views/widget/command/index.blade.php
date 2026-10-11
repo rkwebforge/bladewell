@@ -21,6 +21,13 @@
 ])
 
 @php
+    // What other widgets call these: say what this one calls them, rather than let them through as plain attributes
+    // that do nothing.
+    foreach (['search-url' => 'suggest-url', 'no-results' => 'empty'] as $other => $own) {
+        if ($attributes->hasAny([$other, \Illuminate\Support\Str::camel($other)])) {
+            throw new \InvalidArgumentException("<x-widget.command> calls it {$own}, not {$other}.");
+        }
+    }
     // Scripts open it by its id, so an explicit id must be unique; a derived one gets a suffix.
     $id = app(\Bladewell\Support\ElementIds::class)->claim($id ?? 'command', explicit: $id !== null);
     $shortcut = $shortcut === false || $shortcut === null ? null : strtolower((string) $shortcut);

@@ -1,5 +1,5 @@
 {
-    "description": "Data table for arrays or paginators: sortable columns (one or several at once), a Columns menu to show and hide columns, a totals row, a filters toolbar that filters in place with option counts (dimmed rows or skeleton while loading, optional in-memory cache), row selection with bulk actions, clickable and expandable rows, status badges, a row-actions menu, compact density, sticky header, stacked cards on phones, loading placeholders, drawer/numbers/jump/infinite pagination and an empty state.",
+    "description": "Data table for arrays or paginators: sortable columns (one or several at once), a Columns menu to show and hide columns, a totals row, a filters toolbar that filters in place with option counts (dimmed rows or skeleton while loading, optional in-memory cache), row selection with bulk actions, clickable and expandable rows, status badges, a row-actions menu, compact density, sticky header, stacked cards on phones, loading placeholders, drawer/numbers/jump/infinite pagination and an empty state. It brings in dropdown, pagination, search and select for its row menu, pages and filters; the ones a table doesn't use stay unrendered, so they add nothing to your pages.",
     "requires": [
         "button",
         "dropdown",

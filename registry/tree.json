@@ -14,6 +14,7 @@
         }
     },
     "usage": [
+        "in-scripts",
         "children-endpoint",
         "livewire"
     ],

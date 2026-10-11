@@ -21,6 +21,8 @@
     'bag' => 'default',
     // Greyed out: it can't be changed.
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed. With disabled, disabled wins.
+    'readonly' => false,
     // sm, md or lg.
     'size' => 'md',
     // end (label first, switch after it, for settings rows) or start (switch first, like a checkbox).
@@ -32,6 +34,7 @@
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     $field = \Bladewell\Support\FormField::make($name, $id, $errors ?? null, $error, $bag, 'switch', attributes: $attributes);
     // Same rule as the checkbox: after a failed submit of its own form, old input decides; otherwise `checked` does.
     $isChecked = $field->checked($value, (bool) $checked, (bool) $disabled, $uncheckedValue !== null, $errors ?? null, $bag);
@@ -60,7 +63,7 @@
 @endphp
 
 {{-- A checkbox with role="switch": it submits like one, and screen readers announce on / off. --}}
-<x-widget.field :id="$field->id" :error="$field->errors" :info="$info" :disabled="$disabled" :required="$attributes->has('required')" bare :class="$attributes->get('class')">
+<x-widget.field :id="$field->id" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" :required="$attributes->has('required')" bare :class="$attributes->get('class')">
     @if ($uncheckedValue !== null && $name)
         <input type="hidden" name="{{ $name }}" value="{{ $uncheckedValue }}">
     @endif
@@ -71,8 +74,9 @@
         'flex-row-reverse justify-end gap-3' => $switchFirst,
         // card: the whole row is a tile that lights up while on.
         'border-line bg-surface rounded-2xl border p-4 transition-colors has-checked:border-primary has-checked:bg-primary/5' => $card,
-        'cursor-pointer' => ! $disabled,
+        'cursor-pointer' => ! $disabled && ! $readonly,
         'cursor-not-allowed opacity-60' => $disabled,
+        'opacity-70' => $readonly,
     ])>
         <span class="min-w-0">
             <span class="text-foreground">{{ $slot->isNotEmpty() ? $slot : $label }}@if ($attributes->has('required'))<span class="text-error" aria-hidden="true"> *</span>@endif</span>
@@ -90,12 +94,14 @@
                 value="{{ $value }}"
                 @checked($isChecked)
                 @disabled($disabled)
+                {{-- resources/js/widget/field keeps a click or Space from changing it; a checkbox has no readonly of its own. --}}
+                @if ($readonly) aria-readonly="true" data-readonly @endif
                 {{ $field->controlAttributes($attributes, (bool) $info)->class([
                     // muted/75: the off track, and the white knob on it, both reach 3:1; the old light grey was 1.25:1.
                     'peer bg-muted/75 absolute inset-0 appearance-none rounded-full transition-colors outline-none',
                     'checked:bg-primary focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
                     'group-data-invalid/field:ring-error group-data-invalid/field:ring-1 disabled:cursor-not-allowed',
-                    'cursor-pointer' => ! $disabled,
+                    'cursor-pointer' => ! $disabled && ! $readonly,
                 ]) }}
             >
             {{-- The knob travels toward the end edge: right, or left in RTL. --}}

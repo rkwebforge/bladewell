@@ -76,7 +76,8 @@ document.addEventListener('input', (event) => {
 
 // --- Two thumbs ---------------------------------------------------------------------------------------------------------
 
-const disabled = (thumb) => thumb.getAttribute('aria-disabled') === 'true';
+// Readonly too: neither moves, by key or by pointer.
+const disabled = (thumb) => thumb.getAttribute('aria-disabled') === 'true' || thumb.getAttribute('aria-readonly') === 'true';
 
 // Onto a step from min, and between the scale's end and the other thumb.
 function place(root, end, value, { commit = false } = {}) {
@@ -98,6 +99,14 @@ function place(root, end, value, { commit = false } = {}) {
         input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 }
+
+// One thumb is the browser's own range, which has no readonly: its keys are stopped here, and pointers by its
+// pointer-events-none.
+document.addEventListener('keydown', (event) => {
+    if (event.target.matches?.('input[type="range"][data-readonly]') && /^(Arrow|Page|Home|End)/.test(event.key)) {
+        event.preventDefault();
+    }
+});
 
 document.addEventListener('keydown', (event) => {
     const thumb = event.target.matches?.('[data-slider-thumb]') ? event.target : null;

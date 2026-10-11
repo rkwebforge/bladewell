@@ -18,6 +18,8 @@
     'bag' => 'default',
     // Greyed out: it can't be opened.
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed: the button opens nothing. With disabled, disabled wins.
+    'readonly' => false,
     // The earliest date that can be picked: YYYY-MM-DD, a date object, or "today" (the visitor's today).
     'min' => null,
     // The latest date: YYYY-MM-DD, a date object, "today" (the default), or false for no limit.
@@ -34,6 +36,7 @@
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     $toIso = static function (mixed $date): ?string {
         if ($date instanceof \DateTimeInterface) {
             return $date->format('Y-m-d');
@@ -101,22 +104,26 @@
     :error="$field->errors"
     :info="$info"
     :disabled="$disabled"
+    :readonly="$readonly"
     box="h-12 items-center"
     :class="$attributes->get('class')"
 >
     <button
         type="button"
         id="{{ $id }}"
-        popovertarget="{{ $id }}-calendar"
-        aria-haspopup="dialog"
-        aria-expanded="false"
+        {{-- Readonly: a button that opens nothing, so it says it has no popup; "read only" joins its name instead, as a
+             button can't carry aria-readonly. --}}
+        @unless ($readonly) popovertarget="{{ $id }}-calendar" aria-haspopup="dialog" aria-expanded="false" @endunless
         {{-- A <label> would otherwise be the button's whole name, and the chosen date inside it would never be read. --}}
-        @if ($label) aria-labelledby="{{ $id }}-label {{ $id }}-display" @endif
+        @if ($label) aria-labelledby="{{ $id }}-label {{ $id }}-display{{ $readonly ? " {$id}-readonly" : '' }}" @endif
         {{ $field->aria($attributes, (bool) $info) }}
         @disabled($disabled)
         data-datepicker-trigger
-        class="flex h-full w-full min-w-0 items-center justify-between gap-2.5 px-5 text-start whitespace-nowrap outline-none select-none enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        class="flex h-full w-full min-w-0 items-center justify-between gap-2.5 px-5 text-start whitespace-nowrap outline-none select-none disabled:cursor-not-allowed disabled:opacity-50 {{ $readonly ? 'cursor-default' : 'enabled:cursor-pointer' }}"
     >
+        @if ($readonly)
+            <span id="{{ $id }}-readonly" class="sr-only">read only</span>
+        @endif
         <span
             id="{{ $id }}-display"
             data-datepicker-display

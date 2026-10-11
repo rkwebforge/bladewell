@@ -7,4 +7,8 @@ import { on, replaceValue } from '../field';
 on('input', '[data-code-input]', (event, input) => {
     const disallowed = input.dataset.codeInput === 'alphanumeric' ? /[^a-zA-Z0-9]/g : /\D/g;
     replaceValue(input, input.value.replace(disallowed, '').slice(0, Number(input.dataset.length)));
+    // Hook for auto-submit, as on the OTP: input.addEventListener('verification-code:complete', (e) => form.requestSubmit()).
+    if (input.value.length === Number(input.dataset.length)) {
+        input.dispatchEvent(new CustomEvent('verification-code:complete', { bubbles: true, detail: { value: input.value } }));
+    }
 });

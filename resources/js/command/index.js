@@ -1,5 +1,5 @@
 // Drives <x-widget.command>, a command palette in a native modal <dialog>. Ctrl+K (Cmd+K on a Mac), a click on
-// [data-command-open="{id}"] or command.open('{id}') opens it. Typing filters the items by their label and keywords (every
+// [data-command-open="{id}"] or command.open('{id}') (also on window.command, with the id or the element) opens it. Typing filters the items by their label and keywords (every
 // word must match), and with suggest-url your app's results follow them. Up and Down move the highlight while focus stays
 // in the box; Enter or a click chooses: an item with an href opens that page (with wire:navigate, through Livewire), any
 // other is clicked, so wire:click and your own listeners run. Esc or a click outside closes it.
@@ -179,9 +179,20 @@ function showRecent(dialog) {
 
 // --- Opening, choosing -------------------------------------------------------------------------------------------------
 
-function open(target) {
+const dialogOf = (target) => {
     const dialog = typeof target === 'string' ? document.getElementById(target) : target;
-    if (!dialog?.matches(DIALOG) || dialog.open) {
+    if (!dialog?.matches?.(DIALOG)) {
+        console.warn('Bladewell command: no command palette on this page for', target);
+
+        return null;
+    }
+
+    return dialog;
+};
+
+function open(target) {
+    const dialog = dialogOf(target);
+    if (!dialog || dialog.open) {
         return;
     }
     const { input } = partsOf(dialog);
@@ -194,7 +205,7 @@ function open(target) {
 }
 
 function close(target) {
-    const dialog = typeof target === 'string' ? document.getElementById(target) : target;
+    const dialog = dialogOf(target);
     if (dialog?.open) {
         dialog.close();
     }
@@ -325,5 +336,8 @@ if (window.Livewire) {
 }
 
 export const command = { open, close };
+
+// Global, as modal and toast are, so a script on the page can call it without an import.
+window.command = command;
 
 labelKeys();

@@ -104,3 +104,48 @@ window.addEventListener('pageshow', (event) => {
     }
     document.querySelectorAll('[data-button][data-guarded]').forEach(release);
 });
+
+// --- confirm="…" ----------------------------------------------------------------------------------------------------
+
+// The styled dialog when the app has the modal widget (window.modal), otherwise the browser's own: the button doesn't
+// require the modal, so an app without it still gets the question.
+// The button's visible words: not its spinner, or the "Loading" kept in it for screen readers.
+function wordsOf(button) {
+    const copy = button.cloneNode(true);
+    copy.querySelectorAll('.sr-only, [aria-hidden="true"]').forEach((hidden) => hidden.remove());
+
+    return copy.textContent.replace(/\s+/g, ' ').trim();
+}
+
+function ask(button) {
+    const { confirm: question, confirmMessage: message, confirmLabel, confirmCancel } = button.dataset;
+    if (window.modal?.confirm) {
+        return window.modal.confirm({
+            title: question,
+            message: message ?? '',
+            confirm: confirmLabel || button.getAttribute('aria-label') || wordsOf(button),
+            cancel: confirmCancel || undefined,
+            danger: button.hasAttribute('data-danger'),
+        });
+    }
+
+    return Promise.resolve(window.confirm(message ? `${question}\n\n${message}` : question));
+}
+
+// Capture phase, so the click goes nowhere until it's answered: no submit, no link, and wire:click or your own listener
+// never sees it. Once confirmed, the click is replayed and does what it would have.
+document.addEventListener('click', (event) => {
+    const button = event.target.closest?.('[data-button][data-confirm]');
+    if (!button || button.hasAttribute('data-confirmed') || button.getAttribute('aria-disabled') === 'true') {
+        return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    ask(button).then((confirmed) => {
+        if (confirmed) {
+            button.setAttribute('data-confirmed', '');
+            button.click();
+            button.removeAttribute('data-confirmed');
+        }
+    });
+}, true);

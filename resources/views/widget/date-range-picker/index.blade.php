@@ -25,6 +25,8 @@
     'bag' => 'default',
     // Greyed out: it can't be opened.
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed: the button opens nothing. With disabled, disabled wins.
+    'readonly' => false,
     // The earliest date that can be picked: YYYY-MM-DD, a date object, or "today" (the visitor's today).
     'min' => null,
     // The latest date: YYYY-MM-DD, a date object, "today" (the default), or false for no limit.
@@ -40,6 +42,7 @@
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     $toIso = static function (mixed $date): ?string {
         if ($date instanceof \DateTimeInterface) {
             return $date->format('Y-m-d');
@@ -138,6 +141,7 @@
     :error="$field->errors"
     :info="$info"
     :disabled="$disabled"
+    :readonly="$readonly"
     box="h-12 items-center"
     :class="$attributes->get('class')"
     {{ $attributes->except(['class', 'form', 'required', 'aria-invalid', 'aria-describedby', ...array_keys($binding)]) }}
@@ -145,16 +149,19 @@
     <button
         type="button"
         id="{{ $id }}"
-        popovertarget="{{ $id }}-calendar"
-        aria-haspopup="dialog"
-        aria-expanded="false"
+        {{-- Readonly: a button that opens nothing, so it says it has no popup; "read only" joins its name instead, as a
+             button can't carry aria-readonly. --}}
+        @unless ($readonly) popovertarget="{{ $id }}-calendar" aria-haspopup="dialog" aria-expanded="false" @endunless
         {{-- A <label> would otherwise be the button's whole name, and the chosen range inside it would never be read. --}}
-        @if ($label) aria-labelledby="{{ $id }}-label {{ $id }}-display" @endif
+        @if ($label) aria-labelledby="{{ $id }}-label {{ $id }}-display{{ $readonly ? " {$id}-readonly" : '' }}" @endif
         {{ $field->aria($attributes, (bool) $info) }}
         @disabled($disabled)
         data-date-range-trigger
-        class="flex h-full w-full min-w-0 items-center justify-between gap-2.5 px-5 text-start whitespace-nowrap outline-none select-none enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        class="flex h-full w-full min-w-0 items-center justify-between gap-2.5 px-5 text-start whitespace-nowrap outline-none select-none disabled:cursor-not-allowed disabled:opacity-50 {{ $readonly ? 'cursor-default' : 'enabled:cursor-pointer' }}"
     >
+        @if ($readonly)
+            <span id="{{ $id }}-readonly" class="sr-only">read only</span>
+        @endif
         <span
             id="{{ $id }}-display"
             data-date-range-display
@@ -203,7 +210,9 @@
         </div>
 
         {{-- Month grids are built by resources/js/widget/date-range-picker. --}}
-        <div data-date-range-months class="grid gap-6"></div>
+        {{-- On a touch screen a slide that starts on a day picks a range (resources/js/widget/date-range-picker), so the days
+             don't scroll or zoom; the rest of the calendar still does. --}}
+        <div data-date-range-months class="grid gap-6 [&_td]:touch-none"></div>
 
         <div class="border-line mt-3 flex items-center justify-between gap-3 border-t pt-3">
             <p data-date-range-status aria-live="polite" class="text-muted min-w-0 text-xs"></p>

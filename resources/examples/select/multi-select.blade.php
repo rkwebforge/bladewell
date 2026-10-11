@@ -1,4 +1,4 @@
-{{-- multiple submits networks[] and keeps the list open while you pick. display sets how the choices show: chips (each removable; Backspace removes the last), count ("3 selected", full list in the tooltip) or list (joined, the default). clearable adds a button to empty it. Listen for the select-change event to react in JS. --}}
+{{-- multiple submits networks[] and keeps the list open while you pick. display sets how the choices show: chips (each removable; Backspace removes the last), count ("3 selected", full list in the tooltip) or list (joined, the default). clearable adds a button to empty it. Listen for the select:change event to react in JS. --}}
 @php
     $networks = [
         'trc20' => 'TRC20 (Tron)',

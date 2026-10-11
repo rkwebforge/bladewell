@@ -1,6 +1,8 @@
 // Drives <x-widget.clock> and its variants. The server paints the first frame; this keeps them ticking.
 // Every clock reads the device time and formats it for its own timezone (data-timezone, set by the Blade views).
 // Events: clock:finished on a countdown or timer when it reaches zero (bubbles).
+// From JS: clock.start(target), clock.pause(target), clock.reset(target) on a stopwatch or timer, by its id or element;
+// also on window.clock.
 
 const LOCALE = 'en-US';
 const formatters = new Map();
@@ -280,7 +282,27 @@ setTimeout(() => {
     setInterval(tick, 1000);
 }, 1000 - (Date.now() % 1000));
 
-export const clock = { start, pause, reset };
+// A stopwatch or timer by its id, or the element itself or anything in it (its Start button, say).
+const stopwatchOf = (target) => {
+    const element = typeof target === 'string' ? document.getElementById(target) : target;
+    const el = element?.closest?.('[data-clock="stopwatch"], [data-clock="timer"]');
+    if (!el) {
+        console.warn('Bladewell clock: no stopwatch or timer on this page for', target);
+    }
+
+    return el ?? null;
+};
+const call = (action) => (target) => {
+    const el = stopwatchOf(target);
+    if (el) {
+        action(el);
+    }
+};
+
+export const clock = { start: call(start), pause: call(pause), reset: call(reset) };
+
+// Global, as modal and toast are, so a script on the page can call it without an import.
+window.clock = clock;
 
 // A Livewire render puts back the server's first frame: its time, and world clocks' offsets from the app's timezone
 // rather than the visitor's. Tick straight away, so that frame never shows. (Stopwatches and timers are wire:ignore'd.)

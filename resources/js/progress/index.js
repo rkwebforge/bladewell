@@ -9,8 +9,12 @@
 
 function find(target) {
     const el = typeof target === 'string' ? document.getElementById(target) : target;
+    const bar = el?.closest?.('[role=progressbar][data-progress]') ?? el?.querySelector?.('[role=progressbar][data-progress]') ?? null;
+    if (!bar) {
+        console.warn('Bladewell progress: no progress bar on this page for', target);
+    }
 
-    return el?.closest?.('[role=progressbar][data-progress]') ?? el?.querySelector?.('[role=progressbar][data-progress]') ?? null;
+    return bar;
 }
 
 function set(target, value, { text } = {}) {

@@ -74,6 +74,10 @@ function remove(parts, chip) {
 const split = (text) => text.split(/[,;\n]+/);
 
 on('keydown', '[data-tags-input]', (event, input) => {
+    // Readonly: the browser stops typing; this stops Enter, the comma and Backspace adding or removing tags.
+    if (input.readOnly) {
+        return;
+    }
     const parts = partsOf(input);
     if ((event.key === 'Enter' || event.key === ',') && !event.isComposing) {
         // An empty box lets Enter submit the form, as in any text box.
@@ -93,6 +97,9 @@ on('keydown', '[data-tags-input]', (event, input) => {
 });
 
 on('paste', '[data-tags-input]', (event, input) => {
+    if (input.readOnly) {
+        return;
+    }
     const text = event.clipboardData?.getData('text') ?? '';
     // One word pastes as typing does; a list is added straight away.
     if (/[,;\n]/.test(text)) {

@@ -144,12 +144,18 @@ new MutationObserver((records) => {
 }).observe(document.documentElement, { childList: true, subtree: true });
 
 export const tabs = {
-    // tabs.open('settings', 'security'): switch from your own script.
-    open(id, key) {
-        const root = document.querySelector(`${ROOT}[data-tabs="${CSS.escape(id)}"]`);
+    // tabs.open('settings', 'security'): switch from your own script, by the tabs' id or any element of them.
+    open(target, key) {
+        const root = typeof target === 'string' ? document.querySelector(`${ROOT}[data-tabs="${CSS.escape(target)}"]`) : target?.closest?.(ROOT);
         const tab = root && tabsOf(root).find((candidate) => candidate.dataset.tab === key);
-        if (tab) {
-            activate(root, tab);
+        if (!tab) {
+            console.warn(root ? `Bladewell tabs: no tab "${key}" in` : 'Bladewell tabs: no tabs on this page for', root ?? target);
+
+            return;
         }
+        activate(root, tab);
     },
 };
+
+// Global, as modal and toast are, so a script on the page can call it without an import.
+window.tabs = tabs;

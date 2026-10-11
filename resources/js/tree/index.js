@@ -4,6 +4,7 @@
 // activates, Space ticks (checkbox) or opens, and a letter jumps to the next node starting with it. Only one node is
 // in the Tab order at a time. A node with data-children-url fetches its children's HTML on first open.
 // Events on the tree: tree:toggle (detail.item, detail.open) and tree:loaded (detail.item, detail.count).
+// From JS: tree.open(target) and tree.close(target), by an item's id or element; also on window.tree.
 // Delegated from `document`, so trees added later (a Livewire render, fetched HTML) work without setting up.
 
 import { onLivewireMorph } from '../field';
@@ -388,9 +389,27 @@ onLivewireMorph((element) => requestAnimationFrame(() => {
 }));
 document.addEventListener('livewire:navigated', () => setUpAll());
 
-export const tree = {
-    open: (item) => setOpen(item, true),
-    close: (item) => setOpen(item, false),
+// An item by its id (one you gave it), or the item element itself or anything in it.
+const itemOf = (target) => {
+    const element = typeof target === 'string' ? document.getElementById(target) : target;
+    const item = element?.closest?.(ITEM);
+    if (!item) {
+        console.warn('Bladewell tree: no tree item on this page for', target);
+    }
+
+    return item ?? null;
 };
+
+const call = (open) => async (target) => {
+    const item = itemOf(target);
+    if (item) {
+        await setOpen(item, open);
+    }
+};
+
+export const tree = { open: call(true), close: call(false) };
+
+// Global, as modal and toast are, so a script on the page can call it without an import.
+window.tree = tree;
 
 setUpAll();

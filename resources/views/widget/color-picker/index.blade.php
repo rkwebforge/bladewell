@@ -22,9 +22,13 @@
     'bag' => 'default',
     // Greyed out: it can't be changed.
     'disabled' => false,
+    // Shown, and submitted, but it can't be changed: no picker or swatches, and the box can't be typed in. With disabled,
+    // disabled wins.
+    'readonly' => false,
 ])
 
 @php
+    $readonly = $readonly && ! $disabled;
     $field = \Bladewell\Support\FormField::make($name, $id, $errors ?? null, $error, $bag, 'color', attributes: $attributes);
     // #abc and #ABCDEF read as #aabbcc and #abcdef; anything else isn't a colour this takes.
     $hex = static function (mixed $raw): ?string {
@@ -47,9 +51,9 @@
     swatches as a radio group (arrow keys, named for screen readers), outside any form so they never submit. Colours are
     painted by resources/js/widget/color-picker through a CSS variable, as no style attribute may be in the markup.
 --}}
-<x-widget.field :required="$attributes->has('required')" :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :class="$attributes->get('class')">
+<x-widget.field :required="$attributes->has('required')" :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" :class="$attributes->get('class')">
     <div data-color-picker class="flex h-full w-full items-center gap-3 ps-3 pe-3">
-        @if ($custom)
+        @if ($custom && ! $readonly)
             <input type="color" data-color-native value="{{ $current ?: '#000000' }}" aria-label="{{ trim(($label ?? 'Colour').' — any colour') }}" @disabled($disabled) class="size-8 shrink-0 cursor-pointer rounded-lg border-0 bg-transparent p-0 disabled:cursor-not-allowed [&::-moz-color-swatch]:rounded-lg [&::-moz-color-swatch]:border-0 [&::-webkit-color-swatch]:rounded-lg [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0">
         @endif
         <input
@@ -65,6 +69,7 @@
             maxlength="7"
             pattern="#[0-9a-fA-F]{6}"
             @disabled($disabled)
+            @readonly($readonly)
             {{ $field->controlAttributes($attributes, (bool) $info)->class(['placeholder:text-muted h-full min-w-0 flex-1 bg-transparent font-mono uppercase outline-none disabled:cursor-not-allowed']) }}
         >
         {{-- The colour behind text, with black or white on it, whichever reads better. Only a picture. --}}
@@ -72,7 +77,7 @@
     </div>
 
     <x-slot:after>
-        @if ($swatches->isNotEmpty())
+        @if ($swatches->isNotEmpty() && ! $readonly)
             <div role="radiogroup" aria-label="{{ trim(($label ?? 'Colour').' swatches') }}" class="mt-3 flex flex-wrap gap-2">
                 @foreach ($swatches as $swatch)
                     {{-- form points at no form, so the swatches group together but never submit. --}}

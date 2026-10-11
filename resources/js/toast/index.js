@@ -351,3 +351,20 @@ window.addEventListener('toast', (event) => {
     const { type = 'info', message = '', ...options } = event.detail ?? {};
     add(type, message, options);
 });
+
+// data-toast="success" data-toast-message="Saved." on any element shows a toast when it's clicked, with no script:
+// success, error, warning, info, comingSoon or loading, with data-toast-title too. data-toast="dismiss" clears them all.
+document.addEventListener('click', (event) => {
+    const element = event.target.closest?.('[data-toast]');
+    if (!element) {
+        return;
+    }
+    const { toast: type, toastMessage: message = '', toastTitle: title } = element.dataset;
+    if (type === 'dismiss') {
+        dismiss();
+    } else if (['success', 'error', 'warning', 'info', 'comingSoon', 'loading'].includes(type)) {
+        toast[type](message, title ? { title } : {});
+    } else {
+        console.warn(`Bladewell toast: data-toast="${type}" isn't a kind of toast. Use success, error, warning, info, comingSoon, loading or dismiss.`, element);
+    }
+});

@@ -1,6 +1,7 @@
 // Drives <x-widget.date-range-picker>: the first click sets the start, the second the end (a click
-// before the start restarts from there). Nothing is submitted until both ends are chosen; closing
-// half-way keeps the previous range.
+// before the start restarts from there). On a touch screen, a slide from one day to another picks the
+// range in one go, the band following the finger. Nothing is submitted until both ends are chosen;
+// closing half-way keeps the previous range.
 import { closeIfOutOfView, visibleArea } from '../field';
 import { addDays, addMonths, alignedLeft, daysInMonth, horizontalStep, localeTools, MIN_WIDTH, parseIso, POPOVER_GAP, toIso, VIEWPORT_EDGE } from '../datepicker';
 
@@ -330,10 +331,98 @@ function initDateRange(root) {
     });
 
     monthsEl.addEventListener('click', (event) => {
-        const button = event.target.closest('button[data-date]');
+        // The click a slide leaves behind on the day it started from: the slide has already picked. Enter on a day is
+        // a click with no pointer, and always picks.
+        if (slid && event.pointerType !== '') {
+            slid = false;
+
+            return;
+        }
+        // Anywhere in a day's cell, not only on its round button: a finger that lands just beside it still means it.
+        const button = event.target.closest('td')?.querySelector('button[data-date]');
         if (button && !button.disabled) {
             pick(parseIso(button.dataset.date));
         }
+    });
+
+    // Touch and pen have no hover to preview the range with, so a slide does it: press the start day, slide, and the
+    // band follows the finger; lifting it on a day picks that as the end. A tap without a slide picks as a click does.
+    // The finger's day is found by where it is, as a touch keeps reporting to the day it started on.
+    let slide = null;
+    let slid = false;
+    // A finger wobbles as it taps: it only slides once it has gone further than this from where it pressed.
+    const SLIDE_AFTER_PX = 12;
+    // The day a point is on: its whole cell, not just the round button in it, so the gaps between days count too.
+    // Undefined off the calendar; null on it but not on a day that can be picked.
+    const dayAt = (event) => {
+        const element = document.elementFromPoint(event.clientX, event.clientY);
+        if (!element || !monthsEl.contains(element)) {
+            return undefined;
+        }
+        const button = element.closest('td')?.querySelector('button[data-date]:enabled');
+
+        return button ? parseIso(button.dataset.date) : null;
+    };
+    monthsEl.addEventListener('pointerdown', (event) => {
+        slid = false;
+        const button = event.target.closest('td')?.querySelector('button[data-date]:enabled');
+        slide = event.pointerType !== 'mouse' && button
+            ? { id: event.pointerId, from: parseIso(button.dataset.date), x: event.clientX, y: event.clientY, moved: false, last: null }
+            : null;
+    });
+    monthsEl.addEventListener('pointermove', (event) => {
+        if (slide?.id !== event.pointerId) {
+            return;
+        }
+        if (!slide.moved && Math.hypot(event.clientX - slide.x, event.clientY - slide.y) < SLIDE_AFTER_PX) {
+            return;
+        }
+        const date = dayAt(event);
+        if (!date || (!slide.moved && toIso(date) === toIso(slide.from))) {
+            return;
+        }
+        slide.last = date;
+        if (!slide.moved) {
+            // The day it started on is the start, whatever was picked before.
+            slide.moved = true;
+            draft = { start: slide.from, end: null };
+        }
+        const next = date >= draft.start ? date : null;
+        if ((next && toIso(next)) !== (hover && toIso(hover))) {
+            hover = next;
+            paint();
+        }
+    });
+    monthsEl.addEventListener('pointerup', (event) => {
+        if (slide?.id !== event.pointerId) {
+            return;
+        }
+        const { moved, last } = slide;
+        slide = null;
+        if (!moved) {
+            return;
+        }
+        slid = true;
+        // Not every browser sends that click after a slide; don't let the flag eat a later one.
+        setTimeout(() => { slid = false; }, 400);
+        // Lifted between days, or on one that can't be picked: the last day the finger was on is the end.
+        const at = dayAt(event);
+        const date = at === undefined ? null : (at ?? last);
+        if (date && date >= draft.start) {
+            pick(date);
+        } else {
+            // Lifted off the calendar, or before the start: the start stays, and the end is still to choose.
+            hover = null;
+            focused = draft.start;
+            paint();
+        }
+    });
+    monthsEl.addEventListener('pointercancel', () => {
+        if (slide?.moved) {
+            hover = null;
+            paint();
+        }
+        slide = null;
     });
 
     // Preview the range under the pointer while the end is being chosen.

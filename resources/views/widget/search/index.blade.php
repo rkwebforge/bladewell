@@ -30,6 +30,13 @@
 ])
 
 @php
+    // What other widgets call these: say what this one calls them, rather than let them through as plain attributes
+    // that do nothing.
+    foreach (['search-url' => 'suggest-url', 'search-min-length' => 'suggest-min'] as $other => $own) {
+        if ($attributes->hasAny([$other, \Illuminate\Support\Str::camel($other)])) {
+            throw new \InvalidArgumentException("<x-widget.search> calls it {$own}, not {$other}.");
+        }
+    }
     $field = \Bladewell\Support\FormField::make($name, $id, null, idPrefix: 'search', attributes: $attributes);
     $id = $field->id;
     // Search forms submit with GET, so the current query string is the natural default (dot key: filter[q] works too).

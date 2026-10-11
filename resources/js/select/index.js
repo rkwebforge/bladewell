@@ -32,6 +32,8 @@ function initSelect(root) {
     // multiple with wire:model or x-model: the hidden native multi-select they're bound to.
     const model = root.querySelector('[data-select-model]');
     const clearButton = root.querySelector('[data-select-clear]');
+    // Readonly: shown and submitted, but the list never opens, so nothing can be picked or removed.
+    const readonly = () => trigger.getAttribute('aria-readonly') === 'true';
     // multiple only: list (labels joined), chips (one removable chip each) or count ("3 selected").
     const displayMode = root.dataset.display ?? 'list';
     const chips = root.querySelector('[data-select-chips]');
@@ -103,6 +105,7 @@ function initSelect(root) {
             remove.dataset.value = option.dataset.value;
             remove.setAttribute('aria-label', `Remove ${option.dataset.label}`);
             remove.disabled = trigger.disabled;
+            remove.hidden = readonly();
             placeholder.before(chip);
         }
         placeholder.hidden = picked.length > 0;
@@ -158,12 +161,13 @@ function initSelect(root) {
         // Both events: tools like Alpine x-model and Livewire wire:model listen for `input`, plain forms for `change`.
         target.dispatchEvent(new Event('input', { bubbles: true }));
         target.dispatchEvent(new Event('change', { bubbles: true }));
-        root.dispatchEvent(new CustomEvent('select-change', {
-            bubbles: true,
-            detail: multiple
-                ? { values: picked.map((option) => option.dataset.value), labels: picked.map((option) => option.dataset.label) }
-                : { value: picked[0]?.dataset.value ?? '', label: picked[0]?.dataset.label ?? '' },
-        }));
+        const detail = multiple
+            ? { values: picked.map((option) => option.dataset.value), labels: picked.map((option) => option.dataset.label) }
+            : { value: picked[0]?.dataset.value ?? '', label: picked[0]?.dataset.label ?? '' };
+        // select:change matches the other widgets' events; select-change is the name it was first sent as, and stays.
+        for (const name of ['select:change', 'select-change']) {
+            root.dispatchEvent(new CustomEvent(name, { bubbles: true, detail }));
+        }
     }
 
     function choose(option) {
@@ -442,6 +446,11 @@ function initSelect(root) {
     });
 
     popup.addEventListener('beforetoggle', (event) => {
+        if (event.newState === 'open' && readonly()) {
+            event.preventDefault();
+
+            return;
+        }
         if (event.newState === 'open') {
             // Hidden until positioned, otherwise it flashes at the popover default (screen centre).
             popup.style.visibility = 'hidden';

@@ -5,6 +5,7 @@
         "icon"
     ],
     "usage": [
+        "in-scripts",
         "livewire"
     ],
     "examples": [
