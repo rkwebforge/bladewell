@@ -8,6 +8,12 @@ Widgets are copied into your app, so a new release changes nothing until you run
 
 What you build on is only ever added to, never renamed or removed: component names, props and the values they take, `data-*` hooks, JS exports, the `bladewell:*` commands and their flags, and the config keys. A release can still get stricter about input that never worked, such as a mistyped value that used to be ignored and now throws. Those changes are listed under **Changed**, with the widgets they affect.
 
+## [Unreleased]
+
+### Fixed
+
+- **All form fields** (`base.css`): text the browser autofilled now follows a switch between light and dark at once. It kept the colour it had when it was filled, so after a switch it could be light text on a light field until the page was reloaded. In an app, `php artisan bladewell:add --installed` updates `base.css`.
+
 ## [1.2.0] - 2026-10-12
 
 ### Added

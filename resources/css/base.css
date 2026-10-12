@@ -16,14 +16,21 @@
     /*
      * Browser autofill paints the input's own background (Chrome's light blue) with !important styles
      * no stylesheet can override. Widget inputs are transparent inside their rounded box, so that
-     * showed as a mismatched block. Delaying the background change "forever" keeps the box's look,
-     * and text-fill-color keeps our text colour (including the red error state).
+     * showed as a mismatched block. Delaying the background change "forever" keeps the box's look.
+     * The text takes its colour from the theme, not from currentColor: the browser forces its own color on an autofilled
+     * input, which the delay above holds at whatever it was when the field was filled, so a theme switched afterwards
+     * would leave the text in the old theme's colour (light on light) until a reload. Red while the field is in error,
+     * as its box is, except while it has focus.
      * :autofill covers Chrome 110+, Safari 15.4+, Firefox 86+; the build folds :-webkit-autofill into it anyway.
      */
     [data-field] input:autofill {
-        -webkit-text-fill-color: currentColor;
-        caret-color: currentColor;
+        -webkit-text-fill-color: var(--color-foreground);
+        caret-color: var(--color-foreground);
         transition: background-color 600000s 0s, color 600000s 0s;
+    }
+    [data-field][data-invalid] input:autofill:not(:focus) {
+        -webkit-text-fill-color: var(--color-error);
+        caret-color: var(--color-error);
     }
 }
 
