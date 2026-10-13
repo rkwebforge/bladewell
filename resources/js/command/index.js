@@ -214,11 +214,28 @@ function close(target) {
 // Set while a keyboard choice clicks an item, so the click listener below doesn't choose it a second time.
 let choosing = false;
 
+// An item's link is opened only if it's a page (http or https, this site's or another's), an email or a phone number.
+// A javascript: or data: link, from your app's results or the recent list, would run as code here.
+const OPENABLE = new Set(['http:', 'https:', 'mailto:', 'tel:']);
+function openable(href) {
+    try {
+        return OPENABLE.has(new URL(href, window.location.href).protocol);
+    } catch {
+        return false;
+    }
+}
+
 function choose(dialog, item, { viaClick = false } = {}) {
+    const href = item.dataset.href;
+    if (href && !openable(href)) {
+        console.warn('Bladewell command: not opening an item whose link isn\'t a page, email or phone number:', href);
+        close(dialog);
+
+        return;
+    }
     remember(dialog, item);
     dialog.dispatchEvent(new CustomEvent('command:chosen', { bubbles: true, detail: { item } }));
     close(dialog);
-    const href = item.dataset.href;
     if (href) {
         if (item.hasAttribute('wire:navigate') && window.Livewire?.navigate) {
             window.Livewire.navigate(href);

@@ -85,13 +85,29 @@ function load(item) {
     const tree = treeOf(item);
     const row = rowOf(item);
     const group = groupOf(item);
-    row.toggleAttribute('data-busy', true);
-    item.setAttribute('aria-busy', 'true');
     group.querySelector(':scope > [data-tree-error]')?.remove();
 
+    // Only this site's HTML goes into the page, as with the table's and pagination's pages: another site's could carry
+    // script. Refused before anything is fetched, it shows as a load that failed, and Try again asks again.
+    // A URL that can't be read at all fails the same way. (Not URL.parse: Safari before 18 doesn't have it.)
+    let url = null;
+    try {
+        url = new URL(item.dataset.childrenUrl, window.location.href);
+    } catch {
+        // Left null: refused below.
+    }
+    if (url?.origin !== window.location.origin) {
+        console.warn('Bladewell tree: children-url must be a URL on this site:', item.dataset.childrenUrl);
+        showError(item);
+
+        return Promise.resolve();
+    }
+
+    row.toggleAttribute('data-busy', true);
+    item.setAttribute('aria-busy', 'true');
     const done = (async () => {
         try {
-            const response = await fetch(item.dataset.childrenUrl, { headers: { Accept: 'text/html' }, credentials: 'same-origin' });
+            const response = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin' });
             // A redirect (to a login page, say) brings back a page, not children.
             if (!response.ok || response.redirected) {
                 throw new Error(`${response.status}`);

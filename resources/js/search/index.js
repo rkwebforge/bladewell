@@ -218,11 +218,26 @@ async function ask(box) {
     }
 }
 
+// A suggestion's link is opened only if it's a page (http or https, this site's or another's), an email or a phone
+// number. A javascript: or data: link, from a name or URL someone typed into your app, would run as code here.
+const OPENABLE = new Set(['http:', 'https:', 'mailto:', 'tel:']);
+function openable(href) {
+    try {
+        return OPENABLE.has(new URL(href, window.location.href).protocol);
+    } catch {
+        return false;
+    }
+}
+
 function choose(box, option) {
     const { value, href } = option.suggestion;
     close(box);
     if (href) {
-        window.location.assign(href);
+        if (openable(href)) {
+            window.location.assign(href);
+        } else {
+            console.warn('Bladewell search: not opening a suggestion whose link isn\'t a page, email or phone number:', href);
+        }
 
         return;
     }

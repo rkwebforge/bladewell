@@ -8,6 +8,17 @@ Widgets are copied into your app, so a new release changes nothing until you run
 
 What you build on is only ever added to, never renamed or removed: component names, props and the values they take, `data-*` hooks, JS exports, the `bladewell:*` commands and their flags, and the config keys. A release can still get stricter about input that never worked, such as a mistyped value that used to be ignored and now throws. Those changes are listed under **Changed**, with the widgets they affect.
 
+## [Unreleased]
+
+### Changed
+
+- **Laravel Boost guidelines**: they tell your agent that the URLs a widget calls (`suggest-url`, `search-url`, `children-url`, `upload-url`) are named routes in `routes/web.php`, not `routes/api.php`, so they share the page's sign-in and CSRF protection.
+
+### Security
+
+- **search**, **command**: a suggestion or item whose link isn't a page (`http`, `https`, or a link within your site), an email (`mailto:`) or a phone number (`tel:`) is no longer opened. A `javascript:` or `data:` link in your endpoint's answer, from a URL someone typed into your app, would have run as code in the page; it now logs a warning instead.
+- **tree**: `children-url` must be on your own site, as the table's and pagination's pages already had to be. Another site's HTML could carry script into the page; such a URL is now refused before anything is fetched, and shows as a load that failed. This is stricter than before for a `children-url` on another site, which could load if that site allowed it.
+
 ## [1.2.1] - 2026-10-12
 
 ### Fixed
