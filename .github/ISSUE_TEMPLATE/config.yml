@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/rkwebforge/bladewell/security/advisories/new
+    about: Privately, so it can be fixed before anyone else knows about it.
+  - name: Documentation
+    url: https://www.bladewellui.com
+    about: Every widget's props, examples, Livewire usage and source.

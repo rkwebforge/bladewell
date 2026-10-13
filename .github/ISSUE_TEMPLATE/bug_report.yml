@@ -1,0 +1,80 @@
+name: Bug report
+description: A widget or command doesn't work as its docs say.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. A security problem? Don't post it here: report it privately (see SECURITY.md).
+  - type: input
+    id: widget
+    attributes:
+      label: Widget or command
+      description: Which one, e.g. `datepicker`, `table`, `bladewell:add`.
+      placeholder: datepicker
+    validations:
+      required: true
+  - type: input
+    id: bladewell
+    attributes:
+      label: Bladewell version
+      description: From `composer show bladewell/bladewell`.
+      placeholder: 1.2.1
+    validations:
+      required: true
+  - type: input
+    id: laravel
+    attributes:
+      label: Laravel and PHP versions
+      description: From `php artisan --version` and `php -v`.
+      placeholder: Laravel 13.35, PHP 8.4
+    validations:
+      required: true
+  - type: dropdown
+    id: livewire
+    attributes:
+      label: Livewire
+      options:
+        - Not used
+        - Livewire 3
+        - Livewire 4
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      description: For anything you see or click.
+      placeholder: Safari 18 on iPhone, Chrome 131 on Windows
+  - type: dropdown
+    id: edited
+    attributes:
+      label: Have you edited the widget's files in your app?
+      description: "`php artisan bladewell:diff` shows the files you've edited."
+      options:
+        - "No"
+        - "Yes"
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The Blade you wrote (the widget's tag and its props), and what you did on the page.
+      render: blade
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: Any error message, from the page or the browser's console, in full.
+    validations:
+      required: true

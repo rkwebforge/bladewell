@@ -1,0 +1,39 @@
+name: Feature request
+description: A new widget, prop or command, or a change to one.
+labels: [enhancement]
+body:
+  - type: input
+    id: widget
+    attributes:
+      label: Widget or command
+      description: An existing one, or the new widget you'd like.
+      placeholder: table, or a new "kanban" widget
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you're trying to do
+      description: The problem in your app, not the solution yet. What do the people using it need?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: How you'd like to use it
+      description: The Blade you'd like to write, with its props.
+      render: blade
+  - type: textarea
+    id: today
+    attributes:
+      label: How you do it today
+      description: A workaround, or another library you're using for it.
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you send a pull request?
+      description: It would be taken as a proposal and applied with credit; see CONTRIBUTING.md.
+      options:
+        - "No"
+        - "Yes"
+        - Maybe, with some guidance
