@@ -14,7 +14,9 @@ use Bladewell\Widget;
 use Composer\InstalledVersions;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
+use Laravel\Prompts\MultiSearchPrompt;
 use LogicException;
+use Symfony\Component\Console\Terminal;
 
 final class AddWidgetCommand extends Command
 {
@@ -62,6 +64,19 @@ final class AddWidgetCommand extends Command
             }
 
             return self::FAILURE;
+        }
+
+        // The registry's own message lists every widget, which suits an agent over MCP but is a wall of text
+        // here: name the closest instead, and where to see the rest.
+        $unknown = array_values(array_diff($names, array_keys($registry->all())));
+        if ($unknown !== []) {
+            foreach ($unknown as $name) {
+                $close = $this->closest($name, array_keys($registry->all()));
+                $this->components->error("Unknown widget [{$name}].".($close === [] ? '' : ' Did you mean '.implode(' or ', $close).'?'));
+            }
+            $this->line('  See them all with php artisan bladewell:list, or run php artisan bladewell:add with no names to choose from a list.');
+
+            return self::INVALID;
         }
 
         $requested = $names;
@@ -112,23 +127,64 @@ final class AddWidgetCommand extends Command
     }
 
     /**
-     * With no names in a terminal, a list to choose from rather than an error. Numbers or names, comma-separated.
+     * With no names in a terminal, a list to tick rather than an error. Typing narrows it, so forty names
+     * don't mean scrolling through forty.
      *
      * @return list<string>
      */
     private function pick(Registry $registry): array
     {
-        $choices = array_map(static function (Widget $widget): string {
-            // Up to the first colon or full stop: some descriptions run to a paragraph.
-            $first = preg_split('/[:.](?:\s|$)/', $widget->description, 2)[0] ?? $widget->description;
+        // Names only: what each one needs comes along by itself, and the summary after says what and why.
+        $names = array_keys($registry->all());
 
-            return $first.($widget->requires === [] ? '' : ' (needs '.implode(', ', $widget->requires).')');
-        }, $registry->all());
+        // The hint is grey; the keys stand out in the prompt's cyan, then it goes back to grey. Prompts counts
+        // those codes as width and cuts a hint wider than the terminal less 6, possibly mid-code, so a narrow
+        // terminal gets it plain.
+        $keys = ['Space', 'Enter', 'Ctrl+C'];
+        $format = '%s to select, %s to install, %s to quit';
+        $hint = vsprintf($format, $keys);
+        $coloured = vsprintf($format, array_map(static fn (string $key): string => "\e[36m{$key}\e[90m", $keys));
+        if (mb_strwidth($coloured) <= (new Terminal)->getWidth() - 6) {
+            $hint = $coloured;
+        }
 
         /** @var list<string> $picked */
-        $picked = (array) $this->choice('Which widgets do you want to add? (comma-separated)', $choices, multiple: true);
+        $picked = (new MultiSearchPrompt(
+            label: 'Which widgets do you want to add? Select as many as you like.',
+            // Laravel's fallback for Windows asks for the query as plain text, and an empty answer comes as null.
+            options: static fn (?string $query): array => array_values(array_filter(
+                $names,
+                static fn (string $name): bool => str_contains($name, strtolower(trim((string) $query))),
+            )),
+            placeholder: 'Type to filter',
+            scroll: 12,
+            required: 'Select at least one, or press Ctrl+C to stop.',
+            hint: $hint,
+        ))->prompt();
 
         return array_values($picked);
+    }
+
+    /**
+     * Up to two names a typo or a part was likely meant as: "datepiker" or "date" finds datepicker. Two letters swapped
+     * count as two edits, so "tabel" needs two to find table.
+     *
+     * @param  list<string>  $names
+     * @return list<string>
+     */
+    private function closest(string $typed, array $names): array
+    {
+        $typed = strtolower(trim($typed));
+        $distances = [];
+        foreach ($names as $name) {
+            $distance = levenshtein($typed, $name);
+            if (($typed !== '' && str_contains($name, $typed)) || $distance <= max(strlen($typed) >= 4 ? 2 : 1, intdiv(strlen($typed), 3))) {
+                $distances[$name] = $distance;
+            }
+        }
+        asort($distances);
+
+        return array_slice(array_keys($distances), 0, 2);
     }
 
     /**

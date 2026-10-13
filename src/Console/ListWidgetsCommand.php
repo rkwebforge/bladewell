@@ -28,14 +28,20 @@ final class ListWidgetsCommand extends Command
             return self::SUCCESS;
         }
 
+        // Descriptions run to a paragraph and would make each row wider than the terminal; they're in --json
+        // and on the site.
         $this->table(
-            ['Widget', 'Requires', 'Description'],
+            // Not "Requires": that reads as something to install yourself, and add brings these along.
+            ['Widget', 'Also installs'],
             array_map(static fn (Widget $widget): array => [
                 $widget->name,
                 implode(', ', $widget->requires) ?: '-',
-                $widget->description,
             ], array_values($widgets)),
         );
+
+        $this->newLine();
+        $this->line('  Add some: php artisan bladewell:add select datepicker');
+        $this->line('  What each does: https://www.bladewellui.com, or bladewell:list --json');
 
         return self::SUCCESS;
     }

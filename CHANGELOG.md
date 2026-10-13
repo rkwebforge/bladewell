@@ -8,6 +8,15 @@ Widgets are copied into your app, so a new release changes nothing until you run
 
 What you build on is only ever added to, never renamed or removed: component names, props and the values they take, `data-*` hooks, JS exports, the `bladewell:*` commands and their flags, and the config keys. A release can still get stricter about input that never worked, such as a mistyped value that used to be ignored and now throws. Those changes are listed under **Changed**, with the widgets they affect.
 
+## [Unreleased]
+
+### Changed
+
+- **`bladewell:add`**, run with no names, shows a list to select as many as you like from: type to narrow it, Space to select, Enter to install, Ctrl+C to quit. What a widget needs still comes along by itself. It used to ask for names typed in a comma-separated line, under descriptions long enough to wrap. On Windows it still asks in plain text.
+- **`bladewell:list`** shows each widget and what it also installs (the column was "Requires", which read as something to install yourself), without descriptions, so the table fits your terminal instead of running hundreds of characters wide. Descriptions are in `bladewell:list --json` and on <https://www.bladewellui.com>.
+- **`bladewell:add`** with a mistyped name suggests the closest widget ("Unknown widget [datepiker]. Did you mean datepicker?") and where to see the rest, instead of listing all of them in one line. Every unknown name is reported, not just the first. The MCP server still answers with the full list, and the exit code is unchanged.
+- The package now lists `laravel/prompts` (`^0.3`) as a dependency. Every Laravel 12 and 13 app already has it, so nothing new gets installed.
+
 ## [1.2.2] - 2026-10-13
 
 ### Changed
