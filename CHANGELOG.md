@@ -10,6 +10,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-13
+
 ### Changed
 
 - **Laravel Boost guidelines**: they point your agent to `php artisan bladewell:list --json` to find a widget, which says what each one does. Since 1.3.0, plain `bladewell:list` shows only names and what each one also installs. Run `php artisan boost:update` to get the new wording.
@@ -190,7 +192,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/rkwebforge/bladewell/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/rkwebforge/bladewell/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/rkwebforge/bladewell/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/rkwebforge/bladewell/compare/v1.2.0...v1.2.1
