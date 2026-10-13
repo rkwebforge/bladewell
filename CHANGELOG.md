@@ -10,6 +10,10 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Changed
+
+- **Laravel Boost guidelines**: they point your agent to `php artisan bladewell:list --json` to find a widget, which says what each one does. Since 1.3.0, plain `bladewell:list` shows only names and what each one also installs. Run `php artisan boost:update` to get the new wording.
+
 ## [1.3.0] - 2026-10-13
 
 ### Changed
