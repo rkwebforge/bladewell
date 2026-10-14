@@ -10,6 +10,10 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Changed
+
+- **MCP server** (`bladewell:mcp`): tool results are sent as compact JSON, without indentation, so they use fewer of your agent's tokens. The data is the same.
+
 ## [1.3.1] - 2026-10-13
 
 ### Changed

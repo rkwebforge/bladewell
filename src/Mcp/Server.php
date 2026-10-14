@@ -166,8 +166,9 @@ final class Server
             return ['content' => [['type' => 'text', 'text' => $e->getMessage()]], 'isError' => true];
         }
 
+        // Compact: most agents read the text, where indentation only costs tokens.
         return [
-            'content' => [['type' => 'text', 'text' => (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)]],
+            'content' => [['type' => 'text', 'text' => (string) json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)]],
             'structuredContent' => $data,
         ];
     }
