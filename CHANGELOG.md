@@ -10,6 +10,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-10-14
+
 ### Changed
 
 - **MCP server** (`bladewell:mcp`): tool results are sent as compact JSON, without indentation, so they use fewer of your agent's tokens. The data is the same.
@@ -196,7 +198,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.3.2...HEAD
+[1.3.2]: https://github.com/rkwebforge/bladewell/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/rkwebforge/bladewell/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/rkwebforge/bladewell/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/rkwebforge/bladewell/compare/v1.2.1...v1.2.2
