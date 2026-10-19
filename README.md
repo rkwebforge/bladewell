@@ -41,6 +41,9 @@ composer create-project bladewell/starter-kit my-app
 
 With the Laravel installer, `laravel new my-app --using=bladewell/starter-kit` does the same.
 
+> [!IMPORTANT]
+> Don't `git clone` the starter kit to start an app. A clone keeps the starter kit's history and points `origin` at its repo, and skips setup: no `vendor/`, no `.env`, no app key. `create-project` gives you a clean copy of the latest release.
+
 `bladewell:add` copies:
 
 | What | Where |
