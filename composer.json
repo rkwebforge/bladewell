@@ -12,10 +12,20 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/rkwebforge/bladewell-site/issues",
+        "issues": "https://github.com/rkwebforge/bladewell/issues",
         "docs": "https://www.bladewellui.com/docs/installation",
         "source": "https://github.com/rkwebforge/bladewell"
     },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/rkwebforge"
+        },
+        {
+            "type": "custom",
+            "url": "https://buymeacoffee.com/rk_prasad"
+        }
+    ],
     "require": {
         "php": "^8.3",
         "illuminate/console": "^12.0|^13.0",
