@@ -10,6 +10,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-10-22
+
 ### Changed
 
 - **Theme**: input backgrounds (`--color-field`) are a shade darker, `#ebedf1` instead of `#f5f6f8`, so fields stand out from the card behind them on dim or washed-out screens. `--color-muted` darkens to `#5d6679` to keep placeholders and hints at 4.5:1 on the new fill. Your copied `theme.css` isn't updated by `bladewell:add --installed`; change these two values there to get it.
@@ -203,7 +205,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.3.3...HEAD
+[1.3.3]: https://github.com/rkwebforge/bladewell/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/rkwebforge/bladewell/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/rkwebforge/bladewell/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/rkwebforge/bladewell/compare/v1.2.2...v1.3.0
