@@ -120,7 +120,7 @@
                 <button type="button" data-file-clear @if (! $src) hidden @endif @disabled($disabled) class="text-error hover:bg-error/10 focus-visible:ring-primary rounded-xl px-3 py-2 text-sm font-medium outline-none focus-visible:ring-2">{{ $removeLabel }}</button>
             </div>
             @if ($hint)
-                <p id="{{ $hintId }}" class="text-foreground/60 text-xs">{{ $hint }}</p>
+                <p id="{{ $hintId }}" class="text-foreground/70 text-xs">{{ $hint }}</p>
             @endif
             <p data-file-error role="alert" class="text-error text-xs empty:hidden"></p>
         </div>

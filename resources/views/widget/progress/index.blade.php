@@ -63,7 +63,7 @@
     @if ($showLabel && $labelPosition === 'above')
         <div class="text-foreground mb-1.5 flex items-center justify-between gap-2 text-xs">
             <span>{{ $label }}</span>
-            <span data-progress-value class="text-foreground/60 tabular-nums" @if ($indeterminate) hidden @endif>{{ $text }}</span>
+            <span data-progress-value class="text-foreground/70 tabular-nums" @if ($indeterminate) hidden @endif>{{ $text }}</span>
         </div>
     @elseif ($showLabel && $labelPosition === 'beside' && $label)
         <span class="text-foreground shrink-0 text-xs">{{ $label }}</span>
@@ -121,6 +121,6 @@
     </div>
 
     @if ($showLabel && $labelPosition === 'beside')
-        <span data-progress-value class="text-foreground/60 shrink-0 text-xs tabular-nums" @if ($indeterminate) hidden @endif>{{ $text }}</span>
+        <span data-progress-value class="text-foreground/70 shrink-0 text-xs tabular-nums" @if ($indeterminate) hidden @endif>{{ $text }}</span>
     @endif
 </div>

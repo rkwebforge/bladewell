@@ -109,7 +109,7 @@ function initPhone(root) {
                 option.dataset.iso = iso;
                 option.dataset.search = `${fold(name)} +${codes[iso]} ${iso.toLowerCase()}`;
                 option.className = 'flex shrink-0 cursor-pointer items-center gap-3 px-4 py-2 select-none aria-selected:bg-primary/10 data-active:bg-field';
-                option.innerHTML = '<span aria-hidden="true" class="text-base leading-none"></span><span class="min-w-0 flex-1 truncate"></span><span class="text-foreground/60 tabular-nums"></span>';
+                option.innerHTML = '<span aria-hidden="true" class="text-base leading-none"></span><span class="min-w-0 flex-1 truncate"></span><span class="text-foreground/70 tabular-nums"></span>';
                 option.children[0].textContent = flag(iso);
                 option.children[1].textContent = name;
                 option.children[2].textContent = `+${codes[iso]}`;

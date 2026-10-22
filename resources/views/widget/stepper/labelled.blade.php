@@ -102,7 +102,7 @@
                             <span class="text-muted text-xs">Optional</span>
                         @endif
                         @if ($vertical && ! empty($step['description']))
-                            <span class="text-foreground/60 mt-0.5 text-sm">{{ $step['description'] }}</span>
+                            <span class="text-foreground/70 mt-0.5 text-sm">{{ $step['description'] }}</span>
                         @endif
                     </span>
                 </{{ $link ? 'a' : 'div' }}>
@@ -114,7 +114,7 @@
         {{-- Phones: where you are, in words, since the other names are hidden. Screen readers already have the list. --}}
         <p class="mt-3 flex flex-col items-center gap-0.5 text-center sm:hidden" aria-hidden="true">
             <span class="text-foreground text-sm font-medium">{{ $steps[$current - 1]['label'] ?? '' }}</span>
-            <span class="text-foreground/60 text-xs tabular-nums">Step {{ $current }} of {{ count($steps) }}</span>
+            <span class="text-foreground/70 text-xs tabular-nums">Step {{ $current }} of {{ count($steps) }}</span>
         </p>
     @endunless
 </div>

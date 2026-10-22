@@ -64,7 +64,7 @@
         <span class="min-w-0">
             <span class="text-foreground">{{ $slot->isNotEmpty() ? $slot : $label }}@if ($attributes->has('required'))<span class="text-error" aria-hidden="true"> *</span>@endif</span>
             @if ($description)
-                <span class="text-foreground/60 mt-0.5 block text-xs">{{ $description }}</span>
+                <span class="text-foreground/70 mt-0.5 block text-xs">{{ $description }}</span>
             @endif
         </span>
     </label>

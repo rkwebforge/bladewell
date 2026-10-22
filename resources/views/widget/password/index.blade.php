@@ -88,7 +88,7 @@
         aria-pressed="false"
         aria-label="Show password"
         @disabled($disabled)
-        class="text-foreground/60 hover:text-foreground focus-visible:ring-primary tap-target-y relative me-3 grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 disabled:opacity-50"
+        class="text-foreground/70 hover:text-foreground focus-visible:ring-primary tap-target-y relative me-3 grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 disabled:opacity-50"
     >
         <x-widget.icon name="eye" class="size-4.5" data-icon-show />
         <x-widget.icon name="eye-off" class="hidden size-4.5" data-icon-hide />
@@ -100,7 +100,7 @@
             {{-- resources/js/widget/password sets data-met as each rule is satisfied. --}}
             <ul id="{{ $rulesId }}" data-password-rules class="mt-2 grid gap-1 text-xs">
                 @foreach ($rules as $rule => $text)
-                    <li data-password-rule="{{ $rule }}" @if ($rule === 'min') data-min="{{ (int) $min }}" @endif class="group/rule text-foreground/60 data-met:text-success flex items-center gap-1.5">
+                    <li data-password-rule="{{ $rule }}" @if ($rule === 'min') data-min="{{ (int) $min }}" @endif class="group/rule text-foreground/70 data-met:text-success flex items-center gap-1.5">
                         <span aria-hidden="true" class="border-line-strong size-3.5 shrink-0 rounded-full border group-data-met/rule:hidden"></span>
                         <x-widget.icon name="check" class="hidden size-3.5 group-data-met/rule:block" />
                         <span>{{ $text }}</span>

@@ -53,7 +53,7 @@
     // turns the response into elements, and every fetch is a new code. The one on the page stays (wire:ignore);
     // resources/js/widget/captcha loads one that first appears in an update.
     $withSrc = ! (class_exists(\Livewire\Livewire::class) && \Livewire\Livewire::isLivewireRequest());
-    $iconButton = 'text-foreground/60 hover:text-foreground focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 disabled:opacity-50';
+    $iconButton = 'text-foreground/70 hover:text-foreground focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 disabled:opacity-50';
 @endphp
 
 @if ($service)

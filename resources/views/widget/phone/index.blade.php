@@ -53,7 +53,7 @@
     >
         <span data-phone-flag aria-hidden="true" class="text-base leading-none">{{ $flag }}</span>
         <span data-phone-dial class="tabular-nums">+{{ $dial }}</span>
-        <x-widget.icon name="chevron-down" class="text-foreground/60 size-4" />
+        <x-widget.icon name="chevron-down" class="text-foreground/70 size-4" />
     </button>
 
     <input

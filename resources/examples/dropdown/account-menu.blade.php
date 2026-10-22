@@ -7,7 +7,7 @@
     </x-slot:trigger>
 
     <div aria-hidden="true" class="px-3 pt-1.5 pb-2">
-        <p class="text-foreground/60 text-xs">Signed in as</p>
+        <p class="text-foreground/70 text-xs">Signed in as</p>
         <p class="truncate font-medium">ana@example.com</p>
     </div>
     <x-widget.dropdown.divider />

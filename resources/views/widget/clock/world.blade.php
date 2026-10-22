@@ -53,7 +53,7 @@
                         <span data-clock-period class="text-xs font-medium">{{ $there->format('A') }}</span>
                     @endif
                 </time>
-                <span class="text-foreground/60 text-xs">
+                <span class="text-foreground/70 text-xs">
                     <span data-clock-offset>{{ $relative($there) }}</span><span data-clock-day>{{ $dayHint ? ', '.$dayHint : '' }}</span>
                 </span>
             </div>

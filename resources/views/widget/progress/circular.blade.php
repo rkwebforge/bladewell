@@ -103,6 +103,6 @@
         <span class="text-foreground text-center text-xs">{{ $label }}</span>
     @endif
     @if ($valueText !== null)
-        <span data-progress-value class="text-foreground/60 text-center text-xs tabular-nums">{{ $valueText }}</span>
+        <span data-progress-value class="text-foreground/70 text-center text-xs tabular-nums">{{ $valueText }}</span>
     @endif
 </div><?php /* No newline after this: PHP drops it after a closing tag, so no space trails the component in running text. */ ?>

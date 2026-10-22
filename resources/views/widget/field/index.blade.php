@@ -100,13 +100,13 @@
 
     @if ($info)
         <div class="mt-1 flex items-start gap-1 group-data-invalid/field:hidden">
-            <x-widget.icon name="info" class="text-foreground/60 mt-0.5 size-3.5" />
-            <p id="{{ $id }}-info" data-field-info class="text-foreground/60 break-words">{{ $info }}</p>
+            <x-widget.icon name="info" class="text-foreground/70 mt-0.5 size-3.5" />
+            <p id="{{ $id }}-info" data-field-info class="text-foreground/70 break-words">{{ $info }}</p>
         </div>
     @endif
 
     {{-- counter="160": characters used against the limit, kept up to date by resources/js/widget/field. --}}
     @if ($counter)
-        <p data-field-counter data-max="{{ (int) $counter }}" class="text-foreground/60 mt-1 text-end text-xs tabular-nums">{{ $count }} / {{ (int) $counter }}</p>
+        <p data-field-counter data-max="{{ (int) $counter }}" class="text-foreground/70 mt-1 text-end text-xs tabular-nums">{{ $count }} / {{ (int) $counter }}</p>
     @endif
 </div>

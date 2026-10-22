@@ -196,11 +196,11 @@
             <div class="flex shrink-0 gap-1">
                 <span class="relative inline-flex shrink-0">
                     <select id="{{ $id }}-month" data-date-range-month aria-label="Month" class="{{ $control }}"></select>
-                    <x-widget.icon name="chevron-down" class="text-foreground/60 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
+                    <x-widget.icon name="chevron-down" class="text-foreground/70 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
                 </span>
                 <span class="relative inline-flex shrink-0">
                     <select id="{{ $id }}-year" data-date-range-year aria-label="Year" class="{{ $control }}"></select>
-                    <x-widget.icon name="chevron-down" class="text-foreground/60 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
+                    <x-widget.icon name="chevron-down" class="text-foreground/70 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
                 </span>
             </div>
 

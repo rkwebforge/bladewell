@@ -2,7 +2,7 @@
 <div class="border-line flex max-w-md items-center justify-between gap-4 rounded-2xl border p-4">
     <div>
         <p class="font-medium">Order #1042</p>
-        <p class="text-foreground/60 text-sm">Ana Silva · $129.00</p>
+        <p class="text-foreground/70 text-sm">Ana Silva · $129.00</p>
     </div>
     <x-widget.dropdown label="Actions for order #1042" align="end">
         <x-widget.dropdown.item :href="route('orders.edit', 1042)" icon="pencil">Edit</x-widget.dropdown.item>

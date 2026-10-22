@@ -158,11 +158,11 @@
             <div class="flex shrink-0 gap-1">
                 <span class="relative inline-flex shrink-0">
                     <select id="{{ $id }}-month" data-datepicker-month aria-label="Month" class="hover:bg-field shrink-0 cursor-pointer appearance-none rounded-md bg-transparent py-1 ps-1 pe-5 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary"></select>
-                    <x-widget.icon name="chevron-down" class="text-foreground/60 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
+                    <x-widget.icon name="chevron-down" class="text-foreground/70 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
                 </span>
                 <span class="relative inline-flex shrink-0">
                     <select id="{{ $id }}-year" data-datepicker-year aria-label="Year" class="hover:bg-field shrink-0 cursor-pointer appearance-none rounded-md bg-transparent py-1 ps-1 pe-5 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary"></select>
-                    <x-widget.icon name="chevron-down" class="text-foreground/60 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
+                    <x-widget.icon name="chevron-down" class="text-foreground/70 pointer-events-none absolute end-1.5 top-1/2 size-3 -translate-y-1/2" />
                 </span>
             </div>
 

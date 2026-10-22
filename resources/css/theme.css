@@ -20,11 +20,11 @@
     --color-link-hover: #1d4ed8;
     /* text */
     --color-foreground: #101828; /* main text */
-    --color-muted: #667085; /* placeholders, hints, disabled text, unchecked boxes. 5:1 on surface, 4.6:1 on field */
+    --color-muted: #5d6679; /* placeholders, hints, disabled text, unchecked boxes. 5.8:1 on surface, 4.9:1 on field */
 
     /* surfaces */
     --color-surface: #ffffff; /* cards, dropdowns, popovers */
-    --color-field: #f5f6f8; /* input backgrounds */
+    --color-field: #ebedf1; /* input backgrounds. 1.17:1 on surface, so fields still stand out on dim or washed-out screens */
 
     /* borders */
     --color-line: #e4e7ec; /* subtle borders, dividers */

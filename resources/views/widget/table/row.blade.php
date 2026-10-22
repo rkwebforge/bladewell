@@ -59,7 +59,7 @@
         {{-- The table adds a matching header cell when any row expands (see table/index). --}}
         <td class="w-12 text-end!">
             <button type="button" data-row-toggle aria-expanded="false" aria-controls="{{ $detailsId }}" aria-label="Details" class="inline-grid cursor-pointer place-items-center rounded-md align-middle outline-none">
-                <x-widget.icon name="chevron-down" class="text-foreground/60 size-5 transition-transform duration-300 group-data-expanded/row:rotate-180 motion-reduce:transition-none" />
+                <x-widget.icon name="chevron-down" class="text-foreground/70 size-5 transition-transform duration-300 group-data-expanded/row:rotate-180 motion-reduce:transition-none" />
             </button>
         </td>
     @endif

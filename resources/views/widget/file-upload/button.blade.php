@@ -90,12 +90,12 @@
             >
         </label>
         <span data-file-name data-empty="{{ $emptyText }}" class="text-foreground/75 min-w-0 truncate text-sm">{{ $emptyText }}</span>
-        <button type="button" data-file-clear aria-label="Clear the chosen file" hidden class="text-foreground/60 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative -ms-1 grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
+        <button type="button" data-file-clear aria-label="Clear the chosen file" hidden class="text-foreground/70 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative -ms-1 grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
             <x-widget.icon name="x" class="size-4" />
         </button>
     </div>
     @if ($hint)
-        <p id="{{ $hintId }}" class="text-foreground/60 mt-1.5 text-xs">{{ $hint }}</p>
+        <p id="{{ $hintId }}" class="text-foreground/70 mt-1.5 text-xs">{{ $hint }}</p>
     @endif
     <p data-file-error @if ($live) wire:ignore @endif role="alert" class="text-error mt-1 text-xs empty:hidden"></p>
 </x-widget.field>

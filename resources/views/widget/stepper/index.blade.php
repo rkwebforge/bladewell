@@ -27,7 +27,7 @@
     @if ($showLabel)
         <div class="text-foreground mb-2 flex items-baseline justify-between gap-2 text-xs" aria-hidden="true">
             <span class="font-medium">{{ $name ?? $label }}</span>
-            <span class="text-foreground/60 tabular-nums">Step {{ $current }} of {{ $total }}</span>
+            <span class="text-foreground/70 tabular-nums">Step {{ $current }} of {{ $total }}</span>
         </div>
     @endif
 
@@ -57,7 +57,7 @@
     </div>
 
     @if ($showSteps && $steps !== [])
-        <ol class="text-foreground/60 mt-2 hidden gap-2 text-xs sm:flex" aria-hidden="true">
+        <ol class="text-foreground/70 mt-2 hidden gap-2 text-xs sm:flex" aria-hidden="true">
             @foreach ($steps as $i => $step)
                 <li @class(['min-w-0 flex-1 truncate', 'text-foreground font-medium' => $i + 1 === $current])>{{ $step }}</li>
             @endforeach

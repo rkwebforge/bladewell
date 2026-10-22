@@ -70,7 +70,7 @@
 
         @if ($dismissible)
             {{-- Hides it for this page view. To keep it hidden, remember the choice on the server. --}}
-            <button type="button" data-alert-dismiss aria-label="{{ $dismissLabel }}" class="text-foreground/60 hover:text-foreground hover:bg-foreground/5 focus-visible:ring-primary tap-target relative -m-1.5 grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
+            <button type="button" data-alert-dismiss aria-label="{{ $dismissLabel }}" class="text-foreground/70 hover:text-foreground hover:bg-foreground/5 focus-visible:ring-primary tap-target relative -m-1.5 grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
                 <x-widget.icon name="x" class="size-4" />
             </button>
         @endif

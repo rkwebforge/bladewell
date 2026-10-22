@@ -35,7 +35,7 @@
     {{ $attributes->class(['inline-flex flex-col gap-1']) }}
 >
     @if ($label)
-        <span class="text-foreground/60 text-xs">{{ $label }}</span>
+        <span class="text-foreground/70 text-xs">{{ $label }}</span>
     @endif
 
     {{-- Not a live region: announcing every second would drown out everything else. It reads when reached. --}}
@@ -47,6 +47,6 @@
     </time>
 
     @if ($date)
-        <span data-clock-date class="text-foreground/60 text-sm">{{ $now->format('l, j F') }}</span>
+        <span data-clock-date class="text-foreground/70 text-sm">{{ $now->format('l, j F') }}</span>
     @endif
 </div><?php /* No newline after this: PHP drops it after a closing tag, so no space trails the component in running text. */ ?>

@@ -72,7 +72,7 @@
     >
         {{-- The open arrow, or the spinner while children load. Empty on a list's leaf, as a spacer so labels line up. --}}
         @if ($branch || ! $card)
-            <span data-tree-toggle aria-hidden="true" @class(['text-foreground/60 grid size-5 shrink-0 place-items-center', 'order-last' => $card])>
+            <span data-tree-toggle aria-hidden="true" @class(['text-foreground/70 grid size-5 shrink-0 place-items-center', 'order-last' => $card])>
                 @if ($branch)
                     <x-widget.icon name="chevron-down" class="size-4 -rotate-90 transition-transform duration-200 group-data-busy/row:hidden group-data-expanded/row:rotate-0 motion-reduce:transition-none rtl:rotate-90 rtl:group-data-expanded/row:rotate-0" />
                     <span class="border-line border-t-primary hidden size-4 animate-spin rounded-full border-2 group-data-busy/row:block"></span>
@@ -89,7 +89,7 @@
         @endif
 
         @if ($icon)
-            <x-widget.icon :name="$icon" class="text-foreground/60 size-4 shrink-0 {{ $variant === 'cards' ? 'mt-0.5' : '' }}" />
+            <x-widget.icon :name="$icon" class="text-foreground/70 size-4 shrink-0 {{ $variant === 'cards' ? 'mt-0.5' : '' }}" />
         @endif
 
         <span class="min-w-0 flex-1">

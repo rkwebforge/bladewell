@@ -2,6 +2,6 @@
 <p class="text-sm">
     Last synced 2 minutes ago
     <x-widget.tooltip text="Syncs every 5 minutes while the app is open" placement="end" class="align-middle">
-        <x-widget.icon name="info" class="text-foreground/60 size-4" />
+        <x-widget.icon name="info" class="text-foreground/70 size-4" />
     </x-widget.tooltip>
 </p>

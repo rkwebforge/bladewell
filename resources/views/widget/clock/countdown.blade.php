@@ -55,7 +55,7 @@
     {{ $attributes->class(['group/countdown', 'inline-flex flex-col gap-2 max-sm:flex max-sm:w-full' => $variant !== 'inline', 'inline' => $variant === 'inline']) }}
 >
     @if ($variant !== 'inline' && $label)
-        <span class="text-foreground/60 text-xs">{{ $label }}</span>
+        <span class="text-foreground/70 text-xs">{{ $label }}</span>
     @endif
 
     {{-- role="timer" without aria-live: not announced every second. The words below read when reached. --}}
@@ -72,7 +72,7 @@
                 @foreach ($units as $unit => $n)
                     <div class="bg-field flex min-w-16 flex-col items-center rounded-xl px-3 py-2 max-sm:min-w-0 max-sm:flex-1 max-sm:px-1">
                         <span data-clock-unit="{{ $unit }}" class="{{ $numbers }} text-foreground leading-tight font-semibold tabular-nums">{{ $pad($unit, $n) }}</span>
-                        <span class="text-foreground/60 text-xs">{{ $names[$unit][0] }}</span>
+                        <span class="text-foreground/70 text-xs">{{ $names[$unit][0] }}</span>
                     </div>
                 @endforeach
             </div>

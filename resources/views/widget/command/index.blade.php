@@ -39,13 +39,13 @@
         type="button"
         data-command-open="{{ $id }}"
         aria-haspopup="dialog"
-        {{ $attributes->class(['bg-field text-foreground/60 hover:text-foreground focus-visible:ring-primary inline-flex h-10 min-w-56 items-center gap-2 rounded-xl px-3 text-sm outline-none transition-colors focus-visible:ring-2']) }}
+        {{ $attributes->class(['bg-field text-foreground/70 hover:text-foreground focus-visible:ring-primary inline-flex h-10 min-w-56 items-center gap-2 rounded-xl px-3 text-sm outline-none transition-colors focus-visible:ring-2']) }}
     >
         <x-widget.icon name="search" class="size-4 shrink-0" />
         <span class="flex-1 text-start">{{ $label }}</span>
         @if ($shortcut)
             {{-- Ctrl here; the script shows ⌘ on a Mac. --}}
-            <kbd data-command-key="{{ $shortcut }}" class="border-line bg-surface text-foreground/60 rounded-md border px-1.5 py-0.5 font-sans text-xs">Ctrl {{ strtoupper($shortcut) }}</kbd>
+            <kbd data-command-key="{{ $shortcut }}" class="border-line bg-surface text-foreground/70 rounded-md border px-1.5 py-0.5 font-sans text-xs">Ctrl {{ strtoupper($shortcut) }}</kbd>
         @endif
     </button>
 @endif
@@ -69,7 +69,7 @@
 >
     <div class="bg-surface text-foreground flex max-h-[min(32rem,76dvh)] w-full max-w-xl flex-col overflow-hidden rounded-2xl shadow-xl">
         <div class="border-line flex items-center gap-2 border-b px-4">
-            <x-widget.icon name="search" class="text-foreground/60 size-5 shrink-0" />
+            <x-widget.icon name="search" class="text-foreground/70 size-5 shrink-0" />
             <input
                 type="text"
                 role="combobox"
@@ -85,7 +85,7 @@
                 class="placeholder:text-muted h-14 min-w-0 flex-1 bg-transparent text-base outline-none"
             >
             <span data-command-busy hidden class="border-line border-t-primary size-4 shrink-0 animate-spin rounded-full border-2"></span>
-            <kbd aria-hidden="true" class="border-line text-foreground/60 hidden rounded-md border px-1.5 py-0.5 font-sans text-xs sm:inline">Esc</kbd>
+            <kbd aria-hidden="true" class="border-line text-foreground/70 hidden rounded-md border px-1.5 py-0.5 font-sans text-xs sm:inline">Esc</kbd>
         </div>
 
         <div id="{{ $id }}-list" role="listbox" aria-label="{{ $label }}" data-command-list class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2 [scrollbar-width:thin]">

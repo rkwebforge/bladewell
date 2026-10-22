@@ -96,7 +96,7 @@
                         >
                         <span class="block">{{ $item['label'] }}</span>
                         @if ($item['description'])
-                            <span class="text-foreground/60 block text-xs font-normal">{{ $item['description'] }}</span>
+                            <span class="text-foreground/70 block text-xs font-normal">{{ $item['description'] }}</span>
                         @endif
                     </label>
                 @endforeach
@@ -125,7 +125,7 @@
                         <span class="min-w-0">
                             <span class="text-foreground">{{ $item['label'] }}</span>
                             @if ($item['description'])
-                                <span class="text-foreground/60 mt-0.5 block text-xs">{{ $item['description'] }}</span>
+                                <span class="text-foreground/70 mt-0.5 block text-xs">{{ $item['description'] }}</span>
                             @endif
                         </span>
                     </label>

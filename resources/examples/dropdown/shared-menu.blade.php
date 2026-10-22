@@ -4,7 +4,7 @@
         <li class="flex items-center justify-between gap-4 p-4">
             <div>
                 <p class="font-medium">Order #{{ $order['number'] }}</p>
-                <p class="text-foreground/60 text-sm">{{ $order['customer'] }} · {{ $order['total'] }}</p>
+                <p class="text-foreground/70 text-sm">{{ $order['customer'] }} · {{ $order['total'] }}</p>
             </div>
             <x-widget.dropdown menu="order-actions" :label="'Actions for order #'.$order['number']" :values="['id' => $order['id'], 'number' => $order['number'], 'can_delete' => $order['can_delete']]" />
         </li>

@@ -180,7 +180,7 @@
             >{{ ($display === 'chips' ? $shown : $visible) ?? $placeholder }}</span>
 
             <span class="flex shrink-0 items-center gap-2.5">
-                <span data-select-meta class="text-foreground/60 text-xs whitespace-nowrap">{{ $selected['meta'] ?? '' }}</span>
+                <span data-select-meta class="text-foreground/70 text-xs whitespace-nowrap">{{ $selected['meta'] ?? '' }}</span>
                 {{-- Room for the clear button, which sits over this gap (it can't go inside the trigger). --}}
                 @if ($clearable)
                     <span class="size-7" aria-hidden="true"></span>
@@ -195,7 +195,7 @@
         {{-- Centred on the value's line: the box's middle, or with an inner label, half the label's line (and gap) lower. --}}
         <button type="button" data-select-clear aria-label="Clear selection" @if (! $shown) hidden @endif @disabled($disabled)
             @class([
-                'text-foreground/60 hover:text-foreground focus-visible:ring-primary tap-target-y absolute end-[3.125rem] top-1/2 z-20 grid size-7 place-items-center rounded-full outline-none focus-visible:ring-2',
+                'text-foreground/70 hover:text-foreground focus-visible:ring-primary tap-target-y absolute end-[3.125rem] top-1/2 z-20 grid size-7 place-items-center rounded-full outline-none focus-visible:ring-2',
                 '-translate-y-1/2' => ! ($innerLabel && $label && $display !== 'chips'),
                 'translate-y-[calc(-50%+0.75rem)]' => $innerLabel && $label && $display !== 'chips',
             ])>
@@ -265,7 +265,7 @@
                     @if ($item['disabled']) aria-disabled="true" @endif
                     class="{{ $optionClass }}"
                 {{-- The meta (a balance, a count) at the end of the line; an empty span without one, so it can be filled in later. --}}
-                ><span class="min-w-0 truncate">{{ $item['label'] }}</span><span data-select-option-meta class="text-foreground/60 shrink-0 text-xs tabular-nums empty:hidden">{{ $item['meta'] }}</span></div>
+                ><span class="min-w-0 truncate">{{ $item['label'] }}</span><span data-select-option-meta class="text-foreground/70 shrink-0 text-xs tabular-nums empty:hidden">{{ $item['meta'] }}</span></div>
             @endforeach
 
             <div data-select-empty data-no-results="{{ $noResults }}" @if ($remote) data-searching="{{ $searching }}" data-search-failed="{{ $searchFailed }}" @endif @if ($items->isNotEmpty()) hidden @endif class="text-muted px-5 py-2">{{ $noResults }}</div>
@@ -276,7 +276,7 @@
             {{-- An option a search brings, filled in by the script: the same look as the server's, kept here so you can
                  restyle both in the Blade you own. --}}
             <template data-select-option-template>
-                <div role="option" aria-selected="false" class="{{ $optionClass }}"><span data-select-option-label class="min-w-0 truncate"></span><span data-select-option-meta class="text-foreground/60 shrink-0 text-xs tabular-nums empty:hidden"></span></div>
+                <div role="option" aria-selected="false" class="{{ $optionClass }}"><span data-select-option-label class="min-w-0 truncate"></span><span data-select-option-meta class="text-foreground/70 shrink-0 text-xs tabular-nums empty:hidden"></span></div>
             </template>
         @endif
     </div>

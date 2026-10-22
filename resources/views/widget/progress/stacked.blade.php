@@ -46,7 +46,7 @@
     <div class="text-foreground mb-2 flex items-baseline justify-between gap-2 text-xs">
         <span class="font-medium">{{ $label }}</span>
         @if ($summary)
-            <span class="text-foreground/60 tabular-nums">{{ $summary }}</span>
+            <span class="text-foreground/70 tabular-nums">{{ $summary }}</span>
         @endif
     </div>
 
@@ -65,14 +65,14 @@
                 <li class="flex items-center gap-1.5">
                     <span class="{{ $part['color'] }} size-2.5 shrink-0 rounded-full"></span>
                     <span class="text-foreground">{{ $part['label'] }}</span>
-                    <span class="text-foreground/60 tabular-nums">{{ $part['text'] }}</span>
+                    <span class="text-foreground/70 tabular-nums">{{ $part['text'] }}</span>
                 </li>
             @endforeach
             @if ($rest !== null && $restPercent > 0)
                 <li class="flex items-center gap-1.5">
                     <span class="bg-field border-line size-2.5 shrink-0 rounded-full border"></span>
                     <span class="text-foreground">{{ $rest }}</span>
-                    <span class="text-foreground/60 tabular-nums">{{ round($restPercent) }}%</span>
+                    <span class="text-foreground/70 tabular-nums">{{ round($restPercent) }}%</span>
                 </li>
             @endif
         </ul>

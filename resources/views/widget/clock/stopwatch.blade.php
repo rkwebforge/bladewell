@@ -38,7 +38,7 @@
     {{ $attributes->class(['group/clock inline-flex flex-col items-center gap-3']) }}
 >
     @if ($label)
-        <span class="text-foreground/60 text-xs">{{ $label }}</span>
+        <span class="text-foreground/70 text-xs">{{ $label }}</span>
     @endif
 
     {{-- Not a live region; it reads when reached. The status line below announces the end of a timer. --}}

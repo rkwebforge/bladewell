@@ -48,7 +48,7 @@
                     <option value="{{ $size }}" @selected($size === $perPage)>{{ $size }}</option>
                 @endforeach
             </select>
-            <x-widget.icon name="chevron-down" class="text-foreground/60 pointer-events-none absolute end-2.5 top-1/2 size-4 -translate-y-1/2" />
+            <x-widget.icon name="chevron-down" class="text-foreground/70 pointer-events-none absolute end-2.5 top-1/2 size-4 -translate-y-1/2" />
         </span>
         {{-- Only without JavaScript (resources/js/widget/pagination submits on change). Decided by CSS, the scripting media
              feature, which the browser knows before it first paints, so it never shows and then vanishes. --}}

@@ -10,6 +10,11 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Changed
+
+- **Theme**: input backgrounds (`--color-field`) are a shade darker, `#ebedf1` instead of `#f5f6f8`, so fields stand out from the card behind them on dim or washed-out screens. `--color-muted` darkens to `#5d6679` to keep placeholders and hints at 4.5:1 on the new fill. Your copied `theme.css` isn't updated by `bladewell:add --installed`; change these two values there to get it.
+- **All widgets**: secondary text (counts, hints, meta, labels in progress, clock, select, stepper, table and the rest) goes from `text-foreground/60` to `text-foreground/70`, so it stays at 4.5:1 on the darker field.
+
 ## [1.3.2] - 2026-10-14
 
 ### Changed

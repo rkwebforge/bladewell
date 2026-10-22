@@ -125,7 +125,7 @@
             {{ $prompt }} <span class="text-primary font-medium underline underline-offset-2">{{ $browse }}</span>
         </p>
         @if ($hint)
-            <p id="{{ $hintId }}" class="text-foreground/60 text-xs">{{ $hint }}</p>
+            <p id="{{ $hintId }}" class="text-foreground/70 text-xs">{{ $hint }}</p>
         @endif
         <input
             type="file"
@@ -147,7 +147,7 @@
                 <div class="min-w-0 flex-1">
                     <p class="flex min-w-0 items-baseline gap-2">
                         <span data-file-name class="truncate text-sm font-medium">{{ $file['name'] }}</span>
-                        <span data-file-size class="text-foreground/60 shrink-0 text-xs">{{ $file['size'] }}</span>
+                        <span data-file-size class="text-foreground/70 shrink-0 text-xs">{{ $file['size'] }}</span>
                     </p>
                 </div>
                 @if ($valueName)
@@ -155,7 +155,7 @@
                 @endif
                 {{-- Uploaded (with upload-url): a check, so a stored file doesn't look like one still waiting. --}}
                 <x-widget.icon name="check" aria-hidden="true" class="text-success hidden size-4 shrink-0 group-data-[state=done]/file:block" />
-                <button type="button" data-file-remove aria-label="Remove {{ $file['name'] }}" class="text-foreground/60 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
+                <button type="button" data-file-remove aria-label="Remove {{ $file['name'] }}" class="text-foreground/70 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
                     <x-widget.icon name="x" class="size-4" />
                 </button>
             </li>
@@ -169,7 +169,7 @@
             <div class="min-w-0 flex-1">
                 <p class="flex min-w-0 items-baseline gap-2">
                     <span data-file-name class="truncate text-sm font-medium"></span>
-                    <span data-file-size class="text-foreground/60 shrink-0 text-xs"></span>
+                    <span data-file-size class="text-foreground/70 shrink-0 text-xs"></span>
                 </p>
                 <p data-file-error class="text-error mt-0.5 text-xs" hidden></p>
                 <div data-file-progress-track class="bg-field mt-2 h-1 overflow-hidden rounded-full" hidden>
@@ -178,10 +178,10 @@
             </div>
             {{-- Uploaded (with upload-url): a check, so a stored file doesn't look like one still waiting. --}}
             <x-widget.icon name="check" aria-hidden="true" class="text-success hidden size-4 shrink-0 group-data-[state=done]/file:block" />
-            <button type="button" data-file-retry aria-label="Retry" hidden class="text-foreground/60 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
+            <button type="button" data-file-retry aria-label="Retry" hidden class="text-foreground/70 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
                 <x-widget.icon name="refresh-cw" class="size-4" />
             </button>
-            <button type="button" data-file-remove aria-label="Remove" class="text-foreground/60 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
+            <button type="button" data-file-remove aria-label="Remove" class="text-foreground/70 hover:text-foreground hover:bg-field focus-visible:ring-primary tap-target-y relative grid size-8 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2">
                 <x-widget.icon name="x" class="size-4" />
             </button>
         </li>
