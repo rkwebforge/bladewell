@@ -10,6 +10,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-24
+
 ### Added
 
 - **sidebar-layout**: a new widget, an app's frame: a sidebar with your brand, an accordion menu and a footer, a top bar that stays put, and the page scrolling under it. On large screens the button at the start of the top bar collapses the sidebar to a rail of icons, its width easing as the labels fade; hovering or focusing an icon names it beside the rail. A group's icon shows its links in a popover beside the rail, titled with the group and scrolling past 18rem, which Esc, a click elsewhere or a link closes; with `groups="expand"` it opens the sidebar again with that group open instead. `collapsed` paints it collapsed from the server, and `remember="sidebar"` keeps the person's choice in a cookie to pass back to it, so there's no flash and no inline script. On phones and tablets the menu button slides it in over a dimmed page, which is inert until it closes on Esc, its close button, a click on the page or a link. A `panel` slot (a chat, notifications) adds a button at the end of the top bar that opens it: as wide as the sidebar, beside the page on large screens, which narrows and can still be used, and over it on phones and tablets, like the menu; `panel-label` and `panel-icon` name and draw the button. Right-to-left pages mirror it, and it follows reduced motion. `php artisan bladewell:add sidebar-layout` adds it, with the accordion and icons.
@@ -214,7 +216,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.3.3...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/rkwebforge/bladewell/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/rkwebforge/bladewell/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/rkwebforge/bladewell/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/rkwebforge/bladewell/compare/v1.3.0...v1.3.1
