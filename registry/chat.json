@@ -1,0 +1,22 @@
+{
+    "description": "A conversation: an AI assistant whose replies run the full width, or people messaging in bubbles, with names, avatars, times in the app's locale, sent and read states, day dividers and a typing indicator. Opens at the newest message with no flash, keeps the reader's place when one arrives while they're scrolled up, and loads older messages from your endpoint as they scroll to the top. The composer grows with its text, sends on Enter, attaches files as chips (picking more adds to them; images show a preview), and takes suggested prompts. Files show as images or download cards. Screen readers hear new messages as they come. compact sizes it for a narrow column, at a sidebar's 14px. Works inside Livewire components, wire:stream included.",
+    "requires": [
+        "icon"
+    ],
+    "support": [
+        "ElementIds",
+        "ChatMarkdown"
+    ],
+    "usage": [
+        "sending",
+        "history-endpoint",
+        "uploads",
+        "livewire"
+    ],
+    "examples": [
+        "assistant",
+        "new-chat",
+        "messages",
+        "compact"
+    ]
+}

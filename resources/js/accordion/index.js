@@ -60,6 +60,24 @@ document.addEventListener('scroll', (event) => {
     }
 }, true);
 
+// Once the group has closed, a menu whose links all fit again has nothing left to scroll to, so the room would only leave
+// an empty scrollbar: glide back to the top instead, and keepRoom gives the room up as it goes. A longer menu keeps it.
+// At the top, what's left of it no longer shows; it goes too.
+function releaseRoom(menu) {
+    const list = menuList(menu);
+    const room = parseFloat(list.style.paddingBottom) || 0;
+    if (room === 0 || menu.scrollHeight - room > menu.clientHeight) {
+        return;
+    }
+    if (menu.scrollTop === 0) {
+        list.style.paddingBottom = '';
+
+        return;
+    }
+    menu.addEventListener('scrollend', () => menu.scrollTop === 0 && (list.style.paddingBottom = ''), { once: true });
+    menu.scrollTo({ top: 0, behavior: reducedMotion() ? 'instant' : 'smooth' });
+}
+
 function collapse(details) {
     if (!details.open || details.hasAttribute('data-closing')) {
         return;
@@ -73,6 +91,9 @@ function collapse(details) {
     animateHeight(details, currentHeight(details), 0, () => {
         details.open = false;
         details.removeAttribute('data-closing');
+        if (menu) {
+            releaseRoom(menu);
+        }
     });
 }
 

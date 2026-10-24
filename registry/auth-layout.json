@@ -1,0 +1,18 @@
+{
+    "group": "Layouts",
+    "description": "A sign-in, sign-up or password page: your brand, a heading, the form and a line under it. Split puts the form beside a panel in your brand's colour on large screens, with a quote or a few words at its foot, and gives the form the page on phones; centered sets it on a card in the middle. The form rises into place as the page paints, unless motion is reduced. No script, so it works inside Livewire components as it is.",
+    "examples-use": [
+        "text-input",
+        "password",
+        "checkbox",
+        "button"
+    ],
+    "usage": [
+        "livewire"
+    ],
+    "examples": [
+        "sign-in",
+        "sign-up",
+        "forgot-password"
+    ]
+}

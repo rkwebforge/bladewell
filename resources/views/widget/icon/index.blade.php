@@ -5,8 +5,8 @@
     // clipboard, clock, coins, copy, credit-card, database, download, ellipsis, external-link, eye, eye-off, file,
     // file-text, filter, folder, folder-open, gift, globe, grip-vertical, headphones, heart, home, image, inbox, info,
     // key, layout-dashboard, link, list, lock, log-in, log-out, mail, map-pin, megaphone, menu, message-circle, mic,
-    // minus, moon, music, package, paperclip, pause, pencil, percent, phone, play, plus, printer, receipt, redo,
-    // refresh-cw, rotate-ccw, rss, save, scissors, search, send, settings, share, shield-check, shopping-bag,
+    // minus, moon, music, package, panel-left, paperclip, pause, pencil, percent, phone, play, plus, printer, receipt,
+    // redo, refresh-cw, rotate-ccw, rss, save, scissors, search, send, settings, share, shield-check, shopping-bag,
     // shopping-cart, star, store, sun, tag, thumbs-up, trash, triangle-alert, truck, undo, upload, user, user-plus,
     // users, video, volume-2, wallet, x. Any other name is drawn by Blade Icons (blade-ui-kit/blade-icons) if the app
     // has it, e.g. lucide-rocket or heroicon-o-bolt, and otherwise throws, listing these. To add one of your own, draw
@@ -102,6 +102,7 @@
         'moon' => [['path', ['d' => 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z']]],
         'music' => [['path', ['d' => 'M9 18V5.5l11-2v12']], ['circle', ['cx' => '6.5', 'cy' => '18', 'r' => '2.5']], ['circle', ['cx' => '17.5', 'cy' => '15.5', 'r' => '2.5']]],
         'package' => [['path', ['d' => 'M12 3.25 19.75 7.5v9L12 20.75 4.25 16.5v-9Z']], ['path', ['d' => 'M4.25 7.5 12 11.75l7.75-4.25']], ['path', ['d' => 'M12 11.75v9']], ['path', ['d' => 'm8.1 5.4 7.75 4.25']]],
+        'panel-left' => [['rect', ['x' => '3.5', 'y' => '4', 'width' => '17', 'height' => '16', 'rx' => '4']], ['path', ['d' => 'M9.5 4v16']]],
         'paperclip' => [['path', ['d' => 'm20.5 11.5-8.4 8.4a5 5 0 0 1-7.1-7.1l8.4-8.4a3.33 3.33 0 0 1 4.7 4.7l-8.4 8.4a1.67 1.67 0 0 1-2.35-2.35l7.8-7.8']]],
         'pause' => [['rect', ['x' => '6.5', 'y' => '5', 'width' => '3.5', 'height' => '14', 'rx' => '1.75']], ['rect', ['x' => '14', 'y' => '5', 'width' => '3.5', 'height' => '14', 'rx' => '1.75']]],
         'pencil' => [['path', ['d' => 'M15.25 5.25a2.47 2.47 0 0 1 3.5 3.5L9 18.5l-4.5 1 1-4.5Z']], ['path', ['d' => 'm13.5 7 3.5 3.5']]],
