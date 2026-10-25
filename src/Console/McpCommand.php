@@ -33,9 +33,15 @@ final class McpCommand extends Command
             }
             try {
                 $message = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
-                $response = is_array($message)
-                    ? $server->handle($message)
-                    : ['jsonrpc' => '2.0', 'id' => null, 'error' => ['code' => -32600, 'message' => 'Invalid request: expected a JSON object.']];
+                $response = match (true) {
+                    // A batch (protocol 2025-03-26 and before): an array of the answers, leaving out notifications'.
+                    is_array($message) && $message !== [] && array_is_list($message) => array_values(array_filter(array_map(
+                        static fn (mixed $one): ?array => is_array($one) && !array_is_list($one) ? $server->handle($one) : self::invalid(),
+                        $message,
+                    ))) ?: null,
+                    is_array($message) && $message !== [] => $server->handle($message),
+                    default => self::invalid(),
+                };
             } catch (JsonException $e) {
                 $response = ['jsonrpc' => '2.0', 'id' => null, 'error' => ['code' => -32700, 'message' => 'Parse error: '.$e->getMessage()]];
             }
@@ -46,5 +52,13 @@ final class McpCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function invalid(): array
+    {
+        return ['jsonrpc' => '2.0', 'id' => null, 'error' => ['code' => -32600, 'message' => 'Invalid request: expected a JSON object.']];
     }
 }

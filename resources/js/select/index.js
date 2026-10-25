@@ -51,9 +51,12 @@ function initSelect(root) {
     const listbox = popup.querySelector('[role="listbox"]');
     const optionTemplate = popup.querySelector('template[data-select-option-template]');
     const status = popup.querySelector('[data-select-status]');
-    // The options the server drew, in its order: what shows before any search, along with whatever is chosen.
-    const drawnOrder = options();
-    const drawn = new Set(drawnOrder.map((option) => option.dataset.value));
+    // The options the server drew are the ones a search didn't add (data-select-found), read as they are now: a
+    // Livewire render or a script may have replaced them since (a city list that follows the country). They show before
+    // any search, in their order, along with whatever is chosen.
+    const isFound = (option) => option.hasAttribute('data-select-found');
+    // Their order as a search began: results move them, and clearing the search puts them back.
+    let drawnOrder = null;
     const answers = new Map();
     let searchTimer = null;
     let searchRequest = null;
@@ -194,20 +197,24 @@ function initSelect(root) {
         refresh();
         commit();
     };
+    // Readonly: nothing is removed, by a chip's button, Backspace or the clear button.
     chips?.addEventListener('click', (event) => {
         const remove = event.target.closest('[data-select-chip-remove]');
-        if (remove) {
+        if (remove && !readonly()) {
             unpick(options().find((option) => option.dataset.value === remove.dataset.value));
             trigger.focus();
         }
     });
     trigger.addEventListener('keydown', (event) => {
-        if (chips && event.key === 'Backspace' && !isOpen()) {
+        if (chips && event.key === 'Backspace' && !isOpen() && !readonly()) {
             unpick(chosen().at(-1));
         }
     });
 
     clearButton?.addEventListener('click', () => {
+        if (readonly()) {
+            return;
+        }
         options().forEach((option) => option.setAttribute('aria-selected', 'false'));
         refresh();
         commit();
@@ -222,17 +229,29 @@ function initSelect(root) {
         return { value, label: String(entry.label ?? entry.name ?? value), meta: entry.meta ?? '', disabled: Boolean(entry.disabled) };
     }
 
+    // An option shows an answer as your app sent it now: its label, meta and whether it's disabled, which may have
+    // changed since the option was drawn or last found.
+    function fill(option, item) {
+        Object.assign(option.dataset, { value: item.value, label: item.label, meta: item.meta });
+        option.title = item.label;
+        option.querySelector('[data-select-option-label]').textContent = item.label;
+        const meta = option.querySelector('[data-select-option-meta]');
+        if (meta) {
+            meta.textContent = item.meta;
+        }
+        if (item.disabled) {
+            option.setAttribute('aria-disabled', 'true');
+        } else {
+            option.removeAttribute('aria-disabled');
+        }
+    }
+
     function optionFor(item) {
         const option = optionTemplate.content.firstElementChild.cloneNode(true);
         made += 1;
         option.id = `${listbox.id.replace(/-listbox$/, '')}-found-${made}`;
-        Object.assign(option.dataset, { value: item.value, label: item.label, meta: item.meta });
-        option.title = item.label;
-        option.querySelector('[data-select-option-label]').textContent = item.label;
-        option.querySelector('[data-select-option-meta]').textContent = item.meta;
-        if (item.disabled) {
-            option.setAttribute('aria-disabled', 'true');
-        }
+        option.setAttribute('data-select-found', '');
+        fill(option, item);
 
         return option;
     }
@@ -247,23 +266,36 @@ function initSelect(root) {
     // and whatever is chosen.
     function showFound(items) {
         const wanted = new Map((items ?? []).map((item) => [item.value, item]));
-        if (!items) {
-            drawnOrder.filter((option) => option.isConnected).forEach((option) => empty.before(option));
-            options().filter((option) => !drawn.has(option.dataset.value)).forEach((option) => empty.before(option));
+        if (items) {
+            drawnOrder ??= options().filter((option) => !isFound(option));
+        } else {
+            const drawn = options().filter((option) => !isFound(option));
+            const before = (drawnOrder ?? []).filter((option) => drawn.includes(option));
+            [...before, ...drawn.filter((option) => !before.includes(option))].forEach((option) => empty.before(option));
+            options().filter(isFound).forEach((option) => empty.before(option));
+            drawnOrder = null;
         }
         options().forEach((option) => {
             const picked = option.getAttribute('aria-selected') === 'true';
-            const keep = items ? wanted.has(option.dataset.value) : drawn.has(option.dataset.value) || picked;
-            if (!keep && !picked && !drawn.has(option.dataset.value)) {
+            const keep = items ? wanted.has(option.dataset.value) : !isFound(option) || picked;
+            if (!keep && !picked && isFound(option)) {
                 option.remove();
             } else {
                 option.hidden = !keep;
             }
         });
         for (const item of wanted.values()) {
-            const option = options().find((existing) => existing.dataset.value === item.value) ?? optionFor(item);
+            const existing = options().find((option) => option.dataset.value === item.value);
+            if (existing) {
+                fill(existing, item);
+            }
+            const option = existing ?? optionFor(item);
             option.hidden = false;
             empty.before(option);
+        }
+        // A chosen option's label may have changed with the answer: the field shows the new one.
+        if (items) {
+            refresh();
         }
         empty.textContent = empty.dataset.noResults;
         empty.hidden = visible().length > 0;
@@ -314,7 +346,8 @@ function initSelect(root) {
                     showFound(items);
                 }
             } catch (error) {
-                if (error.name !== 'AbortError') {
+                // Only the latest search's failure shows: an older one finishing late mustn't replace newer results.
+                if (error.name !== 'AbortError' && searchRequest === request && search.value.trim() === term) {
                     options().forEach((option) => { option.hidden = true; });
                     empty.textContent = empty.dataset.searchFailed;
                     empty.hidden = false;

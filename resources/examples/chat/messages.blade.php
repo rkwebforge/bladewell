@@ -8,8 +8,7 @@
     <x-widget.chat.divider>Today</x-widget.chat.divider>
 
     @foreach ($messages as $message)
-        <x-widget.chat.message :mine="$message->mine" :name="$message->name" :time="$message->sentAt" :status="$message->status">
-            {{ $message->body }}
+        <x-widget.chat.message :mine="$message->mine" :name="$message->name" :time="$message->sentAt" :status="$message->status" :text="$message->body">
 
             @if ($message->files !== [])
                 <x-slot:attachments>

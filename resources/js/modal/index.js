@@ -9,6 +9,19 @@
 // modal.confirm({ title, message, confirm, cancel, danger }) asks a yes/no question without any markup.
 
 const MODAL = 'dialog[data-modal]';
+// Open modals, oldest first: the order they opened in, which is the order they're stacked in, not their order on the
+// page (a locked modal further down mustn't count as the one on top).
+const stack = [];
+const unstack = (dialog) => {
+    const at = stack.indexOf(dialog);
+    if (at !== -1) {
+        stack.splice(at, 1);
+    }
+};
+const stacked = (dialog) => {
+    unstack(dialog);
+    stack.push(dialog);
+};
 
 function resolve(target) {
     const dialog = typeof target === 'string' ? document.getElementById(target) : target;
@@ -28,6 +41,7 @@ function open(target) {
     dialog.dispatchEvent(new CustomEvent('modal:before-open'));
     swipeToClose(dialog);
     dialog.showModal();
+    stacked(dialog);
     // data-autofocus rather than the native attribute: the browser also runs page-load autofocus on
     // elements inside closed dialogs, and when the URL has a #fragment (e.g. pagination links) it
     // blocks that and logs a console warning. [autofocus] is still honoured for existing markup.
@@ -79,13 +93,19 @@ document.addEventListener('click', (event) => {
 // own: Chromium only honours that after the user has interacted with the page (its CloseWatcher rules). So Esc
 // is stopped before it becomes a close request, `cancel` is still cancelled, and as a last resort (the Android
 // back gesture) a locked modal that closes without the app asking is opened again.
-const topModal = () => [...document.querySelectorAll(`${MODAL}:modal`)].at(-1);
+// Focus can only be in the top one (the browser makes those below it inert); otherwise, the last opened. One opened
+// by a script of yours with showModal() counts as newer than those opened here.
+const topModal = () => document.activeElement?.closest(`${MODAL}:modal`)
+    ?? [...document.querySelectorAll(`${MODAL}:modal`)].filter((dialog) => !stack.includes(dialog)).at(-1)
+    ?? stack.filter((dialog) => dialog.matches(':modal')).at(-1);
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && topModal()?.hasAttribute('data-disable-close')) {
         event.preventDefault();
     }
 }, true);
+
+const FORM_ELEMENTS = Object.getOwnPropertyDescriptor(HTMLFormElement.prototype, 'elements').get;
 
 // `cancel` (Esc) and `close` don't bubble, so listen in the capture phase.
 document.addEventListener('cancel', (event) => {
@@ -102,15 +122,18 @@ document.addEventListener('close', (event) => {
     delete event.target.dataset.closing;
     if (event.target.hasAttribute('data-disable-close') && !byApp) {
         event.target.showModal();
+        stacked(event.target);
 
         return;
     }
+    unstack(event.target);
     if (event.target.matches('[data-reset-on-close]')) {
         event.target.querySelectorAll('form').forEach((form) => {
-            form.reset();
+            // The form's own reset() and elements: a field named reset or elements would stand in for them.
+            HTMLFormElement.prototype.reset.call(form);
             // reset() fires no events, so wire:model, x-model and the fields' own scripts (counters) would keep the old
             // values; tell them, as if the person had cleared each field.
-            for (const control of form.elements) {
+            for (const control of FORM_ELEMENTS.call(form)) {
                 control.dispatchEvent(new Event('input', { bubbles: true }));
                 control.dispatchEvent(new Event('change', { bubbles: true }));
             }

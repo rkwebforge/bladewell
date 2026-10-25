@@ -114,12 +114,33 @@ function row(root, file, error) {
     return item;
 }
 
+const maxFilesOf = (root) => Number(root.dataset.maxFiles || 0) || (root.dataset.multiple === 'true' ? Infinity : 1);
+// Files that count toward max-files: listed and not failed, and those the server listed as already uploaded.
+const keptCount = (root) => dropzone(root).entries.filter((entry) => entry.state !== 'error').length
+    + root.querySelectorAll('[data-file-item][data-state="done"]:not([data-entry])').length;
+
+// Retry a failed upload, if there's still room for it: other files may have filled max-files since it failed.
+function retry(root, entry) {
+    const maxFiles = maxFilesOf(root);
+    if (keptCount(root) >= maxFiles) {
+        const message = say(messagesOf(root).tooMany, { count: maxFiles });
+        const error = entry.el.querySelector('[data-file-error]');
+        error.textContent = message;
+        error.hidden = false;
+        entry.el.querySelector('[data-file-retry]').hidden = true;
+        announce(root, message);
+
+        return;
+    }
+    upload(root, entry);
+}
+
 function addFiles(root, files) {
     const list = root.querySelector('[data-file-list]');
     const store = dropzone(root);
     const messages = messagesOf(root);
     const multiple = root.dataset.multiple === 'true';
-    const maxFiles = Number(root.dataset.maxFiles || 0) || (multiple ? Infinity : 1);
+    const maxFiles = maxFilesOf(root);
     let picked = [...files];
     // A single-file dropzone takes the newest pick in place of the old one.
     if (!multiple) {
@@ -129,14 +150,13 @@ function addFiles(root, files) {
     }
     let added = 0;
     for (const file of picked) {
-        const kept = store.entries.filter((entry) => entry.state !== 'error').length + root.querySelectorAll('[data-file-item][data-state="done"]:not([data-entry])').length;
-        const error = problem(root, file) ?? (kept >= maxFiles ? say(messages.tooMany, { count: maxFiles }) : null);
+        const error = problem(root, file) ?? (keptCount(root) >= maxFiles ? say(messages.tooMany, { count: maxFiles }) : null);
         const entry = { file, state: error ? 'error' : 'ready', el: row(root, file, error), xhr: null };
         entry.el.dataset.entry = '';
         store.entries.push(entry);
         list.append(entry.el);
         entry.el.querySelector('[data-file-remove]').addEventListener('click', () => removeEntry(root, entry));
-        entry.el.querySelector('[data-file-retry]').addEventListener('click', () => upload(root, entry));
+        entry.el.querySelector('[data-file-retry]').addEventListener('click', () => retry(root, entry));
         if (error) {
             announce(root, error);
         } else {
@@ -215,7 +235,10 @@ function upload(root, entry) {
         } catch {
             // Not JSON (an HTML error page): the generic message below says it failed.
         }
-        if (xhr.status >= 200 && xhr.status < 300 && json?.id !== undefined) {
+        // Done only with an id to submit: a non-empty string or a number. {"id": null} or an empty one isn't a stored file.
+        const id = json?.id;
+        const stored = (typeof id === 'string' && id !== '') || (typeof id === 'number' && Number.isFinite(id));
+        if (xhr.status >= 200 && xhr.status < 300 && stored) {
             entry.state = 'done';
             entry.el.dataset.state = 'done';
             track.hidden = true;
@@ -305,8 +328,11 @@ document.addEventListener('click', (event) => {
 
 // A direct upload still running would submit the form without that file's id: hold the submit and say why.
 // Capture phase, like the required check in widget/field, so the submit guard sees defaultPrevented.
+// Every uploader the form submits, inside it or linked to it from elsewhere with form="…".
+const uploadersOf = (form) => [...document.querySelectorAll(ROOT)].filter((root) => inputOf(root)?.form === form);
+
 document.addEventListener('submit', (event) => {
-    const busy = [...event.target.querySelectorAll?.(`${ROOT} [data-file-item][data-state="uploading"]`) ?? []];
+    const busy = uploadersOf(event.target).flatMap((root) => [...root.querySelectorAll('[data-file-item][data-state="uploading"]')]);
     if (busy.length === 0) {
         return;
     }
@@ -349,6 +375,20 @@ document.addEventListener('click', (event) => {
 // --- Image ------------------------------------------------------------------------------------------------
 
 const previews = new WeakMap();
+const saved = new WeakMap();
+
+// The image the form keeps when no new one is picked: the one the page came with (read before any preview replaces
+// it; Livewire's current one is data-src), or none once the person removed it.
+function savedImage(root) {
+    if (!saved.has(root)) {
+        saved.set(root, root.querySelector('[data-file-image]')?.getAttribute('src') || null);
+    }
+    if (root.querySelector('[data-file-remove-flag]')?.value === '1') {
+        return null;
+    }
+
+    return root.dataset.src || saved.get(root);
+}
 
 function showImage(root, url) {
     const image = root.querySelector('[data-file-image]');
@@ -379,9 +419,14 @@ function pickedImage(root, input) {
     error.textContent = why ?? '';
     if (why) {
         input.value = '';
+        // The input is empty again, so the picture goes back to what the form will keep: the saved image, or none.
+        if (previews.has(root)) {
+            showImage(root, savedImage(root));
+        }
 
         return;
     }
+    savedImage(root);
     const url = URL.createObjectURL(file);
     showImage(root, url);
     previews.set(root, url);
@@ -496,4 +541,26 @@ onLivewireMorph((scope) => {
             dropzone(root).entries.forEach((entry) => removeEntry(root, entry, { quiet: true }));
         }
     }
+});
+
+// --- Reset --------------------------------------------------------------------------------------------------
+
+// A form put back as it was empties its file inputs; what the widgets show and keep follows, or the next pick would bring
+// the old files back. Files the server listed as already uploaded stay, as they did when the page came. After the reset
+// itself, which runs once this event is done.
+document.addEventListener('reset', (event) => {
+    const roots = uploadersOf(event.target);
+    setTimeout(() => roots.forEach((root) => {
+        const input = inputOf(root);
+        const kind = root.dataset.fileUpload;
+        if (kind === 'button') {
+            pickedButton(root, input);
+        } else if (kind === 'image') {
+            root.querySelector('[data-file-error]').textContent = '';
+            showImage(root, savedImage(root));
+        } else {
+            dropzone(root).entries.forEach((entry) => removeEntry(root, entry, { quiet: true }));
+        }
+        tellLivewire(root);
+    }));
 });

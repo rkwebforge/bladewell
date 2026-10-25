@@ -34,14 +34,17 @@ final class Installer
 
     /**
      * @param  list<Widget>  $widgets  already resolved, see Registry::resolve()
-     * @param  bool  $force  overwrite files the user has changed
+     * @param  list<string>  $force  widgets whose own files overwrite the user's changes: their views, scripts and the
+     *                               helpers and rules they declare. Never the theme, nor a widget brought along for them,
+     *                               which the user may have edited for every widget that uses it.
      * @return list<PlannedFile>
      */
-    public function plan(array $widgets, bool $force = false): array
+    public function plan(array $widgets, array $force = []): array
     {
+        $forced = $this->sources(array_values(array_filter($widgets, static fn (Widget $widget): bool => in_array($widget->name, $force, true))), css: false);
         $planned = [];
         foreach ($this->files($widgets) as $path => $contents) {
-            $planned[] = $this->compare($path, $contents, $force);
+            $planned[] = $this->compare($path, $contents, isset($forced[$path]));
         }
 
         $jsWidgets = array_values(array_filter($widgets, fn (Widget $widget): bool => $this->registry->files($widget, 'js') !== []));
@@ -59,9 +62,20 @@ final class Installer
      */
     public function files(array $widgets): array
     {
+        return array_map(fn (string $source): string => $this->render($this->files->get($source)), $this->sources($widgets));
+    }
+
+    /**
+     * Where each of those files comes from: absolute target path => package path.
+     *
+     * @param  list<Widget>  $widgets
+     * @return array<string, string>
+     */
+    private function sources(array $widgets, bool $css = true): array
+    {
         $sources = [];
-        foreach (self::CSS as $css) {
-            $sources[$this->target->cssPath.'/'.$css] = $this->registry->path("resources/css/{$css}");
+        foreach ($css ? self::CSS : [] as $file) {
+            $sources[$this->target->cssPath.'/'.$file] = $this->registry->path("resources/css/{$file}");
         }
         foreach ($widgets as $widget) {
             foreach ($this->registry->files($widget, 'views') as $file) {
@@ -78,7 +92,7 @@ final class Installer
             }
         }
 
-        return array_map(fn (string $source): string => $this->render($this->files->get($source)), $sources);
+        return $sources;
     }
 
     /**

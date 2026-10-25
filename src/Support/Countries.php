@@ -121,9 +121,15 @@ final class Countries
         if ($digits === '') {
             return '';
         }
-        if (! in_array($country, self::KEEPS_LEADING_ZERO, true)) {
-            $digits = preg_replace('/^0/', '', $digits) ?? $digits;
-        }
+        // Without the prefix dialled at home before an area code: a 0 almost everywhere, 8 in Russia and Kazakhstan
+        // (8 912 345 67 89, eleven digits; ten, as in 812 for St Petersburg, have none), 06 in Hungary. The same as
+        // resources/js/widget/phone.
+        $digits = match (true) {
+            in_array($country, self::KEEPS_LEADING_ZERO, true) => $digits,
+            in_array($country, ['RU', 'KZ'], true) && strlen($digits) === 11 && str_starts_with($digits, '8') => substr($digits, 1),
+            $country === 'HU' && str_starts_with($digits, '06') => substr($digits, 2),
+            default => preg_replace('/^0/', '', $digits) ?? $digits,
+        };
 
         return '+'.self::DIAL_CODES[$country].$digits;
     }

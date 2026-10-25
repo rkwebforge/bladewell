@@ -56,7 +56,7 @@ With the Laravel installer, `laravel new my-app --using=bladewell/starter-kit` d
 
 Before writing anything it checks `package.json`: it stops if Tailwind CSS is older than 4.1 (the installed version in `node_modules` if there is one, otherwise whether the declared range can reach 4.1), and warns if Tailwind or Vite isn't listed.
 
-Run it again at any time, for example after `composer update`; `--installed` updates every widget already in the app. Files you haven't edited get the new version, files you have edited are skipped and reported, and `--force` overwrites those too.
+Run it again at any time, for example after `composer update`; `--installed` updates every widget already in the app. Files you haven't edited get the new version, files you have edited are skipped and reported, and `--force` overwrites those too, in the widgets you name. It never overwrites `theme.css`, `base.css` or a widget brought along for the ones you name; to take the package version of one of those, delete it and run `bladewell:add --installed`.
 
 It tells the two apart with `bladewell.lock` in your app's root, a hash of each file as it was last installed. Commit it, like `composer.lock`. Files installed before the lock existed can't be told apart, so they are skipped and reported as well; if you haven't edited them, run once with `--force` and from then on updates apply by themselves.
 
@@ -93,7 +93,7 @@ What you build on is only ever added to, never renamed or removed: component nam
 | `list_components` | The catalogue, with whether each is installed; `query` narrows it |
 | `get_component` | One component's tags, props, slots, usage (Livewire included) and examples |
 | `project_status` | What's installed, which installed files are out of date or edited (from `bladewell.lock`), and the Tailwind/Vite check |
-| `add_components` | A dry run by default: lists the files it would write. Writes only with `confirm: true`, and never over edited files unless `force: true` |
+| `add_components` | A dry run by default: lists the files it would write. Writes only with `confirm: true`, and never over edited files unless `force: true`, which covers the components named, not the theme or those brought along |
 
 Add it to your agent. Claude Code, from the app's root:
 

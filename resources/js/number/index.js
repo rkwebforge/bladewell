@@ -1,6 +1,6 @@
 // Behaviour for <x-widget.number>: digits only, decimals, the stepper and grouping. Delegated from `document`, so fields added later work without
 // re-initialising. Client-side filtering is only for convenience; the Form Request must validate the same rules.
-import { on, replaceValue, onLivewireMorph, typingIn } from '../field';
+import { latinDigits, on, replaceValue, onLivewireMorph, typingIn } from '../field';
 
 // --- Number: digits, one decimal point, limited decimal places --------------------
 
@@ -27,7 +27,8 @@ function normaliseDecimal(raw) {
 
 // Filters on `input` rather than `keydown` so paste, autofill and mobile keyboards are covered too.
 // `negative` keeps one leading minus sign; anything else that isn't a digit or the decimal point goes.
-function sanitizeNumber(raw, decimals, negative = false) {
+function sanitizeNumber(typed, decimals, negative = false) {
+    const raw = latinDigits(typed);
     const minus = negative && raw.trim().startsWith('-') ? '-' : '';
     if (decimals === 0) {
         // Whole numbers: a decimal part is dropped, not glued on, so a pasted 2.00 or 1,5 stays 2 or 1.
@@ -62,7 +63,7 @@ function separators(locale) {
 function parseGrouped(display, input) {
     const { group, decimal } = separators(input.dataset.locale);
     // Spaces count as grouping too, since some locales group with a (narrow) no-break space people can't type.
-    const plain = display.split(group).join('').replace(/\s/g, '').replace(decimal, '.');
+    const plain = latinDigits(display).split(group).join('').replace(/\s/g, '').replace(decimal, '.');
 
     return sanitizeNumber(plain, Number(input.dataset.decimals), 'negative' in input.dataset);
 }
@@ -127,9 +128,10 @@ on('input', '[data-number-input]', (event, input) => {
     syncValueNow(input);
 });
 
-// min / max: typing isn't blocked mid-way (10 on the way to 100), so the value is pulled into range on leaving.
+// min / max: typing isn't blocked mid-way (10 on the way to 100), so the value is pulled into range on leaving. Without
+// a min, a field that takes no negatives stops at 0: the − button and ArrowDown can't go below what can be typed.
 const clamp = (input, number) => {
-    const min = input.dataset.min !== undefined ? Number(input.dataset.min) : -Infinity;
+    const min = input.dataset.min !== undefined ? Number(input.dataset.min) : ('negative' in input.dataset ? -Infinity : 0);
     const max = input.dataset.max !== undefined ? Number(input.dataset.max) : Infinity;
 
     return Math.min(max, Math.max(min, number));

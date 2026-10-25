@@ -20,7 +20,7 @@ final class StoreMessageController
         if ($request->ajax()) {
             // resources/views/conversations/sent.blade.php, in the same variant (and compact) as the page's chat:
             // <x-widget.chat variant="messages">
-            //     <x-widget.chat.message mine status="sent" :time="$message->created_at">{{ $message->body }}</x-widget.chat.message>
+            //     <x-widget.chat.message mine status="sent" :time="$message->created_at" :text="$message->body" />
             // </x-widget.chat>
             // The request says which, if one route serves more than one: X-Chat-Variant, and X-Chat-Compact when compact.
             return view('conversations.sent', ['message' => $message]);

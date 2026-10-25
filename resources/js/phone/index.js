@@ -3,11 +3,28 @@
 // field, with names from Intl.DisplayNames in the page's language and emoji flags, so it costs nothing until used.
 // Pasting or autofilling a full +44… number switches the country to match.
 
-import { closeIfOutOfView, onLivewireMorph, placeBeside } from '../field';
+import { closeIfOutOfView, latinDigits, onLivewireMorph, placeBeside } from '../field';
 
 const VIEWPORT_EDGE = 16;
 const GAP = 4;
 const KEEPS_LEADING_ZERO = new Set(['IT', 'SM', 'VA']);
+
+// The national digits as they go after the country code: without the prefix dialled at home before an area code,
+// a 0 almost everywhere, 8 in Russia and Kazakhstan, 06 in Hungary. The same as Countries::international().
+function significant(country, digits) {
+    if (KEEPS_LEADING_ZERO.has(country)) {
+        return digits;
+    }
+    // 8 912 345 67 89: eleven digits. Ten (812 …, St Petersburg) have no 8 to drop.
+    if ((country === 'RU' || country === 'KZ') && digits.length === 11 && digits.startsWith('8')) {
+        return digits.slice(1);
+    }
+    if (country === 'HU' && digits.startsWith('06')) {
+        return digits.slice(2);
+    }
+
+    return digits.replace(/^0/, '');
+}
 
 const flag = (iso) => String.fromCodePoint(...[...iso].map((letter) => 0x1F1E6 + letter.charCodeAt(0) - 65));
 // Case and accent-insensitive: "cote" finds Côte d'Ivoire.
@@ -50,7 +67,7 @@ function initPhone(root) {
             return '';
         }
 
-        return `+${codes[country]}${KEEPS_LEADING_ZERO.has(country) ? digits : digits.replace(/^0/, '')}`;
+        return `+${codes[country]}${significant(country, digits)}`;
     }
 
     function commit() {
@@ -84,9 +101,18 @@ function initPhone(root) {
         }
     }
 
-    national.addEventListener('input', () => {
-        if (national.value.trim().startsWith('+')) {
-            adopt(national.value);
+    national.addEventListener('input', (event) => {
+        const typed = latinDigits(national.value);
+        if (typed !== national.value) {
+            national.value = typed;
+        }
+        // 00 dials abroad from most of the world: a pasted or autofilled 0044 20 … is +44 20 …. Not while typing, where
+        // the 00 may be the start of something else; a + switches the country either way.
+        const pasted = event.inputType === undefined || event.inputType.startsWith('insertFrom') || event.inputType === 'insertReplacementText';
+        if (typed.trim().startsWith('+')) {
+            adopt(typed);
+        } else if (pasted && typed.trim().startsWith('00')) {
+            adopt(typed.trim().replace(/^00/, '+'));
         } else {
             // Keep the separators people type (spaces, dashes, brackets); drop anything else.
             const clean = national.value.replace(/[^\d\s\-().]/g, '');

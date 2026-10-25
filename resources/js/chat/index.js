@@ -78,8 +78,9 @@ document.addEventListener('livewire:navigated', watchAll);
 const hook = (Livewire) => {
     Livewire.hook('morphed', watchAll);
     // A message sent with wire:submit has arrived (or failed): the composer can send again.
-    Livewire.hook('commit', ({ succeed, fail }) => {
-        const done = () => document.querySelectorAll('[data-chat-composer][data-chat-sending]').forEach(sent);
+    // Only the composers in the component whose request it was: another component's answer says nothing about theirs.
+    Livewire.hook('commit', ({ component, succeed, fail }) => {
+        const done = () => component.el?.querySelectorAll('[data-chat-composer][data-chat-sending]').forEach(sent);
         succeed(done);
         fail(done);
     });
@@ -154,6 +155,10 @@ async function loadOlder(chat) {
         // They come back in a chat of their own: its messages go in at the top, and its history-url is where the ones
         // before them are. No history-url: these were the first.
         const answer = new DOMParser().parseFromString(html, 'text/html').querySelector(CHAT);
+        // No chat in it (an error or sign-in page answered 200): a load that failed, to try again, not the first page.
+        if (!answer) {
+            throw new Error('not a chat');
+        }
         const older = [...(answer?.querySelector('[data-chat-log]')?.children ?? [])];
         seen.get(chat).older = true;
         log.prepend(...older.map((node) => document.adoptNode(node)));
@@ -177,6 +182,9 @@ async function loadOlder(chat) {
 // --- The composer ------------------------------------------------------------------------------------------------------
 
 const inputOf = (form) => form.querySelector('[data-chat-input]');
+// Files in any of its file inputs: the paperclip's, or one of your own in the actions slot (Livewire's wire:model, say).
+const fileInputsOf = (form) => [...form.querySelectorAll('input[type="file"]')];
+const hasFiles = (form) => fileInputsOf(form).some((input) => input.files.length > 0);
 const filesOf = (form) => form.querySelector('[data-chat-files]');
 
 // field-sizing: content grows the box in browsers that have it; elsewhere, size it to its text here.
@@ -223,7 +231,7 @@ document.addEventListener('submit', (event) => {
         return;
     }
     const input = inputOf(form);
-    const empty = input && input.value.trim() === '' && !(filesOf(form)?.files.length > 0);
+    const empty = input && input.value.trim() === '' && !hasFiles(form);
     if (empty || form.hasAttribute('data-chat-sending')) {
         event.preventDefault();
         event.stopPropagation();
@@ -493,10 +501,9 @@ function sendNow(form, chat) {
     const picked = files ? [...files.files] : [];
     // Taken before the box and the files are cleared: text, files, CSRF token and any _method, as the form would send.
     const data = new FormData(form);
-    // No file picked: a form still sends an empty one, which a file rule turns away. Left out instead.
-    if (files && picked.length === 0) {
-        data.delete(files.name);
-    }
+    // A file input with nothing picked still sends an empty file, which a file rule turns away. Left out instead.
+    fileInputsOf(form).filter((each) => each.files.length === 0 && each.name).forEach((each) => data.delete(each.name));
+    const multipart = hasFiles(form);
     const [bubble, urls] = outgoingBubble(chat, text, picked);
     // Above anyone still typing, which stays last, as it would in their own chat.
     const typing = logOf(chat).querySelector(':scope > [data-chat-typing]');
@@ -505,7 +512,7 @@ function sendNow(form, chat) {
     } else {
         logOf(chat).append(bubble);
     }
-    outgoing.set(bubble, { form, chat, data, text, picked, urls });
+    outgoing.set(bubble, { form, chat, data, text, picked, urls, multipart });
 
     if (input) {
         input.value = '';
@@ -546,7 +553,7 @@ function statusFrom(chat, bubble, name) {
 }
 
 async function deliver(bubble) {
-    const { form, chat, data, text, picked, urls } = outgoing.get(bubble);
+    const { form, chat, data, text, picked, urls, multipart } = outgoing.get(bubble);
     bubble.setAttribute('data-chat-delivering', '');
     try {
         // X-Requested-With: Laravel answers a failed validation with 422 and the errors, not a redirect. The chat's look
@@ -555,25 +562,33 @@ async function deliver(bubble) {
         if (chat.hasAttribute('data-chat-compact')) {
             headers['X-Chat-Compact'] = '1';
         }
-        // Text alone goes as a plain form body, as the browser would send it; files need multipart.
-        const body = picked.length > 0 ? data : new URLSearchParams(data);
-        const response = await fetch(form.action, { method: 'POST', body, headers, credentials: 'same-origin' });
+        // As the form says: GET puts its fields in the address (no files, as a browser's GET form sends only their names);
+        // otherwise POST, with text alone as a plain form body and files as multipart. PUT and the rest go as POST
+        // with _method, which the form carries.
+        const get = form.method.toLowerCase() === 'get';
+        const target = new URL(form.action, window.location.href);
+        if (get) {
+            target.search = new URLSearchParams([...data].filter(([, value]) => typeof value === 'string')).toString();
+        }
+        const body = get ? undefined : (multipart ? data : new URLSearchParams(data));
+        const response = await fetch(target, { method: get ? 'GET' : 'POST', body, headers, credentials: 'same-origin' });
 
-        // Turned away (too long, a file too big): the message goes back into the box, with why.
+        // Turned away (too long, a file too big). With the box still empty, the message goes back into it, with why. With
+        // a new draft started meanwhile, that stays as it is, and the message stays in the list as Not sent, with Edit to
+        // bring it back: neither is lost.
         if (response.status === 422) {
             const answer = await response.json().catch(() => ({}));
-            bubble.remove();
-            urls.forEach((url) => URL.revokeObjectURL(url));
+            const reason = Object.values(answer.errors ?? {}).flat()[0] ?? answer.message ?? "Your message couldn't be sent.";
             const input = inputOf(form);
-            if (input && input.value.trim() === '') {
-                input.value = text;
-                fit(input);
+            if (input && input.value.trim() !== '') {
+                bubble.querySelector('[data-chat-meta]')?.classList.add('text-error');
+                statusFrom(chat, bubble, 'rejected');
+                showError(form, reason);
+
+                return;
             }
-            const files = filesOf(form);
-            if (files && picked.length > 0) {
-                addFiles(files, picked);
-            }
-            showError(form, Object.values(answer.errors ?? {}).flat()[0] ?? answer.message ?? "Your message couldn't be sent.");
+            editBack(bubble);
+            showError(form, reason);
             input?.focus();
 
             return;
@@ -605,6 +620,34 @@ async function deliver(bubble) {
         bubble.removeAttribute('data-chat-delivering');
     }
 }
+
+// A message that wasn't sent, back into the composer to change and send again: its text before any draft there (on a
+// line of its own), its files with any picked since.
+function editBack(bubble) {
+    const { form, text, picked, urls } = outgoing.get(bubble);
+    bubble.remove();
+    outgoing.delete(bubble);
+    urls.forEach((url) => URL.revokeObjectURL(url));
+    const input = inputOf(form);
+    if (input) {
+        input.value = input.value.trim() === '' ? text : `${text}\n${input.value}`;
+        fit(input);
+    }
+    const files = filesOf(form);
+    if (files && picked.length > 0) {
+        addFiles(files, picked);
+    }
+}
+
+document.addEventListener('click', (event) => {
+    const edit = event.target instanceof Element ? event.target.closest('[data-chat-edit]') : null;
+    const bubble = edit?.closest('[data-chat-message]');
+    if (bubble && outgoing.has(bubble)) {
+        const { form } = outgoing.get(bubble);
+        editBack(bubble);
+        inputOf(form)?.focus();
+    }
+});
 
 document.addEventListener('click', (event) => {
     const retry = event.target instanceof Element ? event.target.closest('[data-chat-retry]') : null;

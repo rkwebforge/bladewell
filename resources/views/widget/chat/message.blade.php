@@ -23,6 +23,8 @@
     // dropped, images left as their description and unsafe links unlinked (Bladewell\Support\ChatMarkdown). Instead of
     // the slot.
     'markdown' => null,
+    // The text as plain text, shown as it was typed, line breaks kept, and escaped. Instead of the slot.
+    'text' => null,
 ])
 
 @php
@@ -87,7 +89,7 @@
         {{-- Who said it, for screen readers, as each message is read out on its own. --}}
         <span class="sr-only">{{ $mine ? 'You' : ($name ?? 'Reply') }}:</span>
 
-        @if ($markdown !== null || $slot->isNotEmpty())
+        @if ($markdown !== null || $text !== null || $slot->isNotEmpty())
             <div @class([
                 // A step smaller on phones, where a bubble is narrow; from sm up, the size of the page's own text.
                 'min-w-0 break-words text-sm',
@@ -103,7 +105,7 @@
                 'bg-field rounded-ee-md' => $mine && $assistant,
                 'bg-primary-fill text-on-primary rounded-ee-md [&_a]:text-on-primary [&_:not(pre)>code]:bg-on-primary/15' => $mine && ! $assistant,
                 'bg-field rounded-ss-md' => ! $mine && ! $assistant,
-            ])>@if ($markdown !== null){{-- Unescaped on purpose: ChatMarkdown built this HTML itself, from escaped text, with no HTML of the message's own. --}}{!! \Bladewell\Support\ChatMarkdown::toHtml($markdown) !!}@else{{ $slot }}@endif</div>
+            ])>@if ($markdown !== null){{-- Unescaped on purpose: ChatMarkdown built this HTML itself, from escaped text, with no HTML of the message's own. --}}{!! \Bladewell\Support\ChatMarkdown::toHtml($markdown) !!}@elseif ($text !== null)<span class="whitespace-pre-line">{{ $text }}</span>@else{{ $slot }}@endif</div>
         @endif
 
         @isset($attachments)

@@ -265,7 +265,7 @@
                     @if ($item['disabled']) aria-disabled="true" @endif
                     class="{{ $optionClass }}"
                 {{-- The meta (a balance, a count) at the end of the line; an empty span without one, so it can be filled in later. --}}
-                ><span class="min-w-0 truncate">{{ $item['label'] }}</span><span data-select-option-meta class="text-foreground/70 shrink-0 text-xs tabular-nums empty:hidden">{{ $item['meta'] }}</span></div>
+                ><span data-select-option-label class="min-w-0 truncate">{{ $item['label'] }}</span><span data-select-option-meta class="text-foreground/70 shrink-0 text-xs tabular-nums empty:hidden">{{ $item['meta'] }}</span></div>
             @endforeach
 
             <div data-select-empty data-no-results="{{ $noResults }}" @if ($remote) data-searching="{{ $searching }}" data-search-failed="{{ $searchFailed }}" @endif @if ($items->isNotEmpty()) hidden @endif class="text-muted px-5 py-2">{{ $noResults }}</div>

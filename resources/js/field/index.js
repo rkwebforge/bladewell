@@ -125,6 +125,25 @@ function updateCounter(control) {
 
 on('input', '[data-field] input, [data-field] textarea', (event, control) => updateCounter(control));
 
+// The first code point of each script's 0-9 that phone keyboards type: Arabic ١٢٣, Persian ۱۲۳, NKo, Devanagari १२३,
+// Bengali, Gurmukhi, Gujarati, Oriya, Tamil, Telugu, Kannada, Malayalam, Sinhala, Thai, Lao, Tibetan, Myanmar (two),
+// Khmer, Mongolian and full-width １２３.
+const DIGIT_ZEROS = [0x0660, 0x06f0, 0x07c0, 0x0966, 0x09e6, 0x0a66, 0x0ae6, 0x0b66, 0x0be6, 0x0c66, 0x0ce6, 0x0d66, 0x0de6, 0x0e50, 0x0ed0, 0x0f20, 0x1040, 0x1090, 0x17e0, 0x1810, 0xff10];
+
+// Digits from those scripts as 0-9, and their decimal and grouping marks (٫ ٬, full-width ． ，) as . and ,: a field
+// that keeps 0-9 would otherwise drop everything typed on an Arabic, Persian, Hindi or Japanese keyboard.
+export function latinDigits(text) {
+    return text
+        .replace(/\p{Nd}/gu, (digit) => {
+            const code = digit.codePointAt(0);
+            const zero = DIGIT_ZEROS.find((first) => code >= first && code <= first + 9);
+
+            return zero === undefined ? digit : String(code - zero);
+        })
+        .replace(/[٫．]/g, '.')
+        .replace(/[٬，]/g, ',');
+}
+
 // Swaps in a cleaned value while keeping the caret the same distance from the end,
 // so stripping a character mid-string doesn't throw the cursor to the end.
 export function replaceValue(input, clean) {

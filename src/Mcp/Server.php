@@ -136,7 +136,7 @@ final class Server
                     'properties' => [
                         'components' => ['type' => 'array', 'items' => ['type' => 'string', 'enum' => $names], 'minItems' => 1, 'description' => 'Names, e.g. ["select", "datepicker"].'],
                         'confirm' => ['type' => 'boolean', 'default' => false, 'description' => 'Write the files. Only after the person has seen the dry run and agreed.'],
-                        'force' => ['type' => 'boolean', 'default' => false, 'description' => 'Overwrite files the developer edited too. Only when they ask for it.'],
+                        'force' => ['type' => 'boolean', 'default' => false, 'description' => 'Overwrite files the developer edited in the components named too (never the theme, nor components brought along for them). Only when they ask for it.'],
                     ],
                     'required' => ['components'],
                 ],
@@ -267,7 +267,7 @@ final class Server
         }
 
         $widgets = $this->registry->resolve($names);
-        $planned = $this->installer->plan($widgets, $force);
+        $planned = $this->installer->plan($widgets, $force ? $names : []);
         if ($confirm) {
             $this->installer->apply($planned);
         }

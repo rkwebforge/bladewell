@@ -57,7 +57,9 @@ final readonly class InstallTarget
         $psr4 = is_array($composer) ? ($composer['autoload']['psr-4'] ?? []) : [];
 
         $roots = [];
-        foreach (is_array($psr4) ? $psr4 : [] as $prefix => $dir) {
+        foreach (is_array($psr4) ? $psr4 : [] as $prefix => $dirs) {
+            // A namespace may map to a list of directories ("App\\": ["app/", "src/"]); new files go in the first.
+            $dir = is_array($dirs) ? reset($dirs) : $dirs;
             if (is_string($prefix) && is_string($dir)) {
                 $roots[trim($prefix, '\\')] = trim($dir, '/');
             }

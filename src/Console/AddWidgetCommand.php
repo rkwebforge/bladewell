@@ -24,7 +24,7 @@ final class AddWidgetCommand extends Command
         {widgets?* : Widget names, e.g. select datepicker (see bladewell:list)}
         {--all : Install every widget}
         {--installed : Update every widget already in this app}
-        {--force : Overwrite files you have edited too}
+        {--force : Overwrite files you have edited in the widgets you name too (never the theme, nor widgets they bring along)}
         {--dry-run : Show what would change without writing anything}';
 
     protected $description = 'Copy widgets, and everything they need, into this app';
@@ -88,7 +88,8 @@ final class AddWidgetCommand extends Command
             return self::INVALID;
         }
 
-        $planned = $installer->plan($widgets, (bool) $this->option('force'));
+        // --force covers the widgets named (or, with --all and --installed, every one), not the theme or those brought along.
+        $planned = $installer->plan($widgets, $this->option('force') ? $requested : []);
         $dryRun = (bool) $this->option('dry-run');
 
         if (!$dryRun) {
@@ -114,11 +115,11 @@ final class AddWidgetCommand extends Command
         }
 
         if (($edited = $count(FileStatus::Conflict)) > 0) {
-            $this->components->warn("{$edited} file(s) you edited were left alone, so they miss this version's changes. See what changed with php artisan bladewell:diff, or re-run with --force to replace them.");
+            $this->components->warn("{$edited} file(s) you edited were left alone, so they miss this version's changes. See what changed with php artisan bladewell:diff. To replace a widget's, re-run naming it with --force; for the theme or a widget brought along, delete the file and re-run.");
         }
         // These predate bladewell.lock, so there's no telling an edit from an older version.
         if (($untracked = $count(FileStatus::Untracked)) > 0) {
-            $this->components->warn("{$untracked} file(s) differ from this version and were installed before bladewell.lock kept track, so they were left alone. If you haven't edited them, re-run with --force (it covers every widget you name, so name only those you haven't edited); from then on updates apply by themselves.");
+            $this->components->warn("{$untracked} file(s) differ from this version and were installed before bladewell.lock kept track, so they were left alone. If you haven't edited them, re-run with --force (it covers only the widgets you name, so name only those you haven't edited; for the theme, delete it and re-run); from then on updates apply by themselves.");
         }
 
         $this->notes($widgets, $target, rebuild: !$dryRun && $writes > 0);

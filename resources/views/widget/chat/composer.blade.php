@@ -35,11 +35,13 @@
     $method = strtoupper($method);
     // wire:model binds the text box; everything else (wire:submit, class, data-*) goes on the form.
     $model = $attributes->whereStartsWith('wire:model');
+    // Where its error is filed: under the bound property with wire:model (wire:model="prompt": prompt), else the name.
+    $field = $model->isEmpty() ? $name : (string) collect($model->getAttributes())->first();
     $files = $attachments ? preg_replace('/\[\]$/', '', $attachments) : null;
     // A failed send: the text's error, or else the files', read from the session as other fields do.
     $bag = $errors ?? null;
     $error = $bag instanceof \Illuminate\Support\ViewErrorBag
-        ? ($bag->first($name) ?: ($files ? ($bag->first($files) ?: $bag->first($files.'.*')) : ''))
+        ? ($bag->first($field) ?: ($files ? ($bag->first($files) ?: $bag->first($files.'.*')) : ''))
         : '';
     $round = 'focus-visible:ring-primary grid '.($compact ? 'size-8' : 'size-9').' shrink-0 place-items-center rounded-xl outline-none transition-colors focus-visible:ring-2 motion-reduce:transition-none';
 @endphp

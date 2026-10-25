@@ -10,6 +10,27 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Added
+
+- **chat**: `text` on a message shows plain text as it was typed, line breaks included.
+
+### Changed
+
+- **`bladewell:add --force`** and the MCP `force` option now cover only the widgets you name. Your `theme.css`, `base.css` and the widgets brought along for them (such as `field`) keep your edits; to take the package version of one of those, delete it and run `php artisan bladewell:add --installed`.
+
+### Fixed
+
+- **chat**: a message the server turns away while you type the next one stays in the list as Not sent, with Edit. Livewire errors show under the box whatever the `wire:model` property is called, a file input of your own sends files on its own, each composer waits only for its own message, `async` sends with the composer's method, and older messages that fail to load offer Try again.
+- **file-upload**: a rejected image goes back to the saved one, Retry respects `max-files`, an answer without an id shows as failed, forms wait for linked uploaders outside them, and resetting the form empties the widget.
+- **select**: readonly `multiple` selects keep their choices. With `search-url`, results update the options already listed, only the latest search can show an error, and options added after the page loaded (by Livewire, say) stay.
+- **datepicker**, **date-range-picker**: with no `min` or `max`, the calendar goes as far back and ahead as you like; limits changed after the page loaded apply the next time it opens; and on 29 February the `birthday` limit and `MinimumAge` use 28 February, as they should.
+- **table**: with several tables on a page, sorting, paging, filtering or scrolling one keeps the others where they are, and a filter that failed to load can be tried again.
+- **modal**: Escape closes the modal on top when another is open beneath it, and `reset-on-close` resets any form, whatever its fields are called.
+- **time-picker**: a `segmented` time can be changed part by part without being pulled into `min`–`max` halfway, its arrows follow `step`, and typing 1 in a 12-hour list goes to 1:00.
+- **number**: reads digits typed on any keyboard (Arabic, Persian, Hindi, Japanese…), and a stepper without `min` or `negative` stops at 0.
+- **phone**: reads digits typed on any keyboard, takes numbers pasted with 00 in front, and drops the prefix dialled at home in Russia, Kazakhstan and Hungary, in the browser and in `Countries::international()`.
+- **`bladewell:*` commands**: work in apps whose `composer.json` maps a namespace to several directories. `bladewell:mcp` answers batched requests.
+
 ## [1.4.0] - 2026-10-24
 
 ### Added

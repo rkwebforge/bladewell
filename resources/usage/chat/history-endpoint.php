@@ -15,7 +15,7 @@ final class ConversationMessagesController
         // resources/views/conversations/history.blade.php:
         // <x-widget.chat :history-url="$page->nextPageUrl()">
         //     @foreach ($page->reverse() as $message)
-        //         <x-widget.chat.message :mine="$message->user_id === auth()->id()" :name="$message->user->name" :time="$message->created_at">{{ $message->body }}</x-widget.chat.message>
+        //         <x-widget.chat.message :mine="$message->user_id === auth()->id()" :name="$message->user->name" :time="$message->created_at" :text="$message->body" />
         //     @endforeach
         // </x-widget.chat>
         return view('conversations.history', ['page' => $page]);

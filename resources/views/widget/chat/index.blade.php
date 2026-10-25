@@ -91,6 +91,12 @@
             <x-widget.icon name="circle-alert" class="size-3.5" /><span>Not sent</span>
             <button type="button" data-chat-retry class="focus-visible:ring-primary ms-1 rounded font-medium underline underline-offset-2 outline-none hover:no-underline focus-visible:ring-2">Retry</button>
         </template>
+        {{-- What one the server turned away says, kept in the list because a new draft was started meanwhile: Edit puts it
+             back into the box. --}}
+        <template data-chat-rejected>
+            <x-widget.icon name="circle-alert" class="size-3.5" /><span>Not sent</span>
+            <button type="button" data-chat-edit class="focus-visible:ring-primary ms-1 rounded font-medium underline underline-offset-2 outline-none hover:no-underline focus-visible:ring-2">Edit</button>
+        </template>
         <template data-chat-delivered>
             <x-widget.icon name="check" class="size-3.5" /><span>Sent</span>
         </template>

@@ -3,7 +3,7 @@
 // range in one go, the band following the finger. Nothing is submitted until both ends are chosen;
 // closing half-way keeps the previous range.
 import { closeIfOutOfView, visibleArea } from '../field';
-import { addDays, addMonths, alignedLeft, daysInMonth, horizontalStep, localeTools, MIN_WIDTH, parseIso, POPOVER_GAP, toIso, VIEWPORT_EDGE } from '../datepicker';
+import { addDays, addMonths, alignedLeft, daysInMonth, EARLIEST, fillYears, horizontalStep, LATEST, localeTools, MIN_WIDTH, parseIso, POPOVER_GAP, toIso, VIEWPORT_EDGE } from '../datepicker';
 
 const DAY_BASE = 'mx-auto grid aspect-square w-full max-w-11 place-items-center rounded-full text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary';
 const DAY_TONE = {
@@ -58,7 +58,8 @@ function initDateRange(root) {
     // "8 days" in the locale's own words and plural rules (Arabic has six forms), with nothing to translate.
     const dayCount = new Intl.NumberFormat(tools.locale, { style: 'unit', unit: 'day', unitDisplay: 'long' });
     const weekStart = Number(root.dataset.weekStart || 0);
-    // Worked out again each time the calendar opens, so a page left open past midnight moves "today" on.
+    // Worked out again each time the calendar opens: a page left open past midnight moves "today" on, and limits a
+    // Livewire render has changed since (data-min, data-max) apply.
     let today;
     let min;
     let max;
@@ -66,17 +67,9 @@ function initDateRange(root) {
 
     function refreshLimits() {
         const now = new Date();
-        const day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        if (today && day.getTime() === today.getTime()) {
-            return;
-        }
-        today = day;
-        min = parseLimit(root.dataset.min) ?? new Date(today.getFullYear() - 100, 0, 1);
-        max = parseLimit(root.dataset.max) ?? new Date(today.getFullYear() + 10, 11, 31);
-        yearSelect.replaceChildren();
-        for (let year = max.getFullYear(); year >= min.getFullYear(); year--) {
-            yearSelect.add(new Option(tools.number(year), String(year)));
-        }
+        today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        min = parseLimit(root.dataset.min) ?? EARLIEST;
+        max = parseLimit(root.dataset.max) ?? LATEST;
     }
     refreshLimits();
 
@@ -118,6 +111,7 @@ function initDateRange(root) {
         const year = view.getFullYear();
         const month = view.getMonth();
 
+        fillYears(yearSelect, { min, max, today, shown: year, back: 100, tools });
         yearSelect.value = String(year);
         monthSelect.value = String(month);
         for (const option of monthSelect.options) {

@@ -338,6 +338,36 @@ function refreshOtherPagination(page, except) {
     });
 }
 
+// The query parameters a table answers to: its page, its sort and its filter fields.
+function paramsOf(root) {
+    const form = root.querySelector(':scope > form[data-table-filters]');
+
+    return new Set([root.dataset.pageName, root.dataset.sortName, root.dataset.directionName, ...(form ? new FormData(form).keys() : [])].filter(Boolean));
+}
+
+// A table's links were built when its page was drawn, with every other table's page and sort as they were then. Since,
+// another table may have been paged, sorted or filtered in place: its parameters are taken from the address bar
+// instead, so following the link keeps it where it is. Those a Livewire component's table owns are its own to keep.
+function withOtherTables(href, root) {
+    const url = new URL(href, window.location.href);
+    const here = new URLSearchParams(window.location.search);
+    const own = paramsOf(root);
+    document.querySelectorAll('[data-table-root][id]').forEach((other) => {
+        if (other === root || inLivewire(other)) {
+            return;
+        }
+        paramsOf(other).forEach((name) => {
+            if (own.has(name)) {
+                return;
+            }
+            url.searchParams.delete(name);
+            here.getAll(name).forEach((value) => url.searchParams.append(name, value));
+        });
+    });
+
+    return url.href;
+}
+
 // push: a new history entry (a page or sort link, a filter picked); otherwise a filter replaces the entry, as while
 // typing. filter: focus stays where it is, in the toolbar (keep, see replaceAround), and the result count is read out.
 async function swapTable(root, url, { push = false, sort = false, filter = false, keep = null }) {
@@ -356,6 +386,10 @@ async function swapTable(root, url, { push = false, sort = false, filter = false
         }
         if (result.failure === 'network') {
             failedToLoad([root]);
+            // Nothing changed, so the same filter asked for again (Enter, or picking it again) is tried again.
+            if (filter) {
+                lastFilter.delete(root);
+            }
 
             return;
         }
@@ -425,7 +459,7 @@ const resetting = new WeakSet();
 async function changePage(root, href, { sort = false }) {
     typingEntry.delete(root.id);
     if (!inLivewire(root)) {
-        swapTable(root, href, { push: true, sort });
+        swapTable(root, withOtherTables(href, root), { push: true, sort });
 
         return;
     }
@@ -801,8 +835,9 @@ function syncUrl(root) {
     const scroller = root.querySelector('[data-table-scroll]');
     const headerHeight = root.querySelector('thead')?.offsetHeight ?? 0;
     const visible = [...state.batches].reverse().find((batch) => batch.rows[0].offsetTop - headerHeight <= scroller.scrollTop + 1) ?? state.batches[0];
-    if (visible.url && visible.url !== window.location.href) {
-        window.history.replaceState(window.history.state, '', visible.url);
+    const url = visible.url && withOtherTables(visible.url, root);
+    if (url && url !== window.location.href) {
+        window.history.replaceState(window.history.state, '', url);
     }
 }
 

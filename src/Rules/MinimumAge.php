@@ -25,8 +25,9 @@ final class MinimumAge implements ValidationRule
             return;
         }
 
-        // Overflow matches the browser: someone born on 29 Feb comes of age on 1 Mar in non-leap years.
-        $latestAllowed = LocalToday::latest()->subYearsWithOverflow($this->years);
+        // Without overflow, like the browser: on 29 Feb, 18 years back is 28 Feb when that year has no 29th, so someone
+        // born on 1 Mar waits until tomorrow. Someone born on 29 Feb still comes of age on 1 Mar in other years.
+        $latestAllowed = LocalToday::latest()->subYearsNoOverflow($this->years);
 
         if ($birthDate->greaterThan($latestAllowed)) {
             $fail("You must be at least {$this->years} years old.");

@@ -184,14 +184,18 @@ function chooseFromList(root, option) {
     parts(root).popover.hidePopover();
 }
 
-// Like a native select: typing "9" jumps to the first 9-o'clock time, "93" to 9:30. Digits only, matched against what
-// the option shows and its 24-hour time, so on a 12-hour clock both "2" and "14" reach 2:00 PM.
+// Like a native select: typing "9" jumps to the first 9-o'clock time, "93" to 9:30. Digits only, matched against the
+// hour and minute the option shows and its 24-hour time, so on a 12-hour clock both "2" and "14" reach 2:00 PM. The hour
+// is matched whole first, so "1" is 1:00, not 12:00; failing that, any time whose digits start with what was typed.
 function jump(list, key) {
     typed += key;
     clearTimeout(typedTimer);
     typedTimer = setTimeout(() => { typed = ''; }, 700);
-    const forms = (option) => [option.textContent, option.dataset.value].map((text) => text.replace(/\D/g, ''));
-    const match = enabled([...list.querySelectorAll('[role="option"]')]).find((option) => forms(option).some((digits) => digits.startsWith(typed) || digits.startsWith(`0${typed}`)));
+    const forms = (option) => [option.textContent, option.dataset.value].map((text) => text.match(/\d+/g) ?? []);
+    const whole = ([hour = '', minute = '']) => [hour, hour.padStart(2, '0')].some((h) => (typed.length <= h.length ? typed === h : typed.startsWith(h) && minute.startsWith(typed.slice(h.length))));
+    const starts = (digits) => digits.join('').startsWith(typed) || digits.join('').startsWith(`0${typed}`);
+    const options = enabled([...list.querySelectorAll('[role="option"]')]);
+    const match = options.find((option) => forms(option).some(whole)) ?? options.find((option) => forms(option).some(starts));
     match?.focus();
     match?.scrollIntoView({ block: 'nearest' });
 }
@@ -323,25 +327,36 @@ function renderSegments(root) {
     });
 }
 
-// A whole time once every part is in, kept within min and max; '' while any part is missing.
-function commitSegments(root) {
+// The time typed so far, in minutes, and that time kept within min and max; null while any part is missing.
+function typedTime(root) {
     const state = stateOf(root);
     const { hour12, min, max } = parts(root);
     if (state.hour === null || state.minute === null || (hour12 && state.pm === null)) {
-        setValue(root, '');
-
-        return;
+        return null;
     }
     const hour = hour12 ? (state.hour % 12) + (state.pm ? 12 : 0) : state.hour;
     const typed = hour * 60 + state.minute;
-    const kept = Math.min(max, Math.max(min, typed));
-    // Held within min and max: show what's submitted, not what was typed.
-    if (kept !== typed) {
-        const keptHour = Math.floor(kept / 60);
-        Object.assign(state, { hour: hour12 ? keptHour % 12 || 12 : keptHour, minute: kept % 60, pm: keptHour >= 12 });
-        renderSegments(root);
+
+    return { typed, kept: Math.min(max, Math.max(min, typed)) };
+}
+
+// A whole time once every part is in, kept within min and max; '' while any part is missing. What was typed stays as it
+// is while the field has focus, even out of range: changing 11:00 AM to 5:00 PM goes through 5:00 AM on the way.
+function commitSegments(root) {
+    const time = typedTime(root);
+    setValue(root, time ? fromMinutes(time.kept) : '');
+}
+
+// Once focus leaves the field, it shows what's submitted, not what was typed.
+function settleSegments(root) {
+    const time = typedTime(root);
+    if (!time || time.kept === time.typed) {
+        return;
     }
-    setValue(root, fromMinutes(kept));
+    const { hour12 } = parts(root);
+    const hour = Math.floor(time.kept / 60);
+    Object.assign(stateOf(root), { hour: hour12 ? hour % 12 || 12 : hour, minute: time.kept % 60, pm: hour >= 12 });
+    renderSegments(root);
 }
 
 function segmentKey(root, segment, event) {
@@ -362,7 +377,17 @@ function segmentKey(root, segment, event) {
         if (part === 'period') {
             state.pm = state.pm === null ? by === 1 : !state.pm;
         } else if (part === 'minute') {
-            state.minute = state.minute === null ? (by === 1 ? 0 : 60 - step) : ((state.minute + by * step) % 60 + 60) % 60;
+            // To the next minute on the step (from :00), wrapping round the hour: :07 goes up to :15, not :22.
+            const last = Math.floor(59 / step) * step;
+            if (state.minute === null) {
+                state.minute = by === 1 ? 0 : last;
+            } else if (by === 1) {
+                const next = (Math.floor(state.minute / step) + 1) * step;
+                state.minute = next > last ? 0 : next;
+            } else {
+                const previous = (Math.ceil(state.minute / step) - 1) * step;
+                state.minute = previous < 0 ? last : previous;
+            }
         } else {
             state.hour = state.hour === null ? (by === 1 ? low : high) : wrap(state.hour + by);
         }
@@ -488,6 +513,10 @@ document.addEventListener('focusin', (event) => {
 document.addEventListener('focusout', (event) => {
     if (event.target.matches?.('[data-time-picker-segment]')) {
         pendingDigit.delete(event.target);
+        const segments = event.target.closest('[data-time-picker-segments]');
+        if (!segments.contains(event.relatedTarget)) {
+            settleSegments(event.target.closest(ROOT));
+        }
     }
 });
 

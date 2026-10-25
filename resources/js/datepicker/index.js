@@ -22,6 +22,24 @@ export const parseIso = (value) => {
     return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : null;
 };
 
+// Without a limit the calendar still ends somewhere: the first and last days a YYYY-MM-DD value can hold.
+export const EARLIEST = new Date(1000, 0, 1);
+export const LATEST = new Date(9999, 11, 31);
+
+// The years the year list offers, newest first: up to each limit, or, without one, a stretch around today (`back`
+// years before it, ten after) that grows as the calendar is moved past it. Rebuilt only when that changes.
+export function fillYears(select, { min, max, today, shown, back, tools }) {
+    const first = min > EARLIEST ? min.getFullYear() : Math.max(EARLIEST.getFullYear(), Math.min(today.getFullYear() - back, shown - 10));
+    const last = max < LATEST ? max.getFullYear() : Math.min(LATEST.getFullYear(), Math.max(today.getFullYear() + 10, shown + 10));
+    if (select.options[0]?.value === String(last) && select.options[select.options.length - 1].value === String(first)) {
+        return;
+    }
+    select.replaceChildren();
+    for (let year = last; year >= first; year--) {
+        select.add(new Option(tools.number(year), String(year)));
+    }
+}
+
 // How the picker's locale writes dates, shared with <x-widget.date-range-picker>. The locale comes from the
 // server (data-locale), which rendered the first paint in the same format. Always the Gregorian calendar,
 // because the grid is: some locales (ar-SA, th) would otherwise show Hijri or Buddhist dates above it.
@@ -96,32 +114,31 @@ function initDatepicker(root) {
 
     const tools = localeTools(root);
     const weekStart = Number(root.dataset.weekStart || 0);
-    // "today" means the user's local date, not the server's (see the Blade component). It and the limits built
-    // from it are worked out again each time the calendar opens (refreshLimits), so a page left open past
-    // midnight doesn't keep yesterday as today.
+    // "today" means the user's local date, not the server's (see the Blade component). It and the limits are worked
+    // out again each time the calendar opens (refreshLimits): a page left open past midnight moves today on, and
+    // limits a Livewire render has changed since (data-min, data-max) apply.
     let today;
     let min;
     let max;
     const parseLimit = (value) => (value === 'today' ? today : parseIso(value));
-    const yearsBack = (date, years) => (date && years ? new Date(date.getFullYear() - years, date.getMonth(), date.getDate()) : date);
+    // On 29 February, 18 years back is the 28th when that year has no 29th: someone born on 1 March isn't 18 until
+    // tomorrow.
+    const yearsBack = (date, years) => {
+        if (!date || !years) {
+            return date;
+        }
+        const year = date.getFullYear() - years;
+
+        return new Date(year, date.getMonth(), Math.min(date.getDate(), daysInMonth(year, date.getMonth())));
+    };
     // A birthday picker (max-years-back) has to reach the oldest people using the form, not stop at 100.
     const defaultSpan = root.dataset.maxYearsBack ? 120 : 100;
 
     function refreshLimits() {
         const now = new Date();
-        const day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        if (today && day.getTime() === today.getTime()) {
-            return;
-        }
-        today = day;
-        // Without explicit limits the year dropdown still needs a finite range.
-        min = parseLimit(root.dataset.min) ?? new Date(today.getFullYear() - defaultSpan, 0, 1);
-        max = yearsBack(parseLimit(root.dataset.max), Number(root.dataset.maxYearsBack || 0))
-            ?? new Date(today.getFullYear() + 10, 11, 31);
-        yearSelect.replaceChildren();
-        for (let year = max.getFullYear(); year >= min.getFullYear(); year--) {
-            yearSelect.add(new Option(tools.number(year), String(year)));
-        }
+        today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        min = parseLimit(root.dataset.min) ?? EARLIEST;
+        max = yearsBack(parseLimit(root.dataset.max), Number(root.dataset.maxYearsBack || 0)) ?? LATEST;
     }
     refreshLimits();
 
@@ -153,6 +170,7 @@ function initDatepicker(root) {
         const year = focused.getFullYear();
         const month = focused.getMonth();
 
+        fillYears(yearSelect, { min, max, today, shown: year, back: defaultSpan, tools });
         yearSelect.value = String(year);
         monthSelect.value = String(month);
         for (const option of monthSelect.options) {
