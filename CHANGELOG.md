@@ -10,17 +10,12 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
-### Added
-
-- **chat**: `text` on a message shows plain text as it was typed, line breaks included.
-
-### Changed
-
-- **`bladewell:add --force`** and the MCP `force` option now cover only the widgets you name. Your `theme.css`, `base.css` and the widgets brought along for them (such as `field`) keep your edits; to take the package version of one of those, delete it and run `php artisan bladewell:add --installed`.
+## [1.4.1] - 2026-10-25
 
 ### Fixed
 
-- **chat**: a message the server turns away while you type the next one stays in the list as Not sent, with Edit. Livewire errors show under the box whatever the `wire:model` property is called, a file input of your own sends files on its own, each composer waits only for its own message, `async` sends with the composer's method, and older messages that fail to load offer Try again.
+- **`bladewell:add --force`** and the MCP `force` option cover only the widgets you name, as the command already said. Your `theme.css`, `base.css` and the widgets brought along for them (such as `field`) keep your edits; to take the package version of one of those, delete it and run `php artisan bladewell:add --installed`.
+- **chat**: messages keep their line breaks when your route's copy replaces the one being sent (give typed messages to `text`, which shows them as typed). A message the server turns away while you type the next one stays in the list as Not sent, with Edit. Livewire errors show under the box whatever the `wire:model` property is called, a file input of your own sends files on its own, each composer waits only for its own message, `async` sends with the composer's method, and older messages that fail to load offer Try again.
 - **file-upload**: a rejected image goes back to the saved one, Retry respects `max-files`, an answer without an id shows as failed, forms wait for linked uploaders outside them, and resetting the form empties the widget.
 - **select**: readonly `multiple` selects keep their choices. With `search-url`, results update the options already listed, only the latest search can show an error, and options added after the page loaded (by Livewire, say) stay.
 - **datepicker**, **date-range-picker**: with no `min` or `max`, the calendar goes as far back and ahead as you like; limits changed after the page loaded apply the next time it opens; and on 29 February the `birthday` limit and `MinimumAge` use 28 February, as they should.
@@ -237,7 +232,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/rkwebforge/bladewell/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/rkwebforge/bladewell/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/rkwebforge/bladewell/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/rkwebforge/bladewell/compare/v1.3.1...v1.3.2
