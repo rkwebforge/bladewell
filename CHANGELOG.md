@@ -10,9 +10,10 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-10-27
+
 ### Added
 
-- **command**: `disabled` on an item shows it greyed out; the arrow keys pass it by, and Enter or a click doesn't run it.
 - **tags**: `layout="below"` keeps the box to one line and lists the tags under it as cards, for a long list. Adding, removing and submitting work as before.
 
 ### Fixed
@@ -20,7 +21,7 @@ What you build on is only ever added to, never renamed or removed: component nam
 - **chat**: a message you send while scrolled up to older ones takes you down to it, and a reply that comes in meanwhile shows too, rather than staying out of view behind the button down. One that arrives from the other side while you're reading still keeps your place.
 - **dropdown**, **popover**: open over a window that has since grown, the panel is placed by its full height and stays on screen. In a dropdown, pressing the same letter again moves on to the next item that starts with it.
 - **dropdown**, **popover**, **command**: in a `disable-close` modal, Escape closes the menu, popover or palette open on top of it, and focus goes back to what opened it.
-- **command**: while a new search is on its way, the last one's results can't be chosen; closing mid-search leaves no spinner behind; and a link opens whatever the saved recent list holds.
+- **command**: an item marked disabled (`disabled`, or `aria-disabled="true"` of your own) shows greyed out, the arrow keys pass it by, and Enter or a click no longer runs it. While a new search is on its way, the last one's results can't be chosen; closing mid-search leaves no spinner behind; and a link opens whatever the saved recent list holds.
 - **otp**: a whole code pasted into any box fills from the first; Backspace and Delete in the middle close the gap, so the code submitted is the one shown; and digits from any keyboard (Arabic, Persian…) are read. **verification-code** reads them too.
 - **tags**: a readonly field keeps its tags, however it came to be readonly, and a list pasted over selected text takes its place.
 - **search**: once the box is cleared (or cut below `suggest-min`), the last suggestions are gone, so the arrow keys and Enter can't bring one back.
@@ -257,7 +258,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/rkwebforge/bladewell/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/rkwebforge/bladewell/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/rkwebforge/bladewell/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/rkwebforge/bladewell/compare/v1.3.2...v1.3.3
