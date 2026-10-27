@@ -13,6 +13,7 @@ What you build on is only ever added to, never renamed or removed: component nam
 ### Fixed
 
 - **toast**: the layout usage note gave the default position as top-center; toasts appear top-right unless you set `position`.
+- The guidelines for Laravel Boost tell your agent not to wrap widgets in `wire:ignore` in Livewire, and to set a picker's, select's or similar control's value from the server or Livewire rather than a script or Alpine, which it wouldn't show. Run `php artisan boost:update` to pick them up.
 
 ## [1.4.2] - 2026-10-27
 
