@@ -206,13 +206,16 @@ document.addEventListener('focusout', (event) => {
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && open) {
+        // This Esc was the tooltip's: in a modal, it closes the tooltip and not the modal too.
+        event.preventDefault();
         hide();
     }
 });
 document.addEventListener('pointerdown', () => hide());
-// A scroll can take the element out of view, or out from under a pointer that hasn't moved (no pointerout fires then):
-// hide it either way, rather than leave it describing something no longer there.
-window.addEventListener('scroll', () => {
+// A scroll or a resize (the window, a phone turned) can take the element out of view, move it, or move it out from under
+// a pointer that hasn't moved (no pointerout fires then): hide it, or place it again under the element it describes,
+// rather than leave it where the element was.
+function follow() {
     if (!open) {
         return;
     }
@@ -223,7 +226,11 @@ window.addEventListener('scroll', () => {
     } else if (!pointer) {
         place(open);
     }
-}, true);
+}
+window.addEventListener('scroll', follow, true);
+window.addEventListener('resize', follow);
+// The page's font arriving after a tooltip opened (a slow connection) changes its width: placed again, it stays centred.
+document.fonts?.addEventListener('loadingdone', follow);
 
 linkAll();
 

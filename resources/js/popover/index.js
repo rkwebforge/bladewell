@@ -62,6 +62,9 @@ function position() {
         return;
     }
     const box = trigger.getBoundingClientRect();
+    // Measured at its full height: still held to the room it had last time (before a resize), it would be placed by
+    // that height, then grow past the edge of the screen.
+    panel.style.maxHeight = '';
     const width = panel.offsetWidth;
     const height = panel.offsetHeight;
 
@@ -75,7 +78,6 @@ function position() {
 
     // Below by default; above when it fits there and not below. Fitting neither, the roomier side wins and the panel
     // scrolls in that room.
-    panel.style.maxHeight = '';
     const roomBelow = window.innerHeight - VIEWPORT_EDGE - (box.bottom + GAP);
     const roomAbove = box.top - GAP - VIEWPORT_EDGE;
     const up = height > roomBelow && (height <= roomAbove || roomAbove > roomBelow);
@@ -153,9 +155,10 @@ document.addEventListener('toggle', (event) => {
         window.removeEventListener('scroll', position, true);
         window.removeEventListener('resize', position);
     }
-    // Esc, a close button or a script leaves focus nowhere or inside; put it back on the trigger. A click elsewhere, or
-    // Tab out of the panel, keeps focus where it went.
-    if (document.activeElement === document.body || panel.contains(document.activeElement)) {
+    // Esc, a close button or a script leaves focus nowhere or inside (or, in a modal, on the dialog around the trigger);
+    // put it back on the trigger. A click elsewhere, or Tab out of the panel, keeps focus where it went.
+    const left = document.activeElement;
+    if (left === document.body || panel.contains(left) || left?.contains(trigger)) {
         trigger.focus({ preventScroll: true });
     }
     panel.dispatchEvent(new CustomEvent('popover:closed', { bubbles: true }));

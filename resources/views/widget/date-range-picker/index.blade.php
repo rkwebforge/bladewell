@@ -209,7 +209,8 @@
             </button>
         </div>
 
-        {{-- Month grids are built by resources/js/widget/date-range-picker. --}}
+        {{-- Month grids are built by resources/js/widget/date-range-picker: day colours in its DAY_TONE; day shape and the
+             today ring in DAY_BASE and TODAY_MARK, shared from resources/js/widget/datepicker. --}}
         {{-- On a touch screen a slide that starts on a day picks a range (resources/js/widget/date-range-picker), so the days
              don't scroll or zoom; the rest of the calendar still does. --}}
         <div data-date-range-months class="grid gap-6 [&_td]:touch-none"></div>

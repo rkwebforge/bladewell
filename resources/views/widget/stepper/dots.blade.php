@@ -8,11 +8,14 @@
 ])
 
 @php
+    // No steps (total 0): nothing is drawn, rather than one dot and "Step 1 of 1".
+    $hasSteps = (int) $total > 0;
     $total = max(1, (int) $total);
     $current = max(1, min($total, (int) $current));
     $text = ($label ? $label.': ' : '').'Step '.$current.' of '.$total;
 @endphp
 
+@if ($hasSteps)
 {{-- Small dots for short wizards and carousels; the current one stretches into a pill. Decorative, like the
      bars: the progressbar role carries "Step 2 of 4" for screen readers. --}}
 <div
@@ -33,3 +36,4 @@
         ])></span>
     @endfor
 </div>
+@endif

@@ -104,7 +104,10 @@ on('paste', '[data-tags-input]', (event, input) => {
     // One word pastes as typing does; a list is added straight away.
     if (/[,;\n]/.test(text)) {
         event.preventDefault();
-        add(partsOf(input), split(`${input.value}${text}`));
+        // In place of whatever is selected, as a paste is anywhere else.
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        add(partsOf(input), split(`${input.value.slice(0, start)}${text}${input.value.slice(end)}`));
         input.value = '';
     }
 });
@@ -128,6 +131,10 @@ document.addEventListener('focusout', (event) => {
 
 on('click', '[data-tags-remove]', (event, button) => {
     const parts = partsOf(button);
+    // Readonly keeps its tags, however the field came to be readonly.
+    if (parts.input.readOnly) {
+        return;
+    }
     remove(parts, button.closest('[data-tags-chip]'));
     parts.input.focus();
 });

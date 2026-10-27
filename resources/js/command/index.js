@@ -21,6 +21,9 @@ const partsOf = (dialog) => ({
     busy: dialog.querySelector('[data-command-busy]'),
 });
 const visibleItems = (dialog) => [...dialog.querySelectorAll(ITEM)].filter((item) => !item.hidden && !item.closest('[hidden]'));
+// A disabled action is shown, but the highlight passes it by and it can't be chosen.
+const isDisabled = (item) => item.getAttribute('aria-disabled') === 'true';
+const choosable = (dialog) => visibleItems(dialog).filter((item) => !isDisabled(item));
 const labelOf = (item) => item.querySelector('[data-command-label]')?.textContent.trim() ?? item.textContent.trim();
 
 // --- Highlight -----------------------------------------------------------------------------------------------------------
@@ -38,7 +41,7 @@ function highlight(dialog, item) {
 }
 
 function move(dialog, step) {
-    const items = visibleItems(dialog);
+    const items = choosable(dialog);
     if (items.length === 0) {
         return;
     }
@@ -67,12 +70,13 @@ function filter(dialog) {
     if (words.length === 0) {
         results.replaceChildren();
     }
-    results.hidden = !results.querySelector(ITEM);
+    // While a new query's results are on their way, the last query's are out of the list: Enter mustn't pick one.
+    results.hidden = !results.querySelector(ITEM) || dialog.hasAttribute('data-searching');
 
     const count = visibleItems(dialog).length;
     empty.hidden = count > 0 || dialog.hasAttribute('data-searching');
     status.textContent = words.length === 0 ? '' : count === 1 ? '1 result' : `${count} results`;
-    highlight(dialog, visibleItems(dialog)[0] ?? null);
+    highlight(dialog, choosable(dialog)[0] ?? null);
 }
 
 // --- Your app's results (suggest-url) ----------------------------------------------------------------------------------
@@ -144,9 +148,12 @@ function search(dialog) {
 
 const recentKey = (dialog) => `bladewell-command-recent:${dialog.id}`;
 
+// Only well-formed entries: the stored list may be from an older version, edited, or not a list at all.
 function readRecent(dialog) {
     try {
-        return JSON.parse(localStorage.getItem(recentKey(dialog)) ?? '[]');
+        const stored = JSON.parse(localStorage.getItem(recentKey(dialog)) ?? '[]');
+
+        return Array.isArray(stored) ? stored.filter((entry) => typeof entry?.label === 'string' && typeof entry?.href === 'string') : [];
     } catch {
         return [];
     }
@@ -197,6 +204,8 @@ function open(target) {
     }
     const { input } = partsOf(dialog);
     input.value = '';
+    // Empty, so nothing is searched: a search still waiting from last time is dropped, and its spinner with it.
+    search(dialog);
     showRecent(dialog);
     filter(dialog);
     dialog.showModal();
@@ -226,6 +235,9 @@ function openable(href) {
 }
 
 function choose(dialog, item, { viaClick = false } = {}) {
+    if (isDisabled(item)) {
+        return;
+    }
     const href = item.dataset.href;
     if (href && !openable(href)) {
         console.warn('Bladewell command: not opening an item whose link isn\'t a page, email or phone number:', href);
@@ -276,10 +288,19 @@ document.addEventListener('click', (event) => {
     }
 });
 
+// Capture phase, so a click on a disabled action stops before its own listeners (wire:click, yours) see it.
+document.addEventListener('click', (event) => {
+    const item = event.target.closest?.(`${DIALOG} ${ITEM}`);
+    if (item && isDisabled(item)) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+}, true);
+
 // The pointer moves the highlight too, so Enter after pointing chooses what's under it.
 document.addEventListener('pointermove', (event) => {
     const item = event.target.closest?.(`${DIALOG} ${ITEM}`);
-    if (item && item.getAttribute('aria-selected') !== 'true') {
+    if (item && !isDisabled(item) && item.getAttribute('aria-selected') !== 'true') {
         highlight(item.closest(DIALOG), item);
     }
 });
@@ -324,6 +345,9 @@ document.addEventListener('close', (event) => {
     if (event.target.matches?.(DIALOG)) {
         clearTimeout(timers.get(event.target));
         requests.get(event.target)?.abort();
+        // The search it was waiting for won't come: it opens again without the spinner.
+        event.target.removeAttribute('data-searching');
+        partsOf(event.target).busy.hidden = true;
         event.target.dispatchEvent(new CustomEvent('command:closed', { bubbles: true }));
     }
 }, true);

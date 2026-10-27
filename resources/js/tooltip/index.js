@@ -230,6 +230,8 @@ document.addEventListener('focusout', (event) => {
 // Esc hides it without moving focus, and a press means the person has moved on.
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && open) {
+        // This Esc was the tooltip's: in a modal, it closes the tooltip and not the modal too.
+        event.preventDefault();
         hide();
     }
 });
@@ -237,6 +239,8 @@ document.addEventListener('pointerdown', () => hide());
 
 window.addEventListener('scroll', () => open && position(open), true);
 window.addEventListener('resize', () => open && position(open));
+// The page's font arriving after a tooltip opened (a slow connection) changes its width: placed again, it stays centred.
+document.fonts?.addEventListener('loadingdone', () => open && position(open));
 
 linkAll();
 

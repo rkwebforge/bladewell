@@ -68,6 +68,16 @@ async function setOpen(item, open) {
     rowOf(item).toggleAttribute('data-expanded', open);
     const group = groupOf(item);
     if (group) {
+        // Nodes in a closed group can't be reached: the Tab stop, and focus if it was in there, move to this node, or
+        // closing it from a script (tree.close) would leave the tree with no way in from the keyboard.
+        if (!open && group.contains(document.activeElement)) {
+            focusItem(item);
+        } else if (!open && group.querySelector(`${ITEM}[tabindex="0"]`)) {
+            group.querySelectorAll(`${ITEM}[tabindex="0"]`).forEach((inside) => {
+                inside.tabIndex = -1;
+            });
+            item.tabIndex = 0;
+        }
         group.hidden = !open;
     }
     item.dispatchEvent(new CustomEvent('tree:toggle', { bubbles: true, detail: { item, open } }));
@@ -179,12 +189,19 @@ function tickDown(item, state) {
 }
 
 // A parent shows what's under it: ticked when all of it is, a dash when some is. One not yet opened keeps its own.
-function settleUp(item) {
+function settleOne(node) {
+    const states = childItems(node).map(checked);
+    if (states.length > 0) {
+        setChecked(node, states.every((state) => state === 'true') ? 'true' : states.every((state) => state === 'false') ? 'false' : 'mixed');
+    }
+}
+
+// Every parent under a node, deepest first, then the node and those above it: a parent two levels down with a disabled,
+// unticked child shows a dash, and so do all above it.
+function settleAround(item) {
+    [...item.querySelectorAll(ITEM)].reverse().forEach(settleOne);
     for (let node = item; node; node = parentItem(node)) {
-        const states = childItems(node).map(checked);
-        if (states.length > 0) {
-            setChecked(node, states.every((state) => state === 'true') ? 'true' : states.every((state) => state === 'false') ? 'false' : 'mixed');
-        }
+        settleOne(node);
     }
 }
 
@@ -196,8 +213,8 @@ function toggleChecked(item) {
     }
     const tickable = [item, ...item.querySelectorAll(ITEM)].filter((node) => !isDisabled(node) && childItems(node).length === 0);
     tickDown(item, tickable.every((node) => checked(node) === 'true') ? 'false' : 'true');
-    // From the node itself: a disabled child it couldn't tick leaves it half-ticked.
-    settleUp(item);
+    // From the deepest node under it: a disabled child it couldn't tick leaves its parents half-ticked.
+    settleAround(item);
     writeValue(treeOf(item));
 }
 
@@ -231,20 +248,19 @@ function readValue(tree) {
     const items = [...tree.querySelectorAll(ITEM)];
     items.forEach((item) => setChecked(item, chosen.has(item.dataset.value) ? 'true' : 'false'));
     // Deepest first, so each parent counts children that are already settled.
-    items.reverse().forEach((item) => {
-        const states = childItems(item).map(checked);
-        if (states.length > 0) {
-            setChecked(item, states.every((state) => state === 'true') ? 'true' : states.every((state) => state === 'false') ? 'false' : 'mixed');
-        }
-    });
+    items.reverse().forEach(settleOne);
 }
 
-// Children just fetched: ticked if their value was, or if their parent was ticked whole; then the parents settle.
+// Children just fetched, and any of theirs that came with them: each ticked if its value was, or (unless disabled) if
+// the parent was ticked whole. Never a child's state pushed onto its own children, which would untick values already
+// chosen under it. Then the parents settle.
 function tickLoaded(item, children) {
     const chosen = new Set([...(valueSelect(treeOf(item))?.selectedOptions ?? [])].map((option) => option.value));
     const inherit = checked(item) === 'true';
-    children.forEach((child) => tickDown(child, inherit || chosen.has(child.dataset.value) ? 'true' : 'false'));
-    settleUp(item);
+    children.flatMap((child) => [child, ...child.querySelectorAll(ITEM)]).forEach((node) => {
+        setChecked(node, (inherit && !isDisabled(node)) || chosen.has(node.dataset.value) ? 'true' : 'false');
+    });
+    settleAround(item);
     writeValue(treeOf(item));
 }
 

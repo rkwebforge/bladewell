@@ -455,6 +455,10 @@ document.addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+    // Ctrl, Cmd or Alt with a key is the browser's (select all, copy, print): Ctrl+A isn't the a of AM.
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+    }
     const segment = event.target.closest?.('[data-time-picker-segment]');
     // A readonly time keeps its keys to itself: Tab still moves on, nothing else changes it.
     if (segment && segment.getAttribute('aria-disabled') !== 'true' && segment.getAttribute('aria-readonly') !== 'true') {

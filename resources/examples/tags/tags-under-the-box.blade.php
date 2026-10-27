@@ -1,0 +1,2 @@
+{{-- layout="below" keeps the box to one line and lists the tags under it as cards, for a long list. Everything else works as in the box: Enter, a comma or a pasted list adds, each tag's × removes it, and they submit as name[]. --}}
+<x-widget.tags name="topics" label="Topics" layout="below" placeholder="Add topics, separated by commas" :value="['Laravel', 'Livewire', 'Blade', 'Tailwind CSS', 'Accessibility', 'Testing', 'Deployment']" class="max-w-md" />

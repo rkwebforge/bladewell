@@ -79,9 +79,10 @@ document.addEventListener('input', (event) => {
     if (target.matches?.('[data-color-native]')) {
         pick(partsOf(target), target.value);
     } else if (target.matches?.('[data-color-hex]')) {
-        // A full colour typed moves the others at once; a half-typed one waits.
-        const color = normalise(target.value);
-        if (color) {
+        // A full colour typed moves the others at once; a half-typed one waits. Emptied, nothing is picked, as nothing
+        // is what submits.
+        const color = target.value.trim() === '' ? '' : normalise(target.value);
+        if (color !== null) {
             target.dataset.lastColor = color;
             show(partsOf(target), color);
         }

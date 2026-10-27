@@ -180,12 +180,22 @@ function render(box, items, query) {
     say(box, (box.messages.count ?? '').replace(':count', String(box.options.length)));
 }
 
+const tooShort = (box) => box.input.value.trim().length < Number(box.input.dataset.suggestMin ?? 2);
+
+// The last query's suggestions go with the list: kept, ArrowDown would bring them back and Enter pick one.
+function forget(box) {
+    box.request?.abort();
+    close(box);
+    box.list.replaceChildren();
+    box.options = [];
+    say(box, '');
+}
+
 async function ask(box) {
     const query = box.input.value.trim();
     box.request?.abort();
-    if (query.length < Number(box.input.dataset.suggestMin ?? 2)) {
-        close(box);
-        say(box, '');
+    if (tooShort(box)) {
+        forget(box);
 
         return;
     }
@@ -259,6 +269,12 @@ document.addEventListener('input', (event) => {
         return;
     }
     clearTimeout(box.timer);
+    // Cleared, or cut back below the minimum: no waiting, nothing of the last query left to choose.
+    if (tooShort(box)) {
+        forget(box);
+
+        return;
+    }
     box.timer = setTimeout(() => ask(box), WAIT_MS);
 });
 

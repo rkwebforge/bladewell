@@ -77,7 +77,7 @@ export const horizontalStep = (key, rtl) => (key === 'ArrowRight' ? 1 : -1) * (r
 // One tone per state so no two classes fight over the same property.
 // Fluid days: each fills its (equal, table-fixed) column up to 44px and stays round,
 // so the grid scales with the dropdown instead of forcing a fixed width.
-const DAY_BASE = 'mx-auto grid aspect-square w-full max-w-11 place-items-center rounded-full text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary';
+export const DAY_BASE = 'mx-auto grid aspect-square w-full max-w-11 place-items-center rounded-full text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary';
 const DAY_TONE = {
     selected: 'bg-primary-fill font-semibold text-on-primary',
     disabled: 'cursor-not-allowed text-muted/50',
@@ -86,7 +86,7 @@ const DAY_TONE = {
     default: 'text-foreground hover:bg-field',
 };
 // Added on top of whichever tone applies, so today stays marked even when disabled or outside the month.
-const TODAY_MARK = 'ring-1 ring-inset ring-primary';
+export const TODAY_MARK = 'ring-1 ring-inset ring-primary';
 
 export const VIEWPORT_EDGE = 16;
 export const POPOVER_GAP = 4;

@@ -149,6 +149,9 @@ function position() {
         top: centreY - trigger.offsetHeight / 2,
         bottom: centreY + trigger.offsetHeight / 2,
     };
+    // Measured at its full height: still held to the room it had last time (before a resize), it would be placed by
+    // that height, then grow past the edge of the screen.
+    menu.style.maxHeight = '';
     const width = menu.offsetWidth;
     const height = menu.offsetHeight;
 
@@ -160,7 +163,6 @@ function position() {
 
     // Below by default; above only when it doesn't fit below and does fit above. When it fits neither, the
     // side with more room wins and the menu is held to that room (it scrolls), so no item ends up off-screen.
-    menu.style.maxHeight = '';
     const roomBelow = window.innerHeight - VIEWPORT_EDGE - (box.bottom + GAP);
     const roomAbove = box.top - GAP - VIEWPORT_EDGE;
     const up = height > roomBelow && (height <= roomAbove || roomAbove > roomBelow);
@@ -180,11 +182,13 @@ function typeahead(menu, character) {
 
     const items = itemsOf(menu);
     const start = items.indexOf(document.activeElement);
-    // A repeated single letter cycles through the items that start with it.
-    const offset = typed.length === 1 ? 1 : 0;
+    // One letter, or the same letter pressed again and again (a, a, a), moves on to the next item that starts with it;
+    // several letters (sa) look from the current item on.
+    const prefix = /^(.)\1*$/.test(typed) ? typed[0] : typed;
+    const offset = prefix.length === 1 ? 1 : 0;
     for (let step = 0; step < items.length; step++) {
         const item = items[(start + offset + step + items.length) % items.length];
-        if (item.textContent.trim().toLowerCase().startsWith(typed)) {
+        if (item.textContent.trim().toLowerCase().startsWith(prefix)) {
             item.focus();
 
             return;
@@ -359,8 +363,10 @@ document.addEventListener('toggle', (event) => {
         window.removeEventListener('scroll', position, true);
         window.removeEventListener('resize', position);
     }
-    // Esc or choosing an item leaves focus nowhere; put it back on the trigger. A click elsewhere keeps its own focus.
-    if (document.activeElement === document.body || menu.contains(document.activeElement)) {
+    // Esc or choosing an item leaves focus nowhere (or, in a modal, on the dialog around the trigger); put it back on the
+    // trigger. A click elsewhere keeps its own focus.
+    const left = document.activeElement;
+    if (left === document.body || menu.contains(left) || left?.contains(trigger)) {
         trigger.focus({ preventScroll: true });
     }
 }, true);

@@ -17,12 +17,15 @@
 @php
     // Names, or the arrays the other steppers take (only the label is used here), so one list fits every stepper.
     $steps = array_values(array_map(static fn (string|array $step): string => is_string($step) ? $step : (string) ($step['label'] ?? ''), $steps));
+    // No steps (none set up yet, or total 0): nothing is drawn, rather than one bar and "Step 1 of 1".
+    $hasSteps = (int) ($total ?? count($steps)) > 0;
     $total = max(1, (int) ($total ?? count($steps)));
     $current = max(1, min($total, (int) $current));
     $name = $steps[$current - 1] ?? null;
     $text = ($label ? $label.': ' : '').'Step '.$current.' of '.$total.($name !== null ? ', '.$name : '');
 @endphp
 
+@if ($hasSteps)
 <div {{ $attributes->class(['w-full']) }}>
     @if ($showLabel)
         <div class="text-foreground mb-2 flex items-baseline justify-between gap-2 text-xs" aria-hidden="true">
@@ -64,3 +67,4 @@
         </ol>
     @endif
 </div>
+@endif

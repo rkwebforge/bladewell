@@ -14,6 +14,8 @@
         $steps,
     ));
     $current = max(1, min(max(1, count($steps)), (int) $current));
+    // No steps (none set up yet): nothing is drawn, rather than an empty list.
+    $hasSteps = $steps !== [];
 
     // Arrow-shaped segments: a notch cut into the start, a point on the end. The first has no notch, the last
     // no point. Mirrored in RTL (and the text flipped back) so the arrows point the way you read.
@@ -28,6 +30,7 @@
     $spoken = ['done' => 'completed', 'current' => 'current step', 'upcoming' => 'not started'];
 @endphp
 
+@if ($hasSteps)
 <ol aria-label="{{ $label }}" {{ $attributes->class(['flex w-full']) }}>
     @foreach ($steps as $index => $step)
         @php
@@ -66,3 +69,4 @@
         </li>
     @endforeach
 </ol>
+@endif

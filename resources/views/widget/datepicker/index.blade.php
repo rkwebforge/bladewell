@@ -171,6 +171,7 @@
             </button>
         </div>
 
+        {{-- Days are built by resources/js/widget/datepicker; restyle them with DAY_BASE, DAY_TONE and TODAY_MARK at its top. --}}
         <table data-datepicker-grid class="w-full table-fixed border-collapse text-center"></table>
     </div>
 </x-widget.field>

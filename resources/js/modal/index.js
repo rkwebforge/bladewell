@@ -95,12 +95,16 @@ document.addEventListener('click', (event) => {
 // back gesture) a locked modal that closes without the app asking is opened again.
 // Focus can only be in the top one (the browser makes those below it inert); otherwise, the last opened. One opened
 // by a script of yours with showModal() counts as newer than those opened here.
-const topModal = () => document.activeElement?.closest(`${MODAL}:modal`)
+// Any modal dialog counts for where focus is (a command palette opened over a locked modal is on top, and Esc is its).
+const topModal = () => document.activeElement?.closest('dialog:modal')
     ?? [...document.querySelectorAll(`${MODAL}:modal`)].filter((dialog) => !stack.includes(dialog)).at(-1)
     ?? stack.filter((dialog) => dialog.matches(':modal')).at(-1);
 
+// An open menu or popover (a dropdown in the modal) takes Esc first: stopping it here would leave that open too.
+const popoverOpen = () => document.querySelector('[popover]:not([popover="manual"]):popover-open') !== null;
+
 document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && topModal()?.hasAttribute('data-disable-close')) {
+    if (event.key === 'Escape' && topModal()?.hasAttribute('data-disable-close') && !popoverOpen()) {
         event.preventDefault();
     }
 }, true);

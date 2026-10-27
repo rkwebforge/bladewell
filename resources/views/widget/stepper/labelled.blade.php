@@ -20,6 +20,8 @@
         $steps,
     ));
     $current = max(1, min(max(1, count($steps)), (int) $current));
+    // No steps (none set up yet): nothing is drawn, rather than an empty list and "Step 1 of 0".
+    $hasSteps = $steps !== [];
     // A typo fails loudly, naming the values that work, instead of quietly rendering something else.
     if (! in_array($orientation, ['horizontal', 'vertical'], true)) {
         throw new \InvalidArgumentException("Unknown orientation [{$orientation}] for <x-widget.stepper.labelled>. Use one of: horizontal, vertical.");
@@ -40,6 +42,7 @@
     $spoken = ['done' => 'completed', 'current' => 'current step', 'upcoming' => 'not started', 'locked' => 'locked', 'error' => 'needs attention'];
 @endphp
 
+@if ($hasSteps)
 <div {{ $attributes->class(['w-full']) }}>
     <ol aria-label="{{ $label }}" @class(['flex w-full', 'flex-col' => $vertical])>
         @foreach ($steps as $index => $step)
@@ -118,3 +121,4 @@
         </p>
     @endunless
 </div>
+@endif

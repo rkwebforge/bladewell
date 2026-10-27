@@ -222,8 +222,14 @@ function render(t, type, message, options) {
         parts.push(bar);
     }
 
+    // Focus on its close button (a keyboard user waiting on a loading toast) goes to the new one, rather than to <body>
+    // as the old one is taken out; focusin then holds the timer, as it does for any toast with focus.
+    const hadFocus = t.el.contains(document.activeElement);
     t.el.replaceChildren(...parts);
     startTimer(t, bar);
+    if (hadFocus) {
+        close.focus({ preventScroll: true });
+    }
     announce(spec.role, [options.title ?? spec.title, message].filter(Boolean).join('. '));
 }
 

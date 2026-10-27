@@ -16,7 +16,13 @@ function hashPairs() {
     for (const part of location.hash.slice(1).split('&')) {
         const at = part.indexOf('=');
         if (at > 0) {
-            pairs.set(decodeURIComponent(part.slice(0, at)), decodeURIComponent(part.slice(at + 1)));
+            // A link that can't be read (#plans=%, cut off when shared) skips that entry, rather than stopping every tab
+            // set from opening on or remembering its tab.
+            try {
+                pairs.set(decodeURIComponent(part.slice(0, at)), decodeURIComponent(part.slice(at + 1)));
+            } catch {
+                // Left out.
+            }
         }
     }
 

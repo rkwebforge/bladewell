@@ -10,6 +10,31 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Added
+
+- **command**: `disabled` on an item shows it greyed out; the arrow keys pass it by, and Enter or a click doesn't run it.
+- **tags**: `layout="below"` keeps the box to one line and lists the tags under it as cards, for a long list. Adding, removing and submitting work as before.
+
+### Fixed
+
+- **chat**: a message you send while scrolled up to older ones takes you down to it, and a reply that comes in meanwhile shows too, rather than staying out of view behind the button down. One that arrives from the other side while you're reading still keeps your place.
+- **dropdown**, **popover**: open over a window that has since grown, the panel is placed by its full height and stays on screen. In a dropdown, pressing the same letter again moves on to the next item that starts with it.
+- **dropdown**, **popover**, **command**: in a `disable-close` modal, Escape closes the menu, popover or palette open on top of it, and focus goes back to what opened it.
+- **command**: while a new search is on its way, the last one's results can't be chosen; closing mid-search leaves no spinner behind; and a link opens whatever the saved recent list holds.
+- **otp**: a whole code pasted into any box fills from the first; Backspace and Delete in the middle close the gap, so the code submitted is the one shown; and digits from any keyboard (Arabic, Persian…) are read. **verification-code** reads them too.
+- **tags**: a readonly field keeps its tags, however it came to be readonly, and a list pasted over selected text takes its place.
+- **search**: once the box is cleared (or cut below `suggest-min`), the last suggestions are gone, so the arrow keys and Enter can't bring one back.
+- **color-picker**: emptying the hex box unticks the swatch and clears the preview, matching the empty value it submits.
+- **number**: a readonly stepper keeps its value from the arrow keys too.
+- **captcha**: showing another code empties the answer for `wire:model` and other listeners as well as on screen.
+- **All widgets in a Livewire component** (`ElementIds`): in your tests, calling an action after `Livewire::test()` no longer throws "Duplicate element id" for a widget with its own `id`, such as tabs. A component rendering again replaces the ids it had; a real duplicate on the page still throws.
+- **tabs** (`remember`): a link with an entry that can't be read (`#plans=%`, cut off when shared) still opens the other remembered tabs, and choosing a tab keeps updating the link.
+- **stepper**: with no steps (none set up yet, or a total of 0), every look draws nothing, instead of an empty list, "Step 1 of 0", or a single step.
+- **toast**: however many are showing, they stay on screen: past what fits, the stack scrolls, so each can still be read and dismissed. When a toast updates (`toast.update`, loading to success), focus on its close button stays there, and the toast stays open while it has focus.
+- **time-picker**: Ctrl, Cmd and Alt shortcuts are left to the browser, so Ctrl+A (select all) no longer switches a `segmented` time to AM.
+- **tooltip**, **tooltip-cursor**: in a modal, Escape closes the tooltip and leaves the modal open; the next Escape closes the modal. A cursor tooltip opened from the keyboard also stays under its element when the window is resized or a phone is turned, and both stay centred when the page's font arrives after they opened.
+- **tree**: in a Livewire component, a node stays open or closed as the person left it after a render. With checkboxes, every parent above a disabled, unticked node shows a dash however deep it is, and values already chosen stay chosen when children arrive with children of their own. Closing a node from a script (`tree.close`) moves the keyboard's Tab stop out of it.
+
 ## [1.4.1] - 2026-10-25
 
 ### Fixed

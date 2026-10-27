@@ -150,6 +150,10 @@ on('focusout', '[data-number-input]', (event, input) => {
 
 // Stepping: the - / + buttons, or ArrowUp / ArrowDown when the field has them. 12.50 + 1 stays 13.50.
 function stepNumber(input, direction) {
+    // Readonly or disabled, however it came to be: the value stays, from the arrow keys or a script.
+    if (input.readOnly || input.disabled) {
+        return;
+    }
     const decimals = Number(input.dataset.decimals);
     const step = Number(input.dataset.step || 1);
     const current = numberValue(input);

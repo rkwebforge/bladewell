@@ -62,7 +62,9 @@
     data-show-progress="{{ $showProgress ? 'true' : 'false' }}"
     data-pause-on-hover="{{ $pauseOnHover ? 'true' : 'false' }}"
     data-pause-on-focus-loss="{{ $pauseOnFocusLoss ? 'true' : 'false' }}"
-    {{ $attributes->class([$positions[$position], 'pointer-events-none fixed inset-auto m-0 w-[min(24rem,calc(100vw-2rem))] gap-3 overflow-visible border-0 bg-transparent p-0 open:flex']) }}
+    {{-- Never taller than the screen: past what fits, the toasts scroll, so none is out of reach. The 0.5rem of padding
+         (and as much negative margin, so nothing moves) keeps their shadows and slide-in from being clipped. --}}
+    {{ $attributes->class([$positions[$position], 'pointer-events-none fixed inset-auto -m-2 max-h-[calc(100dvh-1rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[min(25rem,calc(100vw-1rem))] gap-3 overflow-y-auto overscroll-contain border-0 bg-transparent p-2 [scrollbar-width:thin] open:flex']) }}
 ></div>
 
 @if ($flashed)

@@ -3,9 +3,9 @@
 // range in one go, the band following the finger. Nothing is submitted until both ends are chosen;
 // closing half-way keeps the previous range.
 import { closeIfOutOfView, visibleArea } from '../field';
-import { addDays, addMonths, alignedLeft, daysInMonth, EARLIEST, fillYears, horizontalStep, LATEST, localeTools, MIN_WIDTH, parseIso, POPOVER_GAP, toIso, VIEWPORT_EDGE } from '../datepicker';
+import { addDays, addMonths, alignedLeft, DAY_BASE, daysInMonth, EARLIEST, fillYears, horizontalStep, LATEST, localeTools, MIN_WIDTH, parseIso, POPOVER_GAP, TODAY_MARK, toIso, VIEWPORT_EDGE } from '../datepicker';
 
-const DAY_BASE = 'mx-auto grid aspect-square w-full max-w-11 place-items-center rounded-full text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary';
+// Day shape (DAY_BASE) and the today ring (TODAY_MARK) come from the datepicker, so restyling its days restyles these too.
 const DAY_TONE = {
     endpoint: 'bg-primary-fill font-semibold text-on-primary',
     disabled: 'cursor-not-allowed text-muted/50',
@@ -13,7 +13,6 @@ const DAY_TONE = {
     today: 'font-semibold text-primary hover:bg-field',
     default: 'text-foreground hover:bg-field',
 };
-const TODAY_MARK = 'ring-1 ring-inset ring-primary';
 // The band behind the range sits on the cells, so it runs unbroken between the round day buttons;
 // on the two ends it covers only the inner half. bg-clip-content + py leaves a gap between weeks.
 const CELL_BASE = 'bg-clip-content py-0.5';

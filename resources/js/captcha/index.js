@@ -32,7 +32,10 @@ on('click', '[data-captcha-refresh]', (event, button) => {
         audio.src = audioUrl.href;
     }
 
+    // A new code: the old answer goes, and wire:model and other listeners hear of it, as when it's deleted by hand.
     input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
     input.focus();
 });
 

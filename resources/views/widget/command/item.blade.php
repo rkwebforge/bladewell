@@ -7,6 +7,8 @@
     'keywords' => null,
     // A key hint shown at the end of the row, such as "G D". Only shown: the palette doesn't bind it.
     'shortcut' => null,
+    // Shown greyed out, but it can't be chosen: the arrow keys pass it by, and Enter and a click do nothing.
+    'disabled' => false,
 ])
 
 {{--
@@ -20,7 +22,8 @@
     data-command-item
     @if ($href) data-href="{{ $href }}" @endif
     @if ($keywords) data-keywords="{{ $keywords }}" @endif
-    {{ $attributes->class(['text-foreground aria-selected:bg-field flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm']) }}
+    @if ($disabled) aria-disabled="true" @endif
+    {{ $attributes->class(['text-foreground aria-selected:bg-field flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm aria-disabled:cursor-not-allowed aria-disabled:opacity-40']) }}
 >
     @if ($icon)
         <x-widget.icon :name="$icon" class="text-foreground/70 size-4 shrink-0" />

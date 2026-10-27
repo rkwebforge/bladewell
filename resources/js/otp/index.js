@@ -1,12 +1,13 @@
 // Behaviour for <x-widget.otp>: one box per character, typing and pasting across them. Delegated from `document`, so fields added later work without
 // re-initialising. Client-side filtering is only for convenience; the Form Request must validate the same rules.
-import { on, onLivewireMorph, typingIn } from '../field';
+import { latinDigits, on, onLivewireMorph, typingIn } from '../field';
 
 // --- OTP: one box per digit --------------------------------------------------------
 
 const otpBoxes = (root) => [...root.querySelectorAll('[data-otp-box]')];
 // Digits only, or letters and digits in capitals when the field is alphanumeric (A7K2QX).
-const otpClean = (root, text) => ('alphanumeric' in root.dataset ? text.replace(/[^a-z0-9]/gi, '').toUpperCase() : text.replace(/\D/g, ''));
+// Digits typed on any keyboard (Arabic ١٢٣, Persian ۱۲۳…) count as 0-9.
+const otpClean = (root, text) => ('alphanumeric' in root.dataset ? latinDigits(text).replace(/[^a-z0-9]/gi, '').toUpperCase() : latinDigits(text).replace(/\D/g, ''));
 
 function otpSync(root) {
     const boxes = otpBoxes(root);
@@ -26,8 +27,12 @@ function otpSync(root) {
     }
 }
 
-function otpFill(root, start, digits) {
+// The boxes always fill from the first, with no gaps, so the code submitted is the code shown. A whole code (pasted
+// into any box) starts at the first box; anything shorter at the box it went into, or the first empty one before it.
+function otpFill(root, index, digits) {
     const boxes = otpBoxes(root);
+    const empty = boxes.findIndex((box) => box.value === '');
+    const start = digits.length >= boxes.length ? 0 : Math.min(index, empty === -1 ? index : empty);
     [...digits].slice(0, boxes.length - start).forEach((digit, i) => {
         boxes[start + i].value = digit;
     });
@@ -62,22 +67,33 @@ on('input', '[data-otp-box]', (event, box) => {
     otpFill(root, index, digits);
 });
 
+// Takes out the character at `at`, moving the ones after it back a box, as deleting does in a text field.
+function otpRemove(boxes, at) {
+    for (let i = at; i < boxes.length; i++) {
+        boxes[i].value = boxes[i + 1]?.value ?? '';
+    }
+}
+
 on('keydown', '[data-otp-box]', (event, box) => {
     const root = box.closest('[data-otp]');
     const boxes = otpBoxes(root);
     const index = boxes.indexOf(box);
 
-    // Readonly boxes take no Backspace, as the browser's own readonly takes no typing.
-    if (event.key === 'Backspace' && box.readOnly) {
+    // Readonly boxes take no Backspace or Delete, as the browser's own readonly takes no typing.
+    if ((event.key === 'Backspace' || event.key === 'Delete') && box.readOnly) {
         event.preventDefault();
     } else if (event.key === 'Backspace') {
         event.preventDefault();
         if (box.value) {
-            box.value = '';
+            otpRemove(boxes, index);
         } else if (index > 0) {
-            boxes[index - 1].value = '';
+            otpRemove(boxes, index - 1);
             boxes[index - 1].focus();
         }
+        otpSync(root);
+    } else if (event.key === 'Delete') {
+        event.preventDefault();
+        otpRemove(boxes, index);
         otpSync(root);
     } else if (event.key === 'ArrowLeft' && index > 0) {
         event.preventDefault();

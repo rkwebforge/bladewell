@@ -20,9 +20,12 @@ const nearTop = (scroller) => scroller.scrollHeight - scroller.clientHeight + sc
 
 // --- Keeping the reader's place --------------------------------------------------------------------------------------
 
-// Per chat: where it was scrolled and how tall its messages were when last seen, and whether the next change in height
-// is older messages going in at the top (which moves nothing, being at the far end of the reversed column).
+// Per chat: where it was scrolled and how tall its messages were when last seen, whether the next change in height
+// is older messages going in at the top (which moves nothing, being at the far end of the reversed column), and until
+// when it's on its way down to the newest (heading), having sent or asked for it.
 const seen = new WeakMap();
+// Long enough for a smooth scroll down to finish; if none is needed (already there), the way down simply lapses.
+const HEADING_MS = 1500;
 
 const resized = new ResizeObserver((entries) => {
     entries.forEach(({ target: log }) => {
@@ -33,9 +36,13 @@ const resized = new ResizeObserver((entries) => {
             return;
         }
         const grew = scroller.scrollHeight - state.height;
-        // Something new below (a message, a reply streaming in) while the reader is up the list: the reversed column
-        // would carry what they're reading up out of view, so move it back down by as much, and offer the way down.
-        if (grew > 0 && !state.older && state.top <= -NEAR) {
+        if (grew > 0 && !state.older && performance.now() < state.heading) {
+            // On its way down (just sent): what comes in below meanwhile (the server's copy, a reply) is where it's going
+            // too. Straight there: a smooth scroll still under way stops short by about as much as came in.
+            scroller.scrollTop = 0;
+        } else if (grew > 0 && !state.older && state.top <= -NEAR) {
+            // Something new below (a message, a reply streaming in) while the reader is up the list: the reversed column
+            // would carry what they're reading up out of view, so move it back down by as much, and offer the way down.
             scroller.scrollTop = state.top - grew;
             chat.querySelector('[data-chat-latest]')?.removeAttribute('hidden');
         }
@@ -50,7 +57,7 @@ function watch(chat) {
         return;
     }
     const scroller = scrollerOf(chat);
-    seen.set(chat, { top: scroller.scrollTop, height: scroller.scrollHeight, older: false });
+    seen.set(chat, { top: scroller.scrollTop, height: scroller.scrollHeight, older: false, heading: 0 });
     resized.observe(logOf(chat));
 }
 
@@ -102,6 +109,7 @@ document.addEventListener('scroll', (event) => {
     watch(chat);
     seen.get(chat).top = scroller.scrollTop;
     if (atBottom(scroller)) {
+        seen.get(chat).heading = 0;
         chat.querySelector('[data-chat-latest]')?.setAttribute('hidden', '');
     }
     if (nearTop(scroller)) {
@@ -109,7 +117,18 @@ document.addEventListener('scroll', (event) => {
     }
 }, true);
 
+// A smooth scroll down that ended short of the bottom (content moved under it): the rest of the way, at once.
+document.addEventListener('scrollend', (event) => {
+    const scroller = event.target instanceof Element && event.target.matches('[data-chat-scroll]') ? event.target : null;
+    const state = scroller && seen.get(scroller.closest(CHAT));
+    if (state && performance.now() < state.heading && !atBottom(scroller)) {
+        scroller.scrollTop = 0;
+    }
+}, true);
+
 function toLatest(chat) {
+    watch(chat);
+    seen.get(chat).heading = performance.now() + HEADING_MS;
     scrollerOf(chat).scrollTo({ top: 0, behavior: reducedMotion() ? 'instant' : 'smooth' });
     chat.querySelector('[data-chat-latest]')?.setAttribute('hidden', '');
 }

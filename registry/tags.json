@@ -15,6 +15,7 @@
     ],
     "examples": [
         "basic",
-        "suggestions"
+        "suggestions",
+        "tags-under-the-box"
     ]
 }
