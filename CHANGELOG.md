@@ -10,6 +10,10 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Fixed
+
+- **toast**: the layout usage note gave the default position as top-center; toasts appear top-right unless you set `position`.
+
 ## [1.4.2] - 2026-10-27
 
 ### Added

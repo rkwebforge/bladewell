@@ -2,6 +2,8 @@
 
 `bladewell/bladewell`. **Try every widget live at [www.bladewellui.com](https://www.bladewellui.com)**: previews you can click through, in light and dark, with each one's props and source to copy. For AI agents it serves [`/llms.txt`](https://www.bladewellui.com/llms.txt) and `/r/{name}.json`.
 
+Using an AI agent? Start it with `Read https://www.bladewellui.com/llms.txt first`, or connect the [MCP server](#ai-agents-mcp) in an app that has the package. Otherwise it fills the gaps from other libraries' habits, such as wrapping widgets in `wire:ignore`, which these don't need.
+
 Blade + Tailwind CSS v4 widgets for Laravel that you copy into your app, then own. No Livewire or Alpine needed: server-rendered Blade, plus a small vanilla JS file per widget that hooks onto `data-*` attributes. They work inside Livewire 3 and 4 components too (see below).
 
 ## Requirements
