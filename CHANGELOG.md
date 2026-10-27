@@ -10,6 +10,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-10-27
+
 ### Fixed
 
 - **toast**: the layout usage note gave the default position as top-center; toasts appear top-right unless you set `position`.
@@ -263,7 +265,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.3...HEAD
+[1.4.3]: https://github.com/rkwebforge/bladewell/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/rkwebforge/bladewell/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/rkwebforge/bladewell/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/rkwebforge/bladewell/compare/v1.3.3...v1.4.0
