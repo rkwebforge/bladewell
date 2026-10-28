@@ -10,6 +10,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-10-28
+
 ### Added
 
 - **kanban**: a new widget, `php artisan bladewell:add kanban`. A board of columns whose cards, your own markup, people move by a Move menu on each card, by picking one up and placing it with the arrow keys or a tap, or by dragging with a mouse or pen. Each move is read out and can be undone, fires `kanban:move`, and with `move-url` is sent to your route, which keeps it or sends it back with a reason. Readonly boards and columns, locked cards, and a button per column when they don't all fit, as on a phone. In a Livewire component, save moves with `wire:kanban-move`.
@@ -270,7 +272,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.4...HEAD
+[1.4.4]: https://github.com/rkwebforge/bladewell/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/rkwebforge/bladewell/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/rkwebforge/bladewell/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/rkwebforge/bladewell/compare/v1.4.0...v1.4.1
