@@ -10,6 +10,11 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Added
+
+- **kanban**: a new widget, `php artisan bladewell:add kanban`. A board of columns whose cards, your own markup, people move by a Move menu on each card, by picking one up and placing it with the arrow keys or a tap, or by dragging with a mouse or pen. Each move is read out and can be undone, fires `kanban:move`, and with `move-url` is sent to your route, which keeps it or sends it back with a reason. Readonly boards and columns, locked cards, and a button per column when they don't all fit, as on a phone. In a Livewire component, save moves with `wire:kanban-move`.
+- **captcha**: Turnstile, reCAPTCHA and hCaptcha work with `wire:model` in a Livewire component. The property gets the provider's token when it's issued and is emptied when the token expires. After a `wire:submit` has sent the token, the provider issues a new one, so a form that fails validation can be sent again. One that first appears in a Livewire render, such as on a later step, is drawn too. Without `wire:model` the markup is unchanged.
+
 ## [1.4.3] - 2026-10-27
 
 ### Fixed

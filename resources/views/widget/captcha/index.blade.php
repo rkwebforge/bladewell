@@ -1,5 +1,5 @@
 @props([
-    // What the answer submits as. With a provider, the provider's own token field is used.
+    // What the answer submits as. With a provider, the provider's own token field is used, and wire:model binds the token.
     'name' => 'captcha',
     // Defaults to one made from the name (or the wire:model property).
     'id' => null,
@@ -33,9 +33,11 @@
 
 @php
     // provider: Cloudflare Turnstile, Google reCAPTCHA or hCaptcha instead of an image. Their widget submits
-    // its own token field, so errors are looked up under that name. Check it with new Captcha($provider).
+    // its own token field, so errors are looked up under that name, or under the wire:model property the token is
+    // copied to. Check it with new Captcha($provider).
     $service = $provider !== null ? (\Bladewell\Rules\Captcha::PROVIDERS[$provider] ?? throw new \InvalidArgumentException("Unknown captcha provider [{$provider}]. Use turnstile, recaptcha or hcaptcha.")) : null;
-    $field = \Bladewell\Support\FormField::make($service['field'] ?? $name, $id, $errors ?? null, $error, $bag, 'captcha', attributes: $attributes);
+    $binding = $service !== null ? \Bladewell\Support\FormField::binding($attributes) : [];
+    $field = \Bladewell\Support\FormField::make($service === null ? $name : ($binding === [] ? $service['field'] : null), $id, $errors ?? null, $error, $bag, 'captcha', attributes: $attributes);
     // The site key is public, but still comes from config (services.turnstile.key …) rather than the view.
     $siteKey ??= $provider !== null ? config("services.{$provider}.key") : null;
     // A typo fails loudly, naming the values that work, instead of quietly rendering something else.
@@ -61,7 +63,13 @@
         {{-- The provider's script draws its widget here and adds the hidden token field to the form. Its own id is
              the token field's name (reCAPTCHA's textarea is id="g-recaptcha-response"), so this one must differ.
              wire:ignore: a Livewire render would empty it again, since the server sends it empty. --}}
-        <div wire:ignore id="{{ $field->id }}-widget" role="group" @if ($label) aria-labelledby="{{ $field->id }}-label" @endif class="{{ $service['class'] }}" data-sitekey="{{ $siteKey }}" data-theme="{{ $theme }}" data-size="{{ $size }}" data-language="{{ str_replace('_', '-', app()->getLocale()) }}"></div>
+        {{-- With wire:model, the provider's class is left off so its script doesn't draw the widget on its own:
+             resources/js/widget/captcha draws it with render(), which hands back the token and an id to reset it by. --}}
+        <div wire:ignore id="{{ $field->id }}-widget" role="group" @if ($label) aria-labelledby="{{ $field->id }}-label" @endif @if ($binding) data-captcha-provider="{{ $provider }}" data-captcha-script="{{ $service['script'] }}" @else class="{{ $service['class'] }}" @endif data-sitekey="{{ $siteKey }}" data-theme="{{ $theme }}" data-size="{{ $size }}" data-language="{{ str_replace('_', '-', app()->getLocale()) }}"></div>
+        @if ($binding)
+            {{-- The token, for wire:model. No name, so a plain form doesn't send it twice beside the provider's own field. --}}
+            <input type="hidden" data-captcha-token {{ new \Illuminate\View\ComponentAttributeBag($binding) }}>
+        @endif
         @if (! $siteKey)
             <p class="text-error mt-1 text-xs">Set services.{{ $provider }}.key in config/services.php to show the {{ $provider }} widget.</p>
         @endif

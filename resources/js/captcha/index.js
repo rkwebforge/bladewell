@@ -1,6 +1,6 @@
-// Behaviour for <x-widget.captcha>: reloading the image, the audio and a broken image. Delegated from `document`, so fields added later work without
+// Behaviour for <x-widget.captcha>: reloading the image, the audio and a broken image, and a provider's token for wire:model. Delegated from `document`, so fields added later work without
 // re-initialising. Client-side filtering is only for convenience; the Form Request must validate the same rules.
-import { on } from '../field';
+import { on, onLivewireMorph } from '../field';
 
 // --- Captcha: reload the image --------------------------------------------------
 
@@ -86,3 +86,117 @@ on('click', '[data-captcha-play]', (event, button) => {
         event.target.closest('[data-captcha]').querySelector('[data-captcha-play]')?.setAttribute('aria-pressed', String(type === 'play'));
     }
 }, true));
+
+// --- Turnstile, reCAPTCHA and hCaptcha with wire:model ------------------------------------------------------
+
+// A provider keeps its token in a field of its own, which wire:model can't reach. With wire:model the widget comes
+// without the provider's class, so the provider's script leaves it alone, and is drawn here with the provider's
+// render(): the token arrives in the callbacks and goes to the hidden input beside the widget (data-captcha-token),
+// with an input event, emptied again when it expires or fails. render() also returns the id that reset() needs.
+const providers = {
+    turnstile: () => window.turnstile,
+    recaptcha: () => window.grecaptcha,
+    hcaptcha: () => window.hcaptcha,
+};
+const drawn = new WeakMap();
+
+// A <script> that arrives in a Livewire render is never run, so a widget that first appears in one would wait for a
+// provider that never loads: its script is added here instead. Not when the page brought it (this module runs once the
+// page is parsed, so those are all there by now), which would load the provider twice.
+const pageScripts = new Set([...document.scripts].map((script) => script.src));
+const added = new Set();
+function loadScript(url) {
+    const src = url && new URL(url, window.location.href).href;
+    if (src && !pageScripts.has(src) && !added.has(src)) {
+        added.add(src);
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        document.head.append(script);
+    }
+}
+
+// The last token passed on, kept here: a render may rewrite the hidden input's value.
+const tokens = new WeakMap();
+
+function setToken(widget, token) {
+    const input = widget.nextElementSibling;
+    if (input?.matches('[data-captcha-token]') && (tokens.get(widget) ?? '') !== token) {
+        tokens.set(widget, token);
+        input.value = token;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+}
+
+function draw(widget) {
+    const { captchaProvider: provider, captchaScript, sitekey, theme, size, language } = widget.dataset;
+    const api = providers[provider]?.();
+    if (drawn.has(widget) || !sitekey) {
+        return;
+    }
+    if (typeof api?.render !== 'function') {
+        loadScript(captchaScript);
+
+        return;
+    }
+    const clear = () => setToken(widget, '');
+    const options = {
+        sitekey,
+        size,
+        callback: (token) => setToken(widget, token),
+        'expired-callback': clear,
+        'error-callback': clear,
+    };
+    // Only Turnstile follows the page's colour scheme; the others are light unless told dark.
+    if (theme !== 'auto' || provider === 'turnstile') {
+        options.theme = theme;
+    }
+    if (provider === 'turnstile') {
+        options.language = language;
+    } else if (provider === 'hcaptcha') {
+        options.hl = language;
+        options['chalexpired-callback'] = clear;
+    }
+    drawn.set(widget, api.render(widget, options));
+}
+
+// The provider's script loads on its own (async), before or after this one, so widgets wait until its render() is
+// there, for up to a minute (a blocked script never comes). Also run for widgets that first appear in a Livewire
+// render: the provider would never draw those.
+let waiting = null;
+function drawAll(tries = 600) {
+    const pending = [...document.querySelectorAll('[data-captcha-provider]')].filter((widget) => !drawn.has(widget) && widget.dataset.sitekey);
+    pending.forEach(draw);
+    if (pending.some((widget) => !drawn.has(widget)) && !waiting && tries > 0) {
+        waiting = setTimeout(() => {
+            waiting = null;
+            drawAll(tries - 1);
+        }, 100);
+    }
+}
+drawAll();
+new MutationObserver((records) => {
+    if (records.some((record) => [...record.addedNodes].some((node) => node instanceof Element && (node.matches('[data-captcha-provider]') || node.querySelector('[data-captcha-provider]'))))) {
+        drawAll();
+    }
+}).observe(document.documentElement, { childList: true, subtree: true });
+
+// A token is good for one check. Once a submit has sent it (capture runs before Livewire's wire:submit), the widget
+// gets a new one when that request's render comes back, so a form that failed validation can be sent again. Kept here,
+// not in an attribute: wire:ignore keeps the widget's contents through a render, but not its attributes.
+const sent = new WeakSet();
+document.addEventListener('submit', (event) => {
+    event.target.querySelectorAll('[data-captcha-provider]').forEach((widget) => sent.add(widget));
+}, true);
+
+onLivewireMorph((el) => {
+    el.querySelectorAll('[data-captcha-provider]').forEach((widget) => {
+        if (!sent.delete(widget)) {
+            return;
+        }
+        if (drawn.has(widget)) {
+            providers[widget.dataset.captchaProvider]().reset(drawn.get(widget));
+        }
+        setToken(widget, '');
+    });
+});

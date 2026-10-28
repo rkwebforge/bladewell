@@ -1,0 +1,20 @@
+{
+    "description": "A board of columns with cards people move between them: an order pipeline, support tickets, tasks. Each card is your own markup. Cards move by a Move menu on each card, by picking one up and placing it with the arrow keys or a tap, or by dragging with a mouse or pen; every move is read out to screen readers and can be undone. A move fires kanban:move, and with move-url is sent to your app, which keeps it or sends it back with a reason. Readonly boards and columns, locked cards, and a button per column when they don't fit side by side, as on a phone. Works inside Livewire components, with wire:kanban-move.",
+    "requires": [
+        "button",
+        "dropdown"
+    ],
+    "support": [
+        "ElementIds"
+    ],
+    "usage": [
+        "move-route",
+        "livewire",
+        "in-scripts"
+    ],
+    "examples": [
+        "order-pipeline",
+        "tasks",
+        "readonly"
+    ]
+}
