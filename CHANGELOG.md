@@ -10,6 +10,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-10-30
+
 ### Added
 
 - **kanban**: cards drag by touch too. Hold a finger still on a card for a moment and it comes up to drag, as with a mouse; a swipe still scrolls the board and the page. Nothing changes for `kanban:move`, `move-url` or `wire:kanban-move`, and the Move menu stays.
@@ -276,7 +278,8 @@ What you build on is only ever added to, never renamed or removed: component nam
 - `bladewell.lock`, so updates replace only the files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.4...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.5...HEAD
+[1.4.5]: https://github.com/rkwebforge/bladewell/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/rkwebforge/bladewell/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/rkwebforge/bladewell/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/rkwebforge/bladewell/compare/v1.4.1...v1.4.2
