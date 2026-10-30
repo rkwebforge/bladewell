@@ -10,6 +10,10 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 ## [Unreleased]
 
+### Added
+
+- **kanban**: cards drag by touch too. Hold a finger still on a card for a moment and it comes up to drag, as with a mouse; a swipe still scrolls the board and the page. Nothing changes for `kanban:move`, `move-url` or `wire:kanban-move`, and the Move menu stays.
+
 ## [1.4.4] - 2026-10-28
 
 ### Added

@@ -32,6 +32,9 @@
         'data-kanban-landing:opacity-0',
         // A mouse can drag it once the script is ready, except from a readonly column.
         'group-data-[kanban-ready]/kanban:cursor-grab group-data-[readonly]/column:cursor-auto' => ! $locked,
+        // So can a finger held on it: on a touch screen that holding mustn't select its text or bring up the phone's
+        // menu. Not pointer-coarse:, which Tailwind 4.0 doesn't have.
+        'group-data-[kanban-ready]/kanban:[@media(pointer:coarse)]:select-none group-data-[kanban-ready]/kanban:[-webkit-touch-callout:none] group-data-[readonly]/column:[@media(pointer:coarse)]:select-auto group-data-[readonly]/column:[-webkit-touch-callout:default]' => ! $locked,
     ]) }}
 >
     <div class="min-w-0 pe-9">{{ $slot }}</div>

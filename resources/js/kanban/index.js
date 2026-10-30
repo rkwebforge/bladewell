@@ -1,4 +1,5 @@
-// Drives <x-widget.kanban>. Each card's "Move…" button opens a menu, built here as it opens from the board as it is
+// Drives <x-widget.kanban>. Cards drag with a mouse or pen, or with a finger held still on one first. Each card's
+// "Move…" button opens a menu, built here as it opens from the board as it is
 // then: the other columns (to the end of one), and up, down, to the top or to the bottom within its own. A move
 // happens at once on the page, is announced, fires kanban:move (and kanban-move, for wire:kanban-move) on the board
 // with detail { card, from, to, position, after }, and with move-url is sent there as JSON. An answer that isn't
@@ -502,12 +503,16 @@ document.addEventListener('click', (event) => {
     }
 }, true);
 
-// --- Dragging, with a mouse or a pen ---------------------------------------------------------------------------
+// --- Dragging, with a mouse, a pen or a finger -----------------------------------------------------------------
 
 // A press on a card that can move, then a few pixels' travel, drags it: a copy follows the pointer, and the card itself
 // waits, faded, where it would land. Letting go puts it there. Escape, a cancelled pointer, or letting go off the board
-// or over a readonly column puts it back. Touch scrolls instead, and picks up from the move menu.
+// or over a readonly column puts it back. A finger has to hold still on the card first, so a swipe still scrolls.
 const THRESHOLD = 5;
+// How long a finger holds still before the card comes up, and how far it can stray meanwhile: further is a scroll.
+// Under Android's 400ms, so the card comes up before the phone's own long-press menu would.
+const HOLD = 350;
+const SLOP = 10;
 // How near an edge the pointer has to be for the board or the page to scroll, and how fast.
 const EDGE = 48;
 const SPEED = 14;
@@ -523,6 +528,22 @@ let press = null;
 let drag = null;
 // The click a mouse sends after letting go of a drag would otherwise follow a link or open a menu.
 let swallowClick = false;
+
+// Ends a press that hasn't become a drag, and the hold a finger's press is waiting out.
+function release() {
+    clearTimeout(press?.timer);
+    press = null;
+}
+
+// While a finger drags, its moves are the card's, not the page's to scroll. Bound on each board's row of columns, not
+// the document: a listener that can cancel touchmove makes the browser wait for it before scrolling anything under it.
+// Also on the element the finger first pressed while it drags, since its touches go on to it even once a render has
+// taken it off the page, and from there they no longer reach the row.
+const holdPage = (event) => {
+    if (drag?.touch && event.cancelable) {
+        event.preventDefault();
+    }
+};
 
 // The column under the pointer. Columns are only as tall as their cards, so below a short one, still in the row and
 // within its width, counts as that column too: its lane, where letting go puts the card at its end.
@@ -597,8 +618,9 @@ function scrollNearEdges() {
 
 function startDrag(event) {
     // Where the card was pressed, not where the pointer is now: the copy keeps that same point under the pointer.
-    const { card, x: pressX, y: pressY } = press;
-    press = null;
+    const { card, target, x: pressX, y: pressY } = press;
+    release();
+    const touch = event.pointerType === 'touch';
     const box = card.getBoundingClientRect();
     const ghost = card.cloneNode(true);
     // Not a card, not focusable, not read out: a picture of one.
@@ -619,7 +641,15 @@ function startDrag(event) {
     if (moving()) {
         ghost.animate([{ rotate: '0deg', scale: '1' }, { rotate: '2deg', scale: '1.03' }], { duration: LIFT, easing: 'ease-out', fill: 'forwards' });
     }
-    drag = { card, board: boardOf(card), before: spot(card), ghost, pointerId: event.pointerId, dx: pressX - box.left, dy: pressY - box.top, x: event.clientX, y: event.clientY, refused: false, frame: 0 };
+    drag = { card, board: boardOf(card), before: spot(card), ghost, pointerId: event.pointerId, touch, target, dx: pressX - box.left, dy: pressY - box.top, x: event.clientX, y: event.clientY, refused: false, frame: 0 };
+    if (touch) {
+        target.addEventListener('touchmove', holdPage, { passive: false });
+        // A moment's buzz where the phone has one, as the card comes up under the finger. Only once the page has been
+        // tapped: before that, the browser refuses it and says so in the console.
+        if (navigator.userActivation?.hasBeenActive) {
+            navigator.vibrate?.(10);
+        }
+    }
     card.setAttribute('data-kanban-dragging', '');
     drag.board.setAttribute('data-kanban-moving', '');
     holdHeight(drag.board, true);
@@ -641,9 +671,10 @@ function endDrag(keep) {
     if (!drag) {
         return;
     }
-    const { card, board, before, ghost, pointerId, frame } = drag;
+    const { card, board, before, ghost, pointerId, target, frame } = drag;
     drag = null;
     cancelAnimationFrame(frame);
+    target.removeEventListener('touchmove', holdPage);
     card.removeAttribute('data-kanban-dragging');
     board.removeAttribute('data-kanban-moving');
     document.documentElement.classList.remove(...GRABBING);
@@ -700,7 +731,14 @@ function holdHeight(board, hold) {
 }
 
 document.addEventListener('pointerdown', (event) => {
-    if (event.button !== 0 || event.pointerType === 'touch' || picked || drag) {
+    const touch = event.pointerType === 'touch';
+    // A second finger: a pinch, not a drag.
+    if (touch && !event.isPrimary) {
+        release();
+
+        return;
+    }
+    if (event.button !== 0 || picked || drag) {
         return;
     }
     const card = event.target.closest?.(CARD);
@@ -709,12 +747,30 @@ document.addEventListener('pointerdown', (event) => {
     if (!card || !boardOf(card)?.hasAttribute('data-kanban-ready') || (own && card.contains(own)) || blocked(card)) {
         return;
     }
-    press = { card, pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    release();
+    press = { card, target: event.target, pointerId: event.pointerId, touch, x: event.clientX, y: event.clientY, timer: 0 };
+    if (touch) {
+        const { pointerId, x, y } = press;
+        press.timer = setTimeout(() => {
+            // Taken off the page by a render meanwhile, or now being saved: nothing to pick up.
+            if (!card.isConnected || blocked(card)) {
+                release();
+            } else {
+                startDrag({ pointerId, pointerType: 'touch', clientX: x, clientY: y });
+            }
+        }, HOLD);
+    }
 });
 
 document.addEventListener('pointermove', (event) => {
-    if (press && event.pointerId === press.pointerId && Math.hypot(event.clientX - press.x, event.clientY - press.y) >= THRESHOLD) {
-        startDrag(event);
+    if (press && event.pointerId === press.pointerId) {
+        const travel = Math.hypot(event.clientX - press.x, event.clientY - press.y);
+        // A finger that moves before it has held still long enough is scrolling; a mouse or pen that moves is dragging.
+        if (press.touch && travel >= SLOP) {
+            release();
+        } else if (!press.touch && travel >= THRESHOLD) {
+            startDrag(event);
+        }
     }
     if (drag && event.pointerId === drag.pointerId) {
         drag.x = event.clientX;
@@ -725,7 +781,7 @@ document.addEventListener('pointermove', (event) => {
 
 document.addEventListener('pointerup', (event) => {
     if (press?.pointerId === event.pointerId) {
-        press = null;
+        release();
     }
     if (drag?.pointerId === event.pointerId) {
         endDrag(!drag.refused);
@@ -739,7 +795,7 @@ document.addEventListener('pointerup', (event) => {
 
 document.addEventListener('pointercancel', (event) => {
     if (press?.pointerId === event.pointerId) {
-        press = null;
+        release();
     }
     if (drag?.pointerId === event.pointerId) {
         endDrag(false);
@@ -762,9 +818,16 @@ document.addEventListener('click', (event) => {
     }
 }, true);
 
-// Dragging over text would otherwise select it.
+// Dragging over text would otherwise select it, as would a finger held on it.
 document.addEventListener('selectstart', (event) => {
-    if (drag) {
+    if (drag || press?.touch) {
+        event.preventDefault();
+    }
+});
+
+// A finger held on a card picks it up: not the phone's menu for a long press as well.
+document.addEventListener('contextmenu', (event) => {
+    if (press?.touch || drag?.touch) {
         event.preventDefault();
     }
 });
@@ -939,6 +1002,7 @@ function initBoard(board) {
     columnsOf(board).forEach(count);
     drawJumps(board);
     resized.observe(scrollerOf(board));
+    scrollerOf(board).addEventListener('touchmove', holdPage, { passive: false });
 }
 
 export function initKanbans(scope = document) {
