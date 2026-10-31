@@ -14,13 +14,13 @@
         "livewire"
     ],
     "examples": [
-        "sizes-and-widths",
-        "search-form",
-        "icon-at-the-start",
-        "keyboard-shortcut",
         "suggestions",
+        "keyboard-shortcut",
         "suggestions-with-details",
         "suggestions-that-open-a-page",
-        "grouped-suggestions"
+        "grouped-suggestions",
+        "search-form",
+        "icon-at-the-start",
+        "sizes-and-widths"
     ]
 }
