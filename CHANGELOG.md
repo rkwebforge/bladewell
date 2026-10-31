@@ -1,281 +1,291 @@
 # Changelog
 
-All notable changes to `bladewell/bladewell` are listed here, by widget, so you can see what an update brings to the ones you use. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
+Notable changes to `bladewell/bladewell`, by widget. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
 ## Updating
 
-Widgets are copied into your app, so a new release changes nothing until you run `php artisan bladewell:add --installed`. That updates the files you haven't edited and lists the ones you have; `php artisan bladewell:diff` shows what those would miss.
+A release changes nothing in your app until you run `php artisan bladewell:add --installed`. It updates the files you haven't edited and lists the ones you have; `php artisan bladewell:diff` shows what those would miss.
 
-What you build on is only ever added to, never renamed or removed: component names, props and the values they take, `data-*` hooks, JS exports, the `bladewell:*` commands and their flags, and the config keys. A release can still get stricter about input that never worked, such as a mistyped value that used to be ignored and now throws. Those changes are listed under **Changed**, with the widgets they affect.
+Component names, props and their values, `data-*` hooks, JS exports, the `bladewell:*` commands and flags, and config keys are only ever added to, never renamed or removed. A release can still reject input that never worked (a mistyped value that was ignored now throws); those changes are under **Changed**.
 
 ## [Unreleased]
+
+### Added
+
+- **tooltip, tooltip-cursor**: on a touch screen, a long press on a button or link shows its tooltip without pressing it; a tap still presses. iOS's link preview is off on these elements.
+- **tooltip-cursor**: on a touch screen, hold a chart bar and slide to read each bar without scrolling the page.
+
+### Fixed
+
+- **tooltip, tooltip-cursor**: a tooltip opened by a finger shows above it, not under the finger.
 
 ## [1.4.5] - 2026-10-30
 
 ### Added
 
-- **kanban**: cards drag by touch too. Hold a finger still on a card for a moment and it comes up to drag, as with a mouse; a swipe still scrolls the board and the page. Nothing changes for `kanban:move`, `move-url` or `wire:kanban-move`, and the Move menu stays.
+- **kanban**: cards drag by touch: hold a finger on a card, then drag. A swipe still scrolls, and moves are saved as before.
 
 ## [1.4.4] - 2026-10-28
 
 ### Added
 
-- **kanban**: a new widget, `php artisan bladewell:add kanban`. A board of columns whose cards, your own markup, people move by a Move menu on each card, by picking one up and placing it with the arrow keys or a tap, or by dragging with a mouse or pen. Each move is read out and can be undone, fires `kanban:move`, and with `move-url` is sent to your route, which keeps it or sends it back with a reason. Readonly boards and columns, locked cards, and a button per column when they don't all fit, as on a phone. In a Livewire component, save moves with `wire:kanban-move`.
-- **captcha**: Turnstile, reCAPTCHA and hCaptcha work with `wire:model` in a Livewire component. The property gets the provider's token when it's issued and is emptied when the token expires. After a `wire:submit` has sent the token, the provider issues a new one, so a form that fails validation can be sent again. One that first appears in a Livewire render, such as on a later step, is drawn too. Without `wire:model` the markup is unchanged.
+- **kanban**: a new widget, `php artisan bladewell:add kanban`. Columns of your own cards, moved by a Move menu, the keyboard, a tap or a mouse drag. Moves are announced, can be undone, fire `kanban:move`, and with `move-url` are saved to your route, which can refuse them. Readonly boards and columns, locked cards, and `wire:kanban-move` in Livewire.
+- **captcha**: Turnstile, reCAPTCHA and hCaptcha work with `wire:model`. The token is set when issued and cleared when it expires, and a form that fails validation gets a new one.
 
 ## [1.4.3] - 2026-10-27
 
 ### Fixed
 
-- **toast**: the layout usage note gave the default position as top-center; toasts appear top-right unless you set `position`.
-- The guidelines for Laravel Boost tell your agent not to wrap widgets in `wire:ignore` in Livewire, and to set a picker's, select's or similar control's value from the server or Livewire rather than a script or Alpine, which it wouldn't show. Run `php artisan boost:update` to pick them up.
+- **toast**: the layout usage note gave the default position as top-center; it's top-right.
+- The Laravel Boost guidelines tell your agent not to wrap widgets in `wire:ignore`, and to set a control's value from the server or Livewire, not a script. Run `php artisan boost:update`.
 
 ## [1.4.2] - 2026-10-27
 
 ### Added
 
-- **tags**: `layout="below"` keeps the box to one line and lists the tags under it as cards, for a long list. Adding, removing and submitting work as before.
+- **tags**: `layout="below"` keeps the box to one line and lists the tags under it.
 
 ### Fixed
 
-- **chat**: a message you send while scrolled up to older ones takes you down to it, and a reply that comes in meanwhile shows too, rather than staying out of view behind the button down. One that arrives from the other side while you're reading still keeps your place.
-- **dropdown**, **popover**: open over a window that has since grown, the panel is placed by its full height and stays on screen. In a dropdown, pressing the same letter again moves on to the next item that starts with it.
-- **dropdown**, **popover**, **command**: in a `disable-close` modal, Escape closes the menu, popover or palette open on top of it, and focus goes back to what opened it.
-- **command**: an item marked disabled (`disabled`, or `aria-disabled="true"` of your own) shows greyed out, the arrow keys pass it by, and Enter or a click no longer runs it. While a new search is on its way, the last one's results can't be chosen; closing mid-search leaves no spinner behind; and a link opens whatever the saved recent list holds.
-- **otp**: a whole code pasted into any box fills from the first; Backspace and Delete in the middle close the gap, so the code submitted is the one shown; and digits from any keyboard (Arabic, Persian…) are read. **verification-code** reads them too.
-- **tags**: a readonly field keeps its tags, however it came to be readonly, and a list pasted over selected text takes its place.
-- **search**: once the box is cleared (or cut below `suggest-min`), the last suggestions are gone, so the arrow keys and Enter can't bring one back.
-- **color-picker**: emptying the hex box unticks the swatch and clears the preview, matching the empty value it submits.
-- **number**: a readonly stepper keeps its value from the arrow keys too.
-- **captcha**: showing another code empties the answer for `wire:model` and other listeners as well as on screen.
-- **All widgets in a Livewire component** (`ElementIds`): in your tests, calling an action after `Livewire::test()` no longer throws "Duplicate element id" for a widget with its own `id`, such as tabs. A component rendering again replaces the ids it had; a real duplicate on the page still throws.
-- **tabs** (`remember`): a link with an entry that can't be read (`#plans=%`, cut off when shared) still opens the other remembered tabs, and choosing a tab keeps updating the link.
-- **stepper**: with no steps (none set up yet, or a total of 0), every look draws nothing, instead of an empty list, "Step 1 of 0", or a single step.
-- **toast**: however many are showing, they stay on screen: past what fits, the stack scrolls, so each can still be read and dismissed. When a toast updates (`toast.update`, loading to success), focus on its close button stays there, and the toast stays open while it has focus.
-- **time-picker**: Ctrl, Cmd and Alt shortcuts are left to the browser, so Ctrl+A (select all) no longer switches a `segmented` time to AM.
-- **tooltip**, **tooltip-cursor**: in a modal, Escape closes the tooltip and leaves the modal open; the next Escape closes the modal. A cursor tooltip opened from the keyboard also stays under its element when the window is resized or a phone is turned, and both stay centred when the page's font arrives after they opened.
-- **tree**: in a Livewire component, a node stays open or closed as the person left it after a render. With checkboxes, every parent above a disabled, unticked node shows a dash however deep it is, and values already chosen stay chosen when children arrive with children of their own. Closing a node from a script (`tree.close`) moves the keyboard's Tab stop out of it.
+- **chat**: sending while scrolled up takes you to your message, and a reply that arrives meanwhile shows too.
+- **dropdown, popover**: a panel opened after the window grew stays on screen. Pressing the same letter again in a dropdown moves to the next item starting with it.
+- **dropdown, popover, command**: in a `disable-close` modal, Escape closes the menu, popover or palette on top and returns focus.
+- **command**: disabled items are greyed out and can't be run; stale results can't be chosen mid-search; no spinner is left after closing.
+- **otp**: a pasted code fills from the first box, deleting in the middle closes the gap, and digits from any keyboard are read. **verification-code** reads them too.
+- **tags**: a readonly field keeps its tags, and a paste over selected text replaces it.
+- **search**: clearing the box clears the last suggestions.
+- **color-picker**: emptying the hex box clears the swatch and preview.
+- **number**: a readonly stepper ignores the arrow keys.
+- **captcha**: showing another code empties the answer for `wire:model` too.
+- **All widgets in a Livewire component** (`ElementIds`): `Livewire::test()` no longer throws "Duplicate element id" for a widget with its own `id`.
+- **tabs** (`remember`): an unreadable link entry no longer stops the other remembered tabs opening.
+- **stepper**: with no steps it draws nothing.
+- **toast**: a tall stack scrolls, and an updated toast keeps focus on its close button.
+- **time-picker**: Ctrl, Cmd and Alt shortcuts go to the browser, so Ctrl+A no longer switches a `segmented` time to AM.
+- **tooltip, tooltip-cursor**: in a modal, Escape closes the tooltip first. Both stay placed after a resize or a late font.
+- **tree**: open nodes stay open through a Livewire render, and checkbox parents show the right state at any depth.
 
 ## [1.4.1] - 2026-10-25
 
 ### Fixed
 
-- **`bladewell:add --force`** and the MCP `force` option cover only the widgets you name, as the command already said. Your `theme.css`, `base.css` and the widgets brought along for them (such as `field`) keep your edits; to take the package version of one of those, delete it and run `php artisan bladewell:add --installed`.
-- **chat**: messages keep their line breaks when your route's copy replaces the one being sent (give typed messages to `text`, which shows them as typed). A message the server turns away while you type the next one stays in the list as Not sent, with Edit. Livewire errors show under the box whatever the `wire:model` property is called, a file input of your own sends files on its own, each composer waits only for its own message, `async` sends with the composer's method, and older messages that fail to load offer Try again.
-- **file-upload**: a rejected image goes back to the saved one, Retry respects `max-files`, an answer without an id shows as failed, forms wait for linked uploaders outside them, and resetting the form empties the widget.
-- **select**: readonly `multiple` selects keep their choices. With `search-url`, results update the options already listed, only the latest search can show an error, and options added after the page loaded (by Livewire, say) stay.
-- **datepicker**, **date-range-picker**: with no `min` or `max`, the calendar goes as far back and ahead as you like; limits changed after the page loaded apply the next time it opens; and on 29 February the `birthday` limit and `MinimumAge` use 28 February, as they should.
-- **table**: with several tables on a page, sorting, paging, filtering or scrolling one keeps the others where they are, and a filter that failed to load can be tried again.
-- **modal**: Escape closes the modal on top when another is open beneath it, and `reset-on-close` resets any form, whatever its fields are called.
-- **time-picker**: a `segmented` time can be changed part by part without being pulled into `min`–`max` halfway, its arrows follow `step`, and typing 1 in a 12-hour list goes to 1:00.
-- **number**: reads digits typed on any keyboard (Arabic, Persian, Hindi, Japanese…), and a stepper without `min` or `negative` stops at 0.
-- **phone**: reads digits typed on any keyboard, takes numbers pasted with 00 in front, and drops the prefix dialled at home in Russia, Kazakhstan and Hungary, in the browser and in `Countries::international()`.
-- **`bladewell:*` commands**: work in apps whose `composer.json` maps a namespace to several directories. `bladewell:mcp` answers batched requests.
+- **`bladewell:add --force`** and the MCP `force` option overwrite only the widgets you name, not `theme.css`, `base.css` or shared widgets such as `field`.
+- **chat**: line breaks survive the server's copy of a message; a refused message stays as Not sent with Edit; Livewire errors show under the box; older messages that fail to load offer Try again.
+- **file-upload**: a rejected image restores the saved one, Retry respects `max-files`, and resetting the form empties the widget.
+- **select**: readonly `multiple` selects keep their choices; with `search-url`, only the latest search can show an error and added options stay.
+- **datepicker, date-range-picker**: without `min` or `max` the calendar has no limit; changed limits apply on the next open; 29 February counts as 28 February for `birthday` and `MinimumAge`.
+- **table**: with several tables on a page, changing one leaves the others alone, and a failed filter can be retried.
+- **modal**: Escape closes only the top modal, and `reset-on-close` resets any form.
+- **time-picker**: a `segmented` time can be edited part by part, its arrows follow `step`, and typing 1 in a 12-hour list goes to 1:00.
+- **number**: reads digits from any keyboard, and a stepper without `min` or `negative` stops at 0.
+- **phone**: reads digits from any keyboard, accepts a leading 00, and drops the national prefix for Russia, Kazakhstan and Hungary, in the browser and in `Countries::international()`.
+- **`bladewell:*` commands**: work when `composer.json` maps a namespace to several directories. `bladewell:mcp` answers batched requests.
 
 ## [1.4.0] - 2026-10-24
 
 ### Added
 
-- **sidebar-layout**: a new widget, an app's frame: a sidebar with your brand, an accordion menu and a footer, a top bar that stays put, and the page scrolling under it. On large screens the button at the start of the top bar collapses the sidebar to a rail of icons, its width easing as the labels fade; hovering or focusing an icon names it beside the rail. A group's icon shows its links in a popover beside the rail, titled with the group and scrolling past 18rem, which Esc, a click elsewhere or a link closes; with `groups="expand"` it opens the sidebar again with that group open instead. `collapsed` paints it collapsed from the server, and `remember="sidebar"` keeps the person's choice in a cookie to pass back to it, so there's no flash and no inline script. On phones and tablets the menu button slides it in over a dimmed page, which is inert until it closes on Esc, its close button, a click on the page or a link. A `panel` slot (a chat, notifications) adds a button at the end of the top bar that opens it: as wide as the sidebar, beside the page on large screens, which narrows and can still be used, and over it on phones and tablets, like the menu; `panel-label` and `panel-icon` name and draw the button. Right-to-left pages mirror it, and it follows reduced motion. `php artisan bladewell:add sidebar-layout` adds it, with the accordion and icons.
-- **accordion**: an `icon` prop on `accordion.menu-item` and on a `variant="menu"` group (or any accordion), drawn before the text. In a collapsed sidebar-layout it's what stays in view, and a link or group without one shows its first letter there. A menu anywhere else looks as it did.
+- **sidebar-layout**: a new widget, an app frame with a sidebar (brand, accordion menu, footer), a fixed top bar and a scrolling page. On large screens it collapses to a rail of icons (`collapsed`, and `remember` to keep the choice in a cookie); on phones it slides in over the page. A `panel` slot adds a side panel such as a chat. RTL and reduced motion supported.
+- **accordion**: an `icon` prop on `accordion.menu-item` and menu groups, shown in a collapsed sidebar-layout.
 - **icon**: `panel-left`.
-- **chat**: a new widget for conversations. `variant="assistant"` runs an AI's replies the full width, formatted from your Markdown with code in blocks and a caret while one streams in (`streaming`, which screen readers wait out); `variant="messages"` puts people in bubbles on both sides, with names, avatars or initials, times in the app's locale, shown in the reader's own timezone once the page is up, and `sending`, `sent`, `read` or `failed` on your own. It opens at the newest message with no flash and no script, keeps the reader's place when one arrives while they're scrolled up (with a button down to it), and loads older messages from `history-url`, HTML from your own site, as they reach the top. Parts: `chat.message`, `chat.attachment` (an image that opens full size, or a download card with its size), `chat.divider`, `chat.typing`, and `chat.composer`, which grows with its text, sends on Enter (a new line with Shift+Enter, on touch screens, and while an input method such as Japanese is composing, Safari included), sends each message once however fast Enter or the button is pressed, with `async` sends without leaving the page (the message shows at once as Sending, then as your route sends it back, a reply with it if there is one, or as Not sent with Retry), attaches files as removable chips, each pick adding to the last, pasted into the box or dropped on it too (held to `accept`), with a preview for images (a `blob:` URL, so a strict CSP's `img-src` needs `blob:`), shows why a send failed, and takes suggested prompts from `data-chat-prompt` buttons in the `empty` slot. The list is a `role="log"`, so new messages are read out as they arrive. `markdown` on a message shows Markdown formatted, with any HTML in it left out, images shown as their description, and web and mail links linked, other sites' opening in a new tab. An attachment links to a web address or a path on your site. `maxlength` on the composer caps the text. `compact` sizes a chat for a narrow column, with a sidebar's 14px text. The `uploads` note shows checking, keeping and serving files. Works inside Livewire components: `wire:submit` and `wire:model` on the composer, `wire:stream` into a reply.
-- **auth-layout**: a new widget for sign-in, sign-up and password pages: your brand, a heading (`title`, `subtitle`), the form and a footer for the link to the other page. `variant="split"` sets the form beside a panel in your brand's colour on large screens, with the `aside` slot (a quote, a few words about the product) at its foot, and gives the form the page on phones; `variant="centered"` sets it on a card in the middle of a tinted page. The form rises into place as the page paints, unless motion is reduced. No script. The examples post to `login`, `register` and `password.email`, the routes Laravel's starter kits name. `php artisan bladewell:add auth-layout` adds it; its examples also use the text input, password, checkbox and button.
+- **chat**: a new widget. `variant="assistant"` for AI replies (Markdown, code blocks, `streaming`) and `variant="messages"` for bubbles with names, avatars, times and delivery state. It opens at the newest message, keeps your place when new ones arrive, and loads older ones from `history-url`. Parts: `chat.message`, `chat.attachment`, `chat.divider`, `chat.typing` and `chat.composer` (Enter to send, attachments, `async` sending, `maxlength`). `compact` for narrow columns. Works with `wire:submit`, `wire:model` and `wire:stream`.
+- **auth-layout**: a new widget for sign-in, sign-up and password pages, with a `title`, `subtitle`, form and footer. `variant="split"` puts a brand panel beside the form; `variant="centered"` puts it on a card. No script.
 
 ### Fixed
 
-- **accordion** (`variant="menu"`): a group closed while the menu was scrolled kept room at the end of the list, so the heading stayed under the pointer, even when every link then fit, leaving a scrollbar with nothing to scroll to. Once the group has closed, such a menu now glides back to the top and gives the room up. A menu still too long to fit keeps it, as before.
+- **accordion** (`variant="menu"`): closing a group while scrolled no longer leaves empty space and a useless scrollbar.
 
 ## [1.3.3] - 2026-10-22
 
 ### Changed
 
-- **Theme**: input backgrounds (`--color-field`) are a shade darker, `#ebedf1` instead of `#f5f6f8`, so fields stand out from the card behind them on dim or washed-out screens. `--color-muted` darkens to `#5d6679` to keep placeholders and hints at 4.5:1 on the new fill. Your copied `theme.css` isn't updated by `bladewell:add --installed`; change these two values there to get it.
-- **All widgets**: secondary text (counts, hints, meta, labels in progress, clock, select, stepper, table and the rest) goes from `text-foreground/60` to `text-foreground/70`, so it stays at 4.5:1 on the darker field.
+- **Theme**: `--color-field` darkens to `#ebedf1` and `--color-muted` to `#5d6679`, so fields stand out and hints keep 4.5:1. Change these in your copied `theme.css`; `bladewell:add --installed` doesn't.
+- **All widgets**: secondary text goes from `text-foreground/60` to `/70`, to keep 4.5:1 on the darker field.
 
 ## [1.3.2] - 2026-10-14
 
 ### Changed
 
-- **MCP server** (`bladewell:mcp`): tool results are sent as compact JSON, without indentation, so they use fewer of your agent's tokens. The data is the same.
+- **MCP server** (`bladewell:mcp`): results are compact JSON, using fewer tokens.
 
 ## [1.3.1] - 2026-10-13
 
 ### Changed
 
-- **Laravel Boost guidelines**: they point your agent to `php artisan bladewell:list --json` to find a widget, which says what each one does. Since 1.3.0, plain `bladewell:list` shows only names and what each one also installs. Run `php artisan boost:update` to get the new wording.
+- **Laravel Boost guidelines**: point your agent to `bladewell:list --json` to find widgets. Run `php artisan boost:update`.
 
 ## [1.3.0] - 2026-10-13
 
 ### Changed
 
-- **`bladewell:add`**, run with no names, shows a list to select as many as you like from: type to narrow it, Space to select, Enter to install, Ctrl+C to quit. What a widget needs still comes along by itself. It used to ask for names typed in a comma-separated line, under descriptions long enough to wrap. On Windows it still asks in plain text.
-- **`bladewell:list`** shows each widget and what it also installs (the column was "Requires", which read as something to install yourself), without descriptions, so the table fits your terminal instead of running hundreds of characters wide. Descriptions are in `bladewell:list --json` and on <https://www.bladewellui.com>.
-- **`bladewell:add`** with a mistyped name suggests the closest widget ("Unknown widget [datepiker]. Did you mean datepicker?") and where to see the rest, instead of listing all of them in one line. Every unknown name is reported, not just the first. The MCP server still answers with the full list, and the exit code is unchanged.
-- The package now lists `laravel/prompts` (`^0.3`) as a dependency. Every Laravel 12 and 13 app already has it, so nothing new gets installed.
+- **`bladewell:add`** with no names shows a searchable list to pick from (plain text on Windows).
+- **`bladewell:list`** shows each widget and what it also installs, without descriptions; those are in `--json`.
+- **`bladewell:add`** with a mistyped name suggests the closest one and reports every unknown name. Exit codes are unchanged.
+- The package requires `laravel/prompts` (`^0.3`), which every Laravel 12 and 13 app already has.
 
 ## [1.2.2] - 2026-10-13
 
 ### Changed
 
-- **Laravel Boost guidelines**: they tell your agent that the URLs a widget calls (`suggest-url`, `search-url`, `children-url`, `upload-url`) are named routes in `routes/web.php`, not `routes/api.php`, so they share the page's sign-in and CSRF protection.
-- **search**, **command**: a suggestion or item opens only a page (`http`, `https`, or a link within your site), an email (`mailto:`) or a phone number (`tel:`). Any other kind of link logs a warning instead of opening.
-- **tree**: `children-url` must be on your own site, as the table's and pagination's pages already had to be. One on another site shows as a load that failed, without being fetched.
+- **Laravel Boost guidelines**: widget URLs (`suggest-url`, `search-url`, `children-url`, `upload-url`) go in `routes/web.php`, not `routes/api.php`.
+- **search, command**: suggestions open only `http`, `https`, same-site, `mailto:` and `tel:` links; others log a warning.
+- **tree**: `children-url` must be on your own site.
 
 ## [1.2.1] - 2026-10-12
 
 ### Fixed
 
-- **All form fields** (`base.css`): text the browser autofilled now follows a switch between light and dark at once. It kept the colour it had when it was filled, so after a switch it could be light text on a light field until the page was reloaded. In an app, `php artisan bladewell:add --installed` updates `base.css`.
+- **All form fields** (`base.css`): autofilled text follows a switch between light and dark at once.
 
 ## [1.2.0] - 2026-10-12
 
 ### Added
 
-- Guidelines for [Laravel Boost](https://github.com/laravel/boost), in `resources/boost/guidelines`: tick `bladewell/bladewell` when `php artisan boost:install` or `boost:update` asks which packages to include, and your agent's rules (`CLAUDE.md`, `AGENTS.md`…) say how to find and add widgets and what not to do with them: no Alpine or inline scripts, `readonly` rather than `disabled`, `confirm` on buttons, toasts, the shared row menu, and dates.
+- Guidelines for [Laravel Boost](https://github.com/laravel/boost) in `resources/boost/guidelines`: include `bladewell/bladewell` in `boost:install` and your agent learns how to find and add widgets.
 
 ## [1.1.0] - 2026-10-11
 
 ### Added
 
-- **date-range-picker**: on a touch screen, a slide picks the range: press the start day, slide, and the band follows the finger as it follows the mouse; lifting it on a day makes that the end. Two taps still work as before, and a finger that wobbles a little as it taps still taps. A slide that starts on a day picks rather than scrolls the calendar; it still scrolls from anywhere else.
-- **date-range-picker**: a tap that lands in a day's cell beside its round button picks that day, rather than nothing.
-- **button**: `confirm="…"`, with `confirm-message`, `confirm-label` and `confirm-cancel`, as on the dropdown's items: the question is asked first, and the button only submits, follows its link or runs `wire:click` once it's confirmed. A danger button asks in red. It asks in the modal's dialog when the app has the modal widget and in the browser's own box when it doesn't, so the button still requires only the icon.
-- **toast**: a `data-toast` hook: `data-toast="success"` and `data-toast-message="Saved."` (and `data-toast-title`) on any element show that toast when it's clicked, with no script; `data-toast="dismiss"` clears them all. An unknown kind logs a warning. The `try-it` example uses it.
-- **select**, **tags**, **datepicker**, **date-range-picker**, **time-picker**, **color-picker**, **slider**, **otp**, **checkbox**, **switch**, **radio**: a `readonly` prop, as the text controls already had: the value shows, can be focused and read out, and is submitted, but can't be changed, and the field takes the same muted look. Select's list, the pickers' calendars and lists, and the colour picker's own picker and swatches don't open or show; tags lose their remove buttons and can't be typed in; a slider's thumbs, the time picker's parts and the OTP boxes ignore the keys and the pointer; checkboxes, switches and radios keep their state when clicked or pressed. Screen readers hear it through `aria-readonly` where the role takes it, and as "read only" in the date and time buttons' names. With `disabled` too, `disabled` wins. `wire:model` still binds: only the user is stopped.
-- **otp**: an `info` hint under the boxes, which they are described by, as on the verification code.
-- **popover**, **tabs**, **tree**, **clock**, **command**: their scripts' APIs are also on `window` (`window.popover`, `window.tabs`, `window.tree`, `window.clock`, `window.command`), as `modal`, `toast` and `progress` already were, so a script on the page can call them without an import. Each takes an id or an element: `popover.open()` and the rest also take the trigger, panel or wrapper element; `tabs.open()` the tabs element as well as their id; `tree.open()` and `tree.close()` an item's id as well as its element; `clock.start()`, `pause()` and `reset()` a stopwatch's id, or anything inside it, as well as the element. What worked before works the same. Each has a new `in-scripts` usage note.
-- **dropdown**: a script API, `dropdown.open(target)`, `dropdown.close(target)` and `dropdown.toggle(target)`, by the trigger's id or element, also on `window.dropdown`; for a shared menu, give the row's trigger. From Livewire: `$this->dispatch('dropdown-open', id: '…')` and `'dropdown-close'`, as on the popover.
-- **modal**, **popover**, **dropdown**, **tabs**, **tree**, **clock**, **command**, **progress**: a script call (or a Livewire `*-open`/`*-close` event) whose target isn't on the page logs a `console.warn` naming the widget, instead of doing nothing without a word. Nothing throws.
-- **otp**, **select**, **textarea**: their events are also sent under the colon names the other widgets use: `otp:complete`, `select:change` and `textarea:resize`, with the same details. `otp-complete`, `select-change` and `textarea-resize` are still sent too.
-- **verification-code**: a `verification-code:complete` event once the field holds a whole code, with the code as `detail.value`, for a form that submits itself, as the OTP has.
-- **dropdown**: a shared menu for long tables and lists. Render `<x-widget.dropdown.menu id="…">` once with the items, and in each row only `<x-widget.dropdown menu="…" :values="['id' => $order->id]">`, its trigger. As the menu opens from a row, `:name` placeholders in its links, form actions, `confirm` questions, `data-*` attributes and text take that row's values, so `route('orders.edit', ':id')` becomes the row's own link; `only-if="can_delete"` on an item or divider hides it for rows where that value is false. In the compact table example with 100 rows, that is one copy of the menu instead of 100: 564 KB of HTML becomes 251 KB, rendered in 13 ms instead of 31. Without `menu`, a dropdown renders as before. Placeholders are never filled into `wire:click`, so items that call a Livewire component keep a menu per row. New hooks: `data-dropdown-values` on the row's wrapper, `data-dropdown-shared` on the menu and `data-dropdown-only-if` on items. A trigger whose menu isn't on the page logs a warning.
+- **date-range-picker**: on a touch screen, press a start day and slide to the end. Two taps still work, and slides elsewhere scroll.
+- **date-range-picker**: a tap beside a day's button picks that day.
+- **button**: `confirm`, with `confirm-message`, `confirm-label` and `confirm-cancel`, asks before it submits, links or runs `wire:click`.
+- **toast**: a `data-toast` hook shows a toast on click without a script (`data-toast-message`, `data-toast-title`; `data-toast="dismiss"` clears them).
+- **select, tags, datepicker, date-range-picker, time-picker, color-picker, slider, otp, checkbox, switch, radio**: a `readonly` prop: the value shows and submits but can't be changed. `disabled` wins over it, and `wire:model` still binds.
+- **otp**: an `info` hint under the boxes.
+- **popover, tabs, tree, clock, command**: their script APIs are also on `window` (`window.popover`…) and take an id or an element.
+- **dropdown**: `dropdown.open()`, `close()` and `toggle()`, also on `window.dropdown`, and `dropdown-open` / `dropdown-close` from Livewire.
+- **modal, popover, dropdown, tabs, tree, clock, command, progress**: a script call or Livewire event for a target that isn't on the page logs a warning.
+- **otp, select, textarea**: events also sent as `otp:complete`, `select:change` and `textarea:resize`.
+- **verification-code**: a `verification-code:complete` event with the code.
+- **dropdown**: a shared menu for long tables: `<x-widget.dropdown.menu id="…">` once, and `<x-widget.dropdown menu="…" :values="[…]">` per row. `:name` placeholders take each row's values and `only-if` hides items per row. 100 rows go from 564 KB to 251 KB of HTML. New hooks: `data-dropdown-values`, `data-dropdown-shared`, `data-dropdown-only-if`.
 - **table**: the `compact` example uses the shared row menu.
-- **datepicker**: a `future` example for deadlines and appointments: from today with no upper limit (`min="today" :max="false"`). The basic example now says the calendar stops at today by default.
+- **datepicker**: a `future` example (`min="today" :max="false"`).
 
 ### Changed
 
-- **select**, **search**, **command**, **table**: a prop another of these widgets names differently now fails, naming this widget's own, instead of passing through as an attribute that did nothing: `suggest-url`, `suggest-min` and `empty` on select (it takes `search-url`, `search-min-length` and `no-results`), `search-url` and `search-min-length` on search (`suggest-url`, `suggest-min`), `search-url` and `no-results` on command (`suggest-url`, `empty`), `no-results` on table (`empty`), and `pagination="load-more"` on table (`infinite`).
-- **dropdown**, **popover**: an icon-only trigger without a `label` now fails naming the dropdown or popover that was written, instead of the button inside it.
+- **select, search, command, table**: a prop name from one of the others now throws and names the right one (such as `suggest-url` on select, which takes `search-url`), instead of doing nothing.
+- **dropdown, popover**: an icon-only trigger without `label` throws, naming the dropdown or popover.
 
 ## [1.0.0] - 2026-10-09
 
 ### Added
 
-- **modal**: a bottom sheet (`variant="drawer" side="bottom"`, or `mobile="sheet"` on phones) can be swiped down to close, as long as the backdrop may close it too (`close-on-backdrop`, without `disable-close`). It follows the finger and closes past a third of its height or on a flick, and springs back otherwise; a list scrolled down inside it scrolls back up first. A small handle at the top shows it can be dragged. The panel that slides carries a new `data-modal-sheet` hook.
-- **pagination** (`drawer`, and the table's page sheet): the page sheet swipes down to close the same way, with the same handle.
-- **tooltip**, **tooltip-cursor**: on a touch screen, a tap shows the tooltip on something a tap does nothing else to (plain text, an icon, a chart's bar), and the next tap anywhere hides it. On a button or a link the tap is still the button's or link's own. The cursor tooltip shows beside the finger.
-- **All widgets** (`base.css`): `tap-target` and `tap-target-y` utilities. On a touch screen they make a small control take taps from at least 44px around it without drawing it any bigger: both ways for a control on its own, only in height for one in a row, where growing sideways would take its neighbour's taps. Mice and trackpads keep the drawn size.
-- **radio**: `variant="segmented"` lays the options out as one track with the chosen one raised in it, for two to four short choices, like the tabs' segmented look. It's still a radio group: the arrow keys move the choice, it submits with the form, and `wire:model`, `required`, disabled options and errors work as before. Without `variant`, radios look as they did.
-- **field**: `visibleArea()` and `placeBeside()` exports: the part of the window not covered by an on-screen keyboard, and where a popover goes beside its field within it, its scrolling part cut down to fit when neither side has room for all of it.
-- **color-picker**: a new form control, `<x-widget.color-picker>`: a hex box that submits `#rrggbb`, the browser's own colour picker beside it (`custom`), and optional `swatches` as a radio group named for screen readers. A preview shows the colour with black or white text, whichever reads better. `#ABC` tidies to `#aabbcc`, and text that isn't a colour goes back to the last one, saying why. Works with `wire:model`.
-- **command**: a new widget, a command palette. `<x-widget.command>` with `<x-widget.command.group>`s and `<x-widget.command.item>`s: Ctrl+K (Cmd+K on a Mac), its button or any `data-command-open` element opens a search box over the page that finds pages and actions as you type, by label or keywords, every word in any order. Up and Down move through it while focus stays in the box; Enter or a click opens an item's `href`, or clicks it, so `wire:click` works. `suggest-url` adds your app's results with the same answer the search widget's suggestions take; `recent` keeps the last five pages chosen, in this browser only. `command-open` and `command-close` events from Livewire.
-- **icon**: 40 more icons, drawn in the set's own style. App and admin: archive, bell-off, chart-bar, database, folder, key, layout-dashboard, log-in, printer, user-plus. Commerce and money: banknote, coins, gift, package, percent, receipt, shopping-bag, shopping-cart, store, truck. Editing and files: clipboard, file-text, folder-open, grip-vertical, list, paperclip, redo, save, scissors, undo. Communication and media: at-sign, camera, headphones, megaphone, message-circle, mic, music, rss, thumbs-up, video. Any other icon still comes from Blade Icons when the app has it.
-- **popover**: a new widget, `<x-widget.popover>`: a panel of anything beside a button (a note, a short form, a profile card, links), as a non-modal dialog on the native popover, so a table or a modal never clips it. It flips above when there's no room below; focus moves into it as it opens and back to the button as it closes; Esc, a click outside, Tab past its end or a `data-popover-close` button closes it. The trigger is text, an icon or your own markup; `title`, `width` and `align` set the rest. `popover.open()`, `close()` and `toggle()` from scripts, and `popover-open` / `popover-close` events from Livewire.
-- **slider**: a new form control, `<x-widget.slider>`. One thumb is the native range input, restyled, keeping its keyboard and screen reader support; `range` puts two thumbs on one track for a span such as a price range, each a `role="slider"` that stops at the other, moved by the arrow keys, Page Up and Down, Home and End, dragging, or a press on the track. `min`, `max` and `step`, and a `prefix` or `suffix` on the value shown under the label and read out per thumb, in the page's number format. Range values submit as `name[]` and bind with `wire:model` (`price.0`, `price.1`). Right to left fills from the right. `base.css` gets two `@source inline()` ranges for where the fill starts.
-- **tags**: a new form control, `<x-widget.tags>`: free-text tags in a field. Enter or a comma adds what's typed, a pasted list adds each item, leaving the box keeps what's left in it, Backspace removes the last tag and each tag has its own remove button. `suggestions` offers the browser's own list, `max` caps how many, the same tag in another case isn't added twice, and a screen reader hears each change. Submits as `name[]` and works with `wire:model`.
-- **tree**: a new widget, `<x-widget.tree>` with `<x-widget.tree.item>`s: nodes that open and close, as an ARIA tree. Four looks: `list` (compact rows under indent guides, like a file explorer), `cards` (each node a card joined to its children by lines, like a referral network), `org` (top-down, like an org chart) and `checkbox` (ticking a parent ticks everything under it, a dash when only some is; the ticked values submit as `name[]` and bind with `wire:model`). A node with `children-url` fetches its children from your app as HTML the first time it opens, with a spinner meanwhile and a retry if it fails. The arrow keys move through it, Right and Left following the reading direction; a letter jumps to the next node starting with it. Nodes take a label, `meta`, an `icon`, an `href` and a `details` slot. Cards and org charts scroll sideways inside themselves. Its lines and indent are in `base.css`, from CSS variables you can set on one tree's class: `--tree-line` (colour), `--tree-indent` and `--tree-gap`. Each node renders only its tree's look, about 1.1 KB of HTML.
+- **modal**: bottom sheets (`variant="drawer" side="bottom"`, `mobile="sheet"`) swipe down to close when the backdrop may close them. New hook: `data-modal-sheet`.
+- **pagination** (`drawer`, and the table's page sheet): swipes down to close too.
+- **tooltip, tooltip-cursor**: on a touch screen, a tap shows the tooltip on plain text, icons and chart bars; the next tap hides it.
+- **All widgets** (`base.css`): `tap-target` and `tap-target-y` give small controls a 44px tap area on touch screens without drawing them bigger.
+- **radio**: `variant="segmented"`, a single track for two to four short choices.
+- **field**: `visibleArea()` and `placeBeside()` exports, for placing popovers clear of the on-screen keyboard.
+- **color-picker**: a new form control: a hex box, the browser's picker (`custom`) and optional `swatches`. Works with `wire:model`.
+- **command**: a new widget, a command palette opened with Ctrl+K or Cmd+K. Groups and items, search by label or keywords, `suggest-url` for your app's results, and `recent`.
+- **icon**: 40 more icons for apps, commerce, editing and media.
+- **popover**: a new widget, a panel beside a button that flips when there's no room and handles focus. `title`, `width` and `align`; `popover.open()`, `close()` and `toggle()`; `popover-open` / `popover-close` from Livewire.
+- **slider**: a new form control, one thumb or a `range` of two, with `min`, `max`, `step`, `prefix` and `suffix`. Works with `wire:model`.
+- **tags**: a new form control for free-text tags, with `suggestions` and `max`. Submits as `name[]` and works with `wire:model`.
+- **tree**: a new widget with four looks (`list`, `cards`, `org`, `checkbox`), lazy children from `children-url`, and full keyboard support. Styled through `--tree-line`, `--tree-indent` and `--tree-gap`.
 
 ### Changed
 
-- **modal**, **alert**, **toast**, **datepicker**, **date-range-picker**: close buttons and the month arrows take taps from 44px around them on touch screens (`tap-target`). **password**, **number**, **captcha**, **file-upload**, **select** (clear), **pagination** (page numbers and arrows): the same, in height only (`tap-target-y`). Nothing looks different, and with a mouse nothing changes.
-- **price-roll**: the change badge drops to the next line when a large price and its badge are wider than the screen, instead of running off a phone's edge.
+- **modal, alert, toast, datepicker, date-range-picker**: close buttons and month arrows get a 44px tap area on touch screens (`tap-target`).
+- **password, number, captcha, file-upload, select, pagination**: small buttons get a 44px tap height on touch screens (`tap-target-y`).
+- **price-roll**: the change badge wraps instead of running off a phone's edge.
 - **pagination** (`jump`): the on-screen keyboard's return key reads Go.
 
 ### Fixed
 
-- **modal**, **toast**, **pagination**: in a page drawn under the notch and home indicator (`viewport-fit=cover`, as in NativePHP and home-screen web apps), drawers, full-screen dialogs, bottom sheets and toasts keep their content and close buttons clear of them. Ordinary pages look exactly as before: the extra space is `env(safe-area-inset-*)`, which is 0 there.
-- **search**, **select**, **phone**, **datepicker**, **date-range-picker**, **time-picker**: a list or calendar opened with the on-screen keyboard up no longer opens under it. It goes above the field when the keyboard leaves no room below, and moves back when the keyboard closes. Where neither side has room for the whole list (**search**, **select**, **phone**, **time-picker**'s list), it takes the roomier side and scrolls in what's left, instead of running under the keyboard or off the screen.
+- **modal, toast, pagination**: drawers, sheets and toasts stay clear of the notch and home indicator under `viewport-fit=cover`.
+- **search, select, phone, datepicker, date-range-picker, time-picker**: lists and calendars open above the field when the on-screen keyboard leaves no room below.
 
 ## [0.3.0] - 2026-10-06
 
 ### Changed
 
-- **All widgets**: LarawellUI is now **Bladewell**. This one release breaks the promise above: the package, commands, config and lock file are renamed, with no aliases for the old names. The widgets, their props and `data-*` hooks, and the `App\View\Widget` / `App\Rules` code they copied into your app are unchanged. To upgrade:
+- **All widgets**: LarawellUI is now **Bladewell**. This release renames the package, commands, config and lock file, with no aliases; widgets and their props, hooks and copied code are unchanged. To upgrade:
     1. `composer remove --dev larawellui/larawellui && composer require --dev bladewell/bladewell`
     2. Rename `config/larawellui.php` to `config/bladewell.php`, if you published it.
-    3. Rename `larawellui.lock` to `bladewell.lock` **before** running any command. Otherwise `bladewell:add --installed` can't tell which files you've edited and will overwrite them.
-    4. Use `php artisan bladewell:add | list | diff | mcp` instead of `larawell:*`, and update the command in your MCP client's config.
+    3. Rename `larawellui.lock` to `bladewell.lock` **before** running any command, or `bladewell:add --installed` will overwrite your edited files.
+    4. Use `php artisan bladewell:add | list | diff | mcp` instead of `larawell:*`, and update your MCP client's config.
     5. The site is now <https://www.bladewellui.com>.
 
 ## [0.2.3] - 2026-10-04
 
 ### Added
 
-- **icon**, and with it every widget's icon props: a name that isn't in the built-in set is drawn by Blade Icons (`blade-ui-kit/blade-icons`) when the app has it, so `<x-widget.button icon-start="lucide-rocket">` or a dropdown item's `icon="lucide-zap"` work with any installed set, with the same classes and screen-reader handling. Built-in names still win, nothing new is required, and without Blade Icons an unknown name fails as before, its message now saying how to add one.
+- **icon**: names outside the built-in set are drawn by Blade Icons (`blade-ui-kit/blade-icons`) when it's installed, in every widget's icon props.
 
 ## [0.2.2] - 2026-10-04
 
 ### Added
 
-- **All widgets** (`base.css`): a `data-theme-changing` hook for switching theme while the page is open. Set it on `<html>` for the switch and the widgets' colour transitions are held back, so fields, buttons and table rows change at once instead of each fading at its own speed. The README's Theming section shows the toggle.
+- **All widgets** (`base.css`): a `data-theme-changing` hook on `<html>` holds back colour transitions while the theme switches.
 
 ### Changed
 
-- **button** (`<x-widget.button.back>`): the arrow sits closer to its label (`gap-1.5`, as on the button, instead of `gap-5`), so the two read as one link.
+- **button** (`<x-widget.button.back>`): the arrow sits closer to its label (`gap-1.5`).
 
 ### Fixed
 
-- **table**: changing page, sort or filter in place no longer makes the browser report a Content Security Policy violation for each inline `<style>` on the page it fetches, such as the one Laravel's `@fonts` adds. Those carry the fetched response's nonce, not the current page's; the table now drops them before reading the page.
-- **PHP helpers and validation rules** (copied to `App\View\Widget` and `App\Rules`): written in Laravel Pint's default style. Before, running Pint in your app reformatted seven of them, which marked them as edited, so `bladewell:add --installed` skipped their updates.
+- **table**: changing page, sort or filter no longer reports CSP violations for the fetched page's inline styles.
+- **PHP helpers and validation rules**: written in Pint's default style, so running Pint no longer marks them as edited.
 
 ## [0.2.1] - 2026-10-04
 
 ### Added
 
-- **field**: a `data-field-info` hook on the hint, which the field's script uses to announce the hint again once an error clears.
+- **field**: a `data-field-info` hook on the hint.
 
 ### Fixed
 
-- **All form widgets**: a field showing an error is described by the error alone. Before, screen readers also read the hint the error hides, often two sentences saying nearly the same thing, like the birthday picker's "You must be 18 or older." after "You must be at least 18 years old." The hint is announced again once the error clears.
-- **table**: the sortable example's demo data no longer logs a PHP deprecation ("Implicit conversion from float … to int") when it builds its amounts.
+- **All form widgets**: a field with an error is described by the error alone; the hint returns once it clears.
+- **table**: the sortable example no longer logs a PHP deprecation.
 
 ## [0.2.0] - 2026-10-03
 
 ### Added
 
-- **show-if**: a new widget that shows part of a form only while another field has a given value, such as a phone number when Phone is chosen. Hidden, its fields don't submit and their required can't block the form; it starts in the right state after a failed submit, nests, and works inside Livewire.
-- **breadcrumbs**: a new widget showing where a page sits, as a trail of links down to the current page (`aria-current="page"`). On phones, one link back up instead. Chevron or slash separators, an icon-only Home that keeps its name, and long labels cut short with the full text on hover.
-- **search**: suggestions as you type, like a store's search, with `suggest-url`: your endpoint answers `GET ?q=…` with JSON. Suggestions can carry details, open a page directly (`href`) or sit under group headings; the typed text shows in bold. Keyboard and screen-reader support follow the ARIA combobox pattern, requests wait for a pause in typing and drop stale answers, and a failed one is announced. `suggest-min` and `messages` tune it.
-- **select**: `search-url` searches your app as you type, for lists too long to send to the page (customers, products). Single or multiple: choices stay picked across searches, the chosen option(s) you pass show before any search, and other options you pass show as a starter list until you type. Searching and failures are shown and announced; `search-min-length`, `searching` and `search-failed` tune it. A Livewire `wire:model` multiple select takes values a search brought.
-- **All widgets**: a dark theme in `theme.css`, at WCAG AA. Put `class="dark"` or `data-theme="dark"` on `<html>`, or on any element for just that part of the page.
-- **Theme**: `primary-fill`, `error-fill` and `success-fill`, for solid backgrounds that carry white text. `primary`, `error` and `success` are now only for text, borders, focus rings and tints, so dark mode can make those lighter without failing contrast. In light mode each fill follows its base colour unless you set it, and `primary-hover` is now a darker mix of `primary-fill` in both modes, so a theme that changed only `primary` looks as it did, hover included. In dark mode the fills are a deeper shade of their own; if you change the brand colour, set the dark pair too.
-- **icon**: 24 icons: arrow-down, arrow-up, bell, bookmark, circle-help, circle-x, credit-card, download, external-link, filter, globe, heart, home, link, mail, map-pin, menu, phone, send, settings, share, star, tag and users.
-- **All widgets**: a manifest can name, in `examples-use`, other widgets its examples use without needing them itself. The page, `/r/{name}.json` (`examples_use`, `examples_install`), `bladewell:list --json` and MCP list them with the command that adds them.
-- **All widgets**: every prop has a description on its component's page, in `/r/*.json` and through MCP. Props that take one of a set of values list them all, and the icon's `name` lists every icon.
+- **show-if**: a new widget that shows part of a form only while another field has a given value. Hidden fields don't submit or block the form.
+- **breadcrumbs**: a new widget, a trail of links to the current page; one link back on phones.
+- **search**: suggestions as you type from `suggest-url`, with details, links and groups. `suggest-min` and `messages` tune it.
+- **select**: `search-url` searches your app as you type, single or multiple, with `wire:model`. `search-min-length`, `searching` and `search-failed` tune it.
+- **All widgets**: a dark theme at WCAG AA, with `class="dark"` or `data-theme="dark"`.
+- **Theme**: `primary-fill`, `error-fill` and `success-fill` for backgrounds under white text; `primary`, `error` and `success` are for text, borders and tints.
+- **icon**: 24 more icons.
+- **All widgets**: `examples-use` in a manifest names the other widgets its examples need.
+- **All widgets**: every prop is described on its page, in `/r/*.json` and through MCP.
 
 ### Changed
 
-- **button, checkbox, accordion, date pickers, modal, pagination, progress, stepper, tabs, time-picker**: solid backgrounds under white text use the new fill colours, and focus rings leave a surface-coloured gap instead of a white one.
-- **All widgets**: a value a prop doesn't take, like `variant="primay"` or `size="xl"`, now throws and names the values it does take. Before, the widget quietly used its default. If a value comes from your data (a status, a setting), map it to the widget's values with a default first; see "Values from your data" in the README. This covers accordion, alert, button, captcha, clock, dropdown, file-upload, modal, otp, pagination, price-roll, progress, search, select, stepper, switch, table, tabs, time-picker, toast and tooltip.
+- **button, checkbox, accordion, datepicker, date-range-picker, modal, pagination, progress, stepper, tabs, time-picker**: white text sits on the new fill colours.
+- **All widgets**: a prop value that isn't allowed (`variant="primay"`) now throws and lists the allowed ones. See "Values from your data" in the README.
 - **button**: `type` takes only button, submit or reset.
-- **dropdown**: an item's `method` takes only GET, POST, PUT, PATCH or DELETE, in any case.
-- **file-upload**: `uploaded` needs `upload-url`. Without it, a picked file was submitted under the same name as the stored ids and replaced them.
-- **modal**: a drawer with `size="full"`, and `mobile="sheet"` on a drawer or a full-screen dialog, now throw. They used to be ignored.
-- **table**: a row with both `href` and a details slot throws, because a click can only do one of the two. `bulk-method` takes only GET, POST, PUT, PATCH or DELETE.
+- **dropdown**: an item's `method` takes only GET, POST, PUT, PATCH or DELETE.
+- **file-upload**: `uploaded` needs `upload-url`.
+- **modal**: `size="full"` on a drawer, and `mobile="sheet"` on a drawer or full-screen dialog, now throw.
+- **table**: a row with both `href` and details throws; `bulk-method` takes only GET, POST, PUT, PATCH or DELETE.
 
 ### Fixed
 
-- **field**: the required check for the select, date pickers and time picker skips fields inside a disabled fieldset, as the browser's own checks do. Before, a hidden required one could stop the form.
-- **time-picker**: the list and each column now have one Tab stop, the chosen time or else the first that can be picked, which follows focus as the arrow keys move (a roving tabindex). Before, no option could be reached with Tab, and a scrolling list had no keyboard way in.
-- **table**: an expandable row opens from a real Details button in its chevron cell, which carries `aria-expanded`. ARIA doesn't allow that on a table row, so screen readers could miss whether it was open. A click anywhere on the row still opens it.
-- **tooltip**: around an icon with no text, the focusable wrapper is now an image named by the tooltip (`role="img"`). Before, it had a name but no role, which isn't allowed.
-- **file-upload**: the button and image uploads no longer give their input two labels, which some screen readers read only half of. The input is named by the field label and the button's text, e.g. "Profile photo, Choose image".
-- **progress, search**: the live-progress and search-form examples use `primary-fill` behind their white text, so they pass contrast in dark mode.
-- **clock**: the countdown no longer gets an empty `aria-label` when its label is "".
-- **icon, clock, pagination**: the icon's `name`, the clock's `hour12`, and the pagination components' `paginator` and `segmented` were missing from the docs, `/r/*.json` and MCP.
-- **stepper**: the bars stepper takes the same step arrays as the other steppers (`['label' => …]`) instead of failing on them.
+- **field**: required checks skip fields in a disabled fieldset.
+- **time-picker**: the list and columns are reachable with Tab and arrow keys.
+- **table**: expandable rows open from a real Details button with `aria-expanded`.
+- **tooltip**: around an icon with no text, the wrapper is an image named by the tooltip (`role="img"`).
+- **file-upload**: inputs no longer get two labels.
+- **progress, search**: examples pass contrast in dark mode.
+- **clock**: the countdown no longer gets an empty `aria-label`.
+- **icon, clock, pagination**: missing props added to the docs, `/r/*.json` and MCP.
+- **stepper**: the bars stepper accepts the same step arrays as the others.
 
 ## [0.1.0] - 2026-10-02
 
 ### Added
 
 - 34 widgets: accordion, alert, button, captcha, checkbox, clock, date-range-picker, datepicker, dropdown, field, file-upload, icon, modal, number, otp, pagination, password, phone, price-roll, progress, radio, search, select, stepper, switch, table, tabs, text-input, textarea, time-picker, toast, tooltip, tooltip-cursor and verification-code.
-- `bladewell:add`, which copies widgets and everything they need into your app, with `--dry-run`, `--installed` and `--force`.
-- `bladewell:list`, with `--json` for tools and AI agents.
-- `bladewell:diff`, which shows how your edited copies differ from the package.
-- `bladewell:mcp`, an MCP server for AI agents: browse the catalogue, see what's installed and edited, and install with a dry run first.
-- `bladewell.lock`, so updates replace only the files you haven't edited.
+- `bladewell:add`, which copies widgets and what they need into your app, with `--dry-run`, `--installed` and `--force`.
+- `bladewell:list`, with `--json`.
+- `bladewell:diff`, showing how your edited copies differ from the package.
+- `bladewell:mcp`, an MCP server for AI agents.
+- `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
 [Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.5...HEAD

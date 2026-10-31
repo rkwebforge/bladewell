@@ -1,4 +1,4 @@
-{{-- placement is top (the default), bottom, start or end; start and end follow the page's direction. Without room on that side it moves to the opposite one. --}}
+{{-- placement is top (the default), bottom, start or end; start and end follow the page's direction. Without room on that side it moves to the opposite one. On a touch screen, a tooltip a finger opens goes on top instead, where the finger doesn't cover it. --}}
 <div class="flex flex-wrap gap-3">
     @foreach (['top', 'bottom', 'start', 'end'] as $side)
         <x-widget.tooltip :text="'On the '.$side" :placement="$side">

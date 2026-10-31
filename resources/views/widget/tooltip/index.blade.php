@@ -20,9 +20,11 @@
     Wraps one element: a button, a link, an icon. The tooltip shows when the pointer rests on it or it gets keyboard
     focus, stays while the pointer moves onto the tooltip, and hides on Esc (WCAG 1.4.13). It's text only: anything to
     click goes in a dropdown or a modal. It sits in the top layer (a popover), so a table or a modal can't clip it.
-    resources/js/widget/tooltip points the element's aria-describedby at it, so screen readers read it too.
+    resources/js/widget/tooltip points the element's aria-describedby at it, so screen readers read it too. On a touch
+    screen a tap on plain text or an icon shows it, and a long press on a button or a link; there, iOS's own long-press
+    preview of a link is turned off, as it would cover the tooltip.
 --}}
-<span data-tooltip="{{ $id }}" data-placement="{{ $placement }}" {{ $attributes->class(['inline-flex']) }}>{{ $slot }}<span
+<span data-tooltip="{{ $id }}" data-placement="{{ $placement }}" {{ $attributes->class(['inline-flex [-webkit-touch-callout:none]']) }}>{{ $slot }}<span
         id="{{ $id }}"
         popover="manual"
         role="tooltip"

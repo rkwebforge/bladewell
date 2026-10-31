@@ -14,9 +14,10 @@
     other side of it near the window's edges. With the keyboard there's no pointer, so it sits under the focused element
     instead. It never takes the pointer (it would be in the way of what's under it) and Esc hides it. It sits in the top
     layer (a popover), so a table or a modal can't clip it. resources/js/widget/tooltip-cursor points the element's
-    aria-describedby at it, so screen readers read it too.
+    aria-describedby at it, so screen readers read it too. On a touch screen a long press on a link or a button inside
+    shows it; there, iOS's own long-press preview of a link is turned off, as it would cover the tooltip.
 --}}
-<span data-tooltip-cursor="{{ $id }}" {{ $attributes->class(['inline-flex']) }}>{{ $slot }}<span
+<span data-tooltip-cursor="{{ $id }}" {{ $attributes->class(['inline-flex [-webkit-touch-callout:none]']) }}>{{ $slot }}<span
         id="{{ $id }}"
         popover="manual"
         role="tooltip"

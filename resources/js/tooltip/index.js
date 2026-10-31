@@ -1,5 +1,5 @@
-// Drives <x-widget.tooltip>. Shows it when the pointer rests on the element, a finger taps plain text or an icon, or
-// it gets keyboard focus, keeps it while
+// Drives <x-widget.tooltip>. Shows it when the pointer rests on the element, a finger taps plain text or an icon, holds
+// a button or a link, or it gets keyboard focus, keeps it while
 // the pointer moves onto the tooltip, and hides it on Esc, a press, or leaving (WCAG 1.4.13). Points the element's
 // aria-describedby at it, so screen readers read it as the element's description. Delegated from `document`, so
 // tooltips added later (a Livewire render, fetched HTML) work without setting up.
@@ -12,10 +12,22 @@ const GAP = 8;
 const VIEWPORT_EDGE = 8;
 // How far the tail keeps from the tooltip's corners.
 const ARROW_INSET = 8;
+// How long a finger holds a button or a link to read its tooltip instead of pressing it, and how far it can stray
+// meanwhile: further is a scroll. Android's own long press for a toolbar button's label.
+const LONG_PRESS = 500;
+const SLOP = 10;
+// A finger let go after holding: the click the browser may still send for it, which would press the button.
+const HELD_CLICK_MS = 600;
 
 let open = null;
 let showTimer = null;
 let hideTimer = null;
+// The one a finger opened: above its element whatever its placement, where the finger doesn't cover it.
+let touched = null;
+// A finger holding a button or a link, waiting out the long press: { pointerId, x, y, root, held, timer }.
+let press = null;
+// A held button or link let go, and until when the click that follows is the hold's, not a press: { root, until }.
+let heldClick = null;
 
 const bubbleOf = (root) => root.querySelector(':scope > [data-tooltip-bubble]');
 
@@ -86,8 +98,9 @@ function inView(element, bubble) {
     return !hit || element.contains(hit);
 }
 
-// Its side first; the opposite one when it doesn't fit there. Kept inside the window either way. Hidden once its
-// element is scrolled out of view, rather than left pointing at nothing.
+// Its side first; the opposite one when it doesn't fit there. Opened by a finger, on top first: a finger on the element
+// covers the space below and beside it. Kept inside the window either way. Hidden once its element is scrolled out of
+// view, rather than left pointing at nothing.
 function position(root) {
     const bubble = bubbleOf(root);
     if (!inView(targetOf(root), bubble)) {
@@ -99,7 +112,7 @@ function position(root) {
     const width = bubble.offsetWidth;
     const height = bubble.offsetHeight;
     const rtl = getComputedStyle(root).direction === 'rtl';
-    let side = root.dataset.placement ?? 'top';
+    let side = touched === root ? 'top' : root.dataset.placement ?? 'top';
     if (side === 'start' || side === 'end') {
         side = (side === 'end') !== rtl ? 'right' : 'left';
     }
@@ -136,7 +149,8 @@ function position(root) {
     }
 }
 
-function show(root) {
+// finger: opened by a tap or a long press, so on top.
+function show(root, { finger = false } = {}) {
     clearTimeout(showTimer);
     clearTimeout(hideTimer);
     if (open === root) {
@@ -147,6 +161,7 @@ function show(root) {
     if (!bubble?.textContent.trim()) {
         return;
     }
+    touched = finger ? root : null;
     link(root);
     bubble.showPopover();
     position(root);
@@ -165,6 +180,7 @@ function hide({ keepPending = false } = {}) {
             bubble.hidePopover();
         }
         open = null;
+        touched = null;
     }
 }
 
@@ -191,14 +207,60 @@ document.addEventListener('pointerover', (event) => {
 });
 
 // Touch has no hover, so a tap shows a tooltip on something a tap does nothing else to: plain text or an icon, made
-// focusable by link(). On a button or a link the tap is the action, and screen readers read the text either way. It
-// stays until the next press anywhere (the pointerdown below).
+// focusable by link(). On a button or a link the tap is the action, so a long press shows it there instead, and the
+// click that letting go sends is dropped. Screen readers read the text either way. It stays until the next press
+// anywhere (the pointerdown below).
 document.addEventListener('pointerup', (event) => {
-    const root = event.pointerType === 'touch' ? event.target.closest?.(ROOT) : null;
+    if (event.pointerType !== 'touch') {
+        return;
+    }
+    if (press?.pointerId === event.pointerId) {
+        if (press.held) {
+            heldClick = { root: press.root, until: performance.now() + HELD_CLICK_MS };
+        }
+        release();
+    }
+    const root = event.target.closest?.(ROOT);
     if (root && targetOf(root) === root) {
-        show(root);
+        show(root, { finger: true });
     }
 });
+
+// Ends a finger's hold on a button or a link before it's long enough.
+function release() {
+    clearTimeout(press?.timer);
+    press = null;
+}
+
+document.addEventListener('pointermove', (event) => {
+    if (press?.pointerId === event.pointerId && Math.hypot(event.clientX - press.x, event.clientY - press.y) >= SLOP) {
+        release();
+    }
+});
+
+document.addEventListener('pointercancel', (event) => {
+    if (press?.pointerId === event.pointerId) {
+        release();
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if (heldClick && performance.now() < heldClick.until && heldClick.root.contains(event.target)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+    heldClick = null;
+}, true);
+
+// Held on a link or a button, a finger brings up the phone's menu for it or selects its text: not while it's reading
+// the tooltip.
+for (const type of ['contextmenu', 'selectstart']) {
+    document.addEventListener(type, (event) => {
+        if (press) {
+            event.preventDefault();
+        }
+    });
+}
 
 document.addEventListener('pointerout', (event) => {
     // A finger lifting leaves the element too, which would take away the tooltip its tap just showed.
@@ -235,7 +297,22 @@ document.addEventListener('keydown', (event) => {
         hide();
     }
 });
-document.addEventListener('pointerdown', () => hide());
+// A finger on a button or a link starts the long press that shows its tooltip.
+document.addEventListener('pointerdown', (event) => {
+    hide();
+    release();
+    heldClick = null;
+    const root = event.pointerType === 'touch' && event.isPrimary ? event.target.closest?.(ROOT) : null;
+    const target = root && targetOf(root);
+    if (!target || target === root || !target.contains(event.target) || target.matches(':disabled')) {
+        return;
+    }
+    const { pointerId, clientX: x, clientY: y } = event;
+    press = { pointerId, x, y, root, held: false, timer: setTimeout(() => {
+        press.held = true;
+        show(root, { finger: true });
+    }, LONG_PRESS) };
+});
 
 window.addEventListener('scroll', () => open && position(open), true);
 window.addEventListener('resize', () => open && position(open));

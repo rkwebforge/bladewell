@@ -1,5 +1,5 @@
 {
-    "description": "A short label or hint on an element, shown when the pointer rests on it or it gets keyboard focus, and hidden on Esc. On any side, moving to the other when there's no room, and never clipped by a table or a modal. Read out by screen readers as the element's description. Works inside Livewire components.",
+    "description": "A short label or hint on an element, shown when the pointer rests on it or it gets keyboard focus, and on a touch screen by a tap on plain text or a long press on a button, above the finger; hidden on Esc. On any side, moving to the other when there's no room, and never clipped by a table or a modal. Read out by screen readers as the element's description. Works inside Livewire components.",
     "requires": [
         "icon"
     ],

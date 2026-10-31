@@ -1,7 +1,9 @@
 // Drives <x-widget.tooltip-cursor>: a tooltip that follows the pointer over its element, just below and after it, and
 // moves to the other side of the pointer near the window's edges. Keyboard focus puts it under the element instead.
-// Esc hides it. Points the element's aria-describedby at it for screen readers. Delegated from `document`, so ones
-// added later (a Livewire render, fetched HTML) work without setting up.
+// A finger's tap shows it above the finger; held still a moment, the finger then slides it from one to the next (the
+// bars of a chart) without scrolling the page. On a link or a button a long press shows it instead of pressing. Esc
+// hides it. Points the element's aria-describedby at it for screen readers. Delegated from `document`, so ones added
+// later (a Livewire render, fetched HTML) work without setting up.
 
 const ROOT = '[data-tooltip-cursor]';
 const FOCUSABLE = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex]:not([tabindex="-1"])';
@@ -12,14 +14,38 @@ const STILL_READING_MS = 300;
 const OFFSET = 14;
 const GAP = 8;
 const VIEWPORT_EDGE = 8;
+// From a finger's point to the tooltip: clear of the fingertip, which covers more than the point it touches.
+const FINGER = 32;
+// How long a finger holds still before it slides the tooltip instead of scrolling, and how far it can stray meanwhile.
+const HOLD = 300;
+const SLOP = 10;
+// How long a finger holds a link or a button to read its tooltip instead of pressing it (as the tooltip does), and how
+// long after letting go the click the browser may still send for it is the hold's, not a press.
+const LONG_PRESS = 500;
+const HELD_CLICK_MS = 600;
 
 let open = null;
 let showTimer = null;
 let frame = null;
+// Where the pointer is; touch: a finger's, which the tooltip goes above rather than beside.
 let pointer = null;
 let closedAt = 0;
+// A finger on one, waiting out its hold: { pointerId, x, y, timer }; on a link or a button, also { root, held }.
+let press = null;
+// A held link or button let go, and until when the click that follows is the hold's: { root, until }.
+let heldClick = null;
+// The finger sliding the tooltip, once its hold is up.
+let sliding = null;
 
 const bubbleOf = (root) => root.querySelector(':scope > [data-tooltip-cursor-bubble]');
+
+// While a finger slides the tooltip, its moves are the tooltip's, not the page's to scroll.
+const sliders = new WeakSet();
+const holdPage = (event) => {
+    if (sliding !== null && event.cancelable) {
+        event.preventDefault();
+    }
+};
 
 // The element it describes: the first thing in it that can take focus, or the wrapper itself, made focusable.
 function targetOf(root) {
@@ -38,6 +64,12 @@ function link(root) {
     }
     if (target === root && !root.hasAttribute('tabindex')) {
         root.tabIndex = 0;
+    }
+    // On each one, not the document: a listener that can cancel touchmove makes the browser wait for it before
+    // scrolling anything under it. A finger's touches stay with what it first pressed, so this one sees the whole slide.
+    if (!sliders.has(root)) {
+        sliders.add(root);
+        root.addEventListener('touchmove', holdPage, { passive: false });
     }
     if (target === root && [...root.childNodes].every((node) => node === bubble || !node.textContent.trim())) {
         root.setAttribute('aria-label', bubble.textContent.trim());
@@ -81,15 +113,19 @@ function inView(element, bubble) {
     return !hit || element.contains(hit);
 }
 
-// After the pointer and below it, or on the other side of it where that would run off the window. Without a pointer
-// (keyboard focus), centred under the element, or over it without room below.
+// After the pointer and below it, or on the other side of it where that would run off the window. Above a finger,
+// centred on it, which would cover it anywhere below: under it only without room above. Without a pointer (keyboard
+// focus), centred under the element, or over it without room below.
 function place(root) {
     const bubble = bubbleOf(root);
     const width = bubble.offsetWidth;
     const height = bubble.offsetHeight;
     let left;
     let top;
-    if (pointer) {
+    if (pointer?.touch) {
+        left = pointer.x - width / 2;
+        top = pointer.y - FINGER - height >= VIEWPORT_EDGE ? pointer.y - FINGER - height : pointer.y + FINGER;
+    } else if (pointer) {
         const rtl = getComputedStyle(root).direction === 'rtl';
         const after = rtl ? pointer.x - OFFSET - width : pointer.x + OFFSET;
         const before = rtl ? pointer.x + OFFSET : pointer.x - OFFSET - width;
@@ -149,11 +185,8 @@ document.addEventListener('pointerover', (event) => {
     }
 });
 
-document.addEventListener('pointermove', (event) => {
-    if (event.pointerType === 'touch') {
-        return;
-    }
-    pointer = { x: event.clientX, y: event.clientY };
+// Placed again on the next frame, however many moves come before it.
+function placeSoon() {
     if (open && !frame) {
         frame = requestAnimationFrame(() => {
             frame = null;
@@ -162,15 +195,92 @@ document.addEventListener('pointermove', (event) => {
             }
         });
     }
+}
+
+// What a tap or a slide shows a tooltip for: something a tap does nothing else to (a chart, a map, an icon). On a
+// button or a link the tap is the action.
+const tappable = (root) => root && targetOf(root) === root;
+
+// Ends a finger's press before its hold is up.
+function release() {
+    clearTimeout(press?.timer);
+    press = null;
+}
+
+// Whether a point is among the ones beside this one (the bars of its chart: those in the same parent), gaps included.
+function among(root, x, y) {
+    const boxes = [...root.parentElement.children].filter((other) => other.matches(ROOT)).map((other) => other.getBoundingClientRect());
+
+    return x >= Math.min(...boxes.map((box) => box.left)) && x <= Math.max(...boxes.map((box) => box.right))
+        && y >= Math.min(...boxes.map((box) => box.top)) && y <= Math.max(...boxes.map((box) => box.bottom));
+}
+
+// The one under a sliding finger: its touches all go to the one it first pressed, so it's found by where it is. In a
+// gap between two the last one stays, rather than flicker; off them altogether it goes, and comes back on the next.
+function slideTo(x, y) {
+    const root = document.elementFromPoint(x, y)?.closest(ROOT);
+    if (!tappable(root)) {
+        if (open && !among(open, x, y)) {
+            hide();
+        }
+
+        return;
+    }
+    pointer = { x, y, touch: true };
+    if (root !== open) {
+        show(root);
+    } else {
+        placeSoon();
+    }
+}
+
+document.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'touch') {
+        // Moved before its hold was up: a scroll.
+        if (press?.pointerId === event.pointerId && Math.hypot(event.clientX - press.x, event.clientY - press.y) >= SLOP) {
+            release();
+        }
+        if (sliding === event.pointerId) {
+            slideTo(event.clientX, event.clientY);
+        }
+
+        return;
+    }
+    pointer = { x: event.clientX, y: event.clientY };
+    placeSoon();
 });
 
-// Touch has no hover, so a tap shows it beside the finger, on something a tap does nothing else to (a chart, a map, an
-// icon). On a button or a link the tap is the action. It stays until the next press anywhere (the pointerdown below).
+// Touch has no hover, so a tap shows it above the finger, on one that's tappable. It stays until the next press
+// anywhere (the pointerdown below).
 document.addEventListener('pointerup', (event) => {
-    const root = event.pointerType === 'touch' ? event.target.closest?.(ROOT) : null;
-    if (root && targetOf(root) === root) {
-        pointer = { x: event.clientX, y: event.clientY };
+    if (event.pointerType !== 'touch') {
+        return;
+    }
+    if (press?.pointerId === event.pointerId) {
+        if (press.held) {
+            heldClick = { root: press.root, until: performance.now() + HELD_CLICK_MS };
+        }
+        release();
+    }
+    // A slide leaves it on the one the finger lifted from, not the one it started on.
+    if (sliding === event.pointerId) {
+        sliding = null;
+
+        return;
+    }
+    const root = event.target.closest?.(ROOT);
+    if (tappable(root)) {
+        pointer = { x: event.clientX, y: event.clientY, touch: true };
         show(root);
+    }
+});
+
+document.addEventListener('pointercancel', (event) => {
+    if (press?.pointerId === event.pointerId) {
+        release();
+    }
+    if (sliding === event.pointerId) {
+        sliding = null;
     }
 });
 
@@ -211,10 +321,63 @@ document.addEventListener('keydown', (event) => {
         hide();
     }
 });
-document.addEventListener('pointerdown', () => hide());
+// Any press hides the one showing. A finger held still on a tappable one shows it, and from then on slides it. Held
+// longer on a link or a button, whose tap is its action, it shows that one's, and letting go doesn't press it.
+document.addEventListener('pointerdown', (event) => {
+    hide();
+    release();
+    heldClick = null;
+    if (event.pointerType !== 'touch') {
+        return;
+    }
+    // A second finger: a pinch, not a slide.
+    if (!event.isPrimary) {
+        sliding = null;
+
+        return;
+    }
+    const root = event.target.closest?.(ROOT);
+    if (tappable(root)) {
+        const { pointerId, clientX: x, clientY: y } = event;
+        press = { pointerId, x, y, timer: setTimeout(() => {
+            press = null;
+            sliding = pointerId;
+            slideTo(x, y);
+        }, HOLD) };
+
+        return;
+    }
+    const target = root && targetOf(root);
+    if (target?.contains(event.target) && !target.matches(':disabled')) {
+        const { pointerId, clientX: x, clientY: y } = event;
+        press = { pointerId, x, y, root, held: false, timer: setTimeout(() => {
+            press.held = true;
+            pointer = { x, y, touch: true };
+            show(root);
+        }, LONG_PRESS) };
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if (heldClick && performance.now() < heldClick.until && heldClick.root.contains(event.target)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+    heldClick = null;
+}, true);
+
+// Held on one, a finger brings up the phone's menu for it or selects its text: not while it shows the tooltip.
+for (const type of ['contextmenu', 'selectstart']) {
+    document.addEventListener(type, (event) => {
+        if (press || sliding !== null) {
+            event.preventDefault();
+        }
+    });
+}
 // A scroll or a resize (the window, a phone turned) can take the element out of view, move it, or move it out from under
-// a pointer that hasn't moved (no pointerout fires then): hide it, or place it again under the element it describes,
-// rather than leave it where the element was.
+// a pointer that hasn't moved (no pointerout fires then): hide it, or place it again, rather than leave it where the
+// element was. Placed again at the pointer too: a finger doesn't move on to place it, and the font arriving late (a slow
+// connection, a fresh browser) widens it, which would leave it off the finger's centre.
 function follow() {
     if (!open) {
         return;
@@ -223,7 +386,7 @@ function follow() {
     const under = pointer ? document.elementsFromPoint(pointer.x, pointer.y).find((node) => !bubble.contains(node)) : null;
     if (!inView(targetOf(open), bubble) || (pointer && !open.contains(under ?? null))) {
         hide({ keepPending: true });
-    } else if (!pointer) {
+    } else {
         place(open);
     }
 }
