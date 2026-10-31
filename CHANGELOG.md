@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.4.6] - 2026-10-31
+
 ### Added
 
 - **tooltip, tooltip-cursor**: on a touch screen, a long press on a button or link shows its tooltip without pressing it; a tap still presses. iOS's link preview is off on these elements.
@@ -288,7 +290,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.5...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.6...HEAD
+[1.4.6]: https://github.com/rkwebforge/bladewell/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/rkwebforge/bladewell/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/rkwebforge/bladewell/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/rkwebforge/bladewell/compare/v1.4.2...v1.4.3
