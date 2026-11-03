@@ -57,7 +57,8 @@
 
     <div class="flex items-center gap-4">
         <p class="text-foreground/75 tabular-nums">
-            <span class="text-foreground font-medium">{{ number_format($paginator->firstItem()) }}–{{ number_format($paginator->lastItem()) }}</span>
+            {{-- No rows on this page (past the last one, or none at all): no range to show, so 0, not 0–0. --}}
+            <span class="text-foreground font-medium">{{ $paginator->firstItem() === null ? '0' : number_format($paginator->firstItem()).'–'.number_format($paginator->lastItem()) }}</span>
             of {{ number_format($paginator->total()) }}
         </p>
         <nav aria-label="Pagination" class="flex items-center gap-1">

@@ -13,6 +13,7 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 ### Fixed
 
 - **date-range-picker, modal**: no "Using null as an array offset" deprecation on PHP 8.5 from a date range picker without `wire:model` or `x-model`, or a centred modal.
+- **pagination**: the footer shows "0 of 470" on a page with no rows, not "0–0", and no longer passes null to `number_format()`.
 
 ## [1.4.6] - 2026-10-31
 
