@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.4.9] - 2026-11-03
+
 ### Fixed
 
 - **kanban, file-upload, select, chat, table, date-range-picker**: the usage examples now do in code what their server notes ask, so a copied example brings the safeguard with it. The kanban move route checks the move against the order's current stage, not only where the card lands. The file upload loads submitted ids through the person's own uploads. The select's search endpoint needs a signed-in person and searches only their customers, where it listed everyone's names and emails. The chat component throttles sending, replies only when a reply is due, and sends the model only recent messages. The table's Livewire search is escaped and capped, as its controller example was. The date range rules check the Y-m-d the field sends. No widget changes.
@@ -313,7 +315,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.8...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.9...HEAD
+[1.4.9]: https://github.com/rkwebforge/bladewell/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/rkwebforge/bladewell/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/rkwebforge/bladewell/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/rkwebforge/bladewell/compare/v1.4.5...v1.4.6
