@@ -10,7 +10,7 @@
     "consider": [
         {
             "about": "security",
-            "note": "Authorize the conversation on every route: the page, `history-url` and sending. The id in the URL can be changed to any other.",
+            "note": "Authorize the conversation on every route and every Livewire action: the page, `history-url`, sending and the reply. The id in the URL can be changed to any other, and each Livewire action is a request of its own.",
             "links": {
                 "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
                 "Laravel: Authorization": "https://laravel.com/docs/authorization"
@@ -41,7 +41,7 @@
         },
         {
             "about": "cost",
-            "note": "Throttle sending. For an AI assistant, each message is a paid model call: consider a per-user daily limit, a cap on the reply's length, and sending the model only the recent messages, not the whole history.",
+            "note": "Throttle sending. For an AI assistant, each message is a paid model call: claim each reply on the server, in one conditional update, before calling the model, so two requests can't both pay for it. Consider a per-user daily limit, a cap on the reply's length, and sending the model only the recent messages, not the whole history.",
             "links": {
                 "Laravel: Rate limiting": "https://laravel.com/docs/rate-limiting"
             }

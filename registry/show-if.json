@@ -13,6 +13,17 @@
         "checkbox",
         "textarea"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Hidden fields are disabled, so the browser doesn't send them, but a request can send any field anyway. Enforce the condition on the server: `required_if:` for a field the choice makes required, and for a value sent when the condition is false, decide: `exclude_unless:` drops it from the validated data, as the example does, or `prohibited_unless:` refuses the form.",
+            "links": {
+                "Laravel: The required_if rule": "https://laravel.com/docs/validation#rule-required-if",
+                "Laravel: The exclude_unless rule": "https://laravel.com/docs/validation#rule-exclude-unless",
+                "Laravel: The prohibited_unless rule": "https://laravel.com/docs/validation#rule-prohibited-unless"
+            }
+        }
+    ],
     "usage": [
         "validation",
         "livewire"

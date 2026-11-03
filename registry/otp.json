@@ -12,7 +12,7 @@
     "consider": [
         {
             "about": "security",
-            "note": "Store the code hashed, as you would a password, with an expiry (10 minutes is common), and delete it once it's used, so it works once. Compare with `hash_equals()` or `Hash::check()`, not `==`.",
+            "note": "Store the code hashed, as you would a password, with an expiry (10 minutes is common). To use it, check it with `Hash::check()` (never `==`), then mark it used in one conditional update that only succeeds while it's unused: `Code::whereKey($code->id)->whereNull('used_at')->update(['used_at' => now()]) === 1`. Two submissions at once can both pass the check; only one wins the update, so the code works once.",
             "links": {
                 "OWASP: Multi-factor authentication": "https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html",
                 "Laravel: Hashing": "https://laravel.com/docs/hashing"

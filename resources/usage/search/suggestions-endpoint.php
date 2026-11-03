@@ -4,8 +4,12 @@
 Route::get('/products/suggest', function (Request $request) {
     $q = $request->validate(['q' => ['required', 'string', 'max:100']])['q'];
 
+    // It answers anyone, signed in or not: only what the store shows everyone, never drafts or hidden products.
     return Product::query()
+        ->where('is_published', true)
         ->where('name', 'like', '%'.addcslashes($q, '%_\\').'%')
+        // Each suggestion shows its category: loaded with them, not one query per result.
+        ->with('category:id,name')
         ->orderBy('name')
         ->limit(8)
         ->get()

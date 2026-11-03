@@ -18,7 +18,7 @@
         },
         {
             "about": "cost",
-            "note": "With `suggest-url`, each pause in typing is a request. Throttle the route, `limit()` the results, and consider caching answers briefly; the pages and actions you list in the page itself cost nothing.",
+            "note": "With `suggest-url`, each pause in typing is a request. Throttle the route, `limit()` the results, and consider caching answers briefly, keyed as for search: by the query, the user and the active workspace if results depend on it; the pages and actions you list in the page itself cost nothing.",
             "links": {
                 "Laravel: Rate limiting routes": "https://laravel.com/docs/routing#rate-limiting",
                 "Laravel: Cache": "https://laravel.com/docs/cache#retrieving-items-from-the-cache"

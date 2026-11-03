@@ -10,11 +10,17 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Fixed
+
+- **chat, select, kanban**: the usage examples hold up to forged and simultaneous requests. Chat authorizes both Livewire actions and claims each reply in one conditional update before calling the model, select checks the submitted id through the same `customers()` relationship as its search, and kanban checks a move against the order it locks inside its transaction. No widget changes.
+- **search, command, otp, verification-code, show-if**: search suggests only published products and loads their category with them, search and command key a cached answer by the active workspace too, so switching workspaces never shows the last one's results, the code fields' notes say to use a code up in one conditional update, and show-if gets a server note on enforcing its condition with `required_if:`, `exclude_unless:` or `prohibited_unless:`. No widget changes.
+- **datepicker, date-range-picker**: the notes say `before_or_equal:today` uses the server's configured timezone, not that it's UTC, and that a closed period's report is cached only once its data is stable, with a short TTL or cleared when records change. The Laravel Boost guidelines say the same; run `php artisan boost:update`.
+
 ## [1.4.9] - 2026-11-03
 
 ### Fixed
 
-- **kanban, file-upload, select, chat, table, date-range-picker**: the usage examples now do in code what their server notes ask, so a copied example brings the safeguard with it. The kanban move route checks the move against the order's current stage, not only where the card lands. The file upload loads submitted ids through the person's own uploads. The select's search endpoint needs a signed-in person and searches only their customers, where it listed everyone's names and emails. The chat component throttles sending, replies only when a reply is due, and sends the model only recent messages. The table's Livewire search is escaped and capped, as its controller example was. The date range rules check the Y-m-d the field sends. No widget changes.
+- **kanban, file-upload, select, chat, table, date-range-picker**: the usage examples now do in code what their server notes ask. The select's search endpoint needs a signed-in person and searches only their own customers, where it listed everyone's names and emails. Kanban checks a move against the card's current stage, file upload attaches only the person's own uploads, chat throttles sending, the table's Livewire search is escaped and capped, and the date range rules check the Y-m-d the field sends. No widget changes.
 
 ## [1.4.8] - 2026-11-03
 

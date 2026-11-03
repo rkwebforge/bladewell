@@ -15,15 +15,19 @@
     </x-slot:composer>
 </x-widget.chat>
 
-{{-- In the component. Each reply is a paid model call, and every public method can be called from the browser, so:
+{{-- In the component. Each reply is a paid model call, and every public method can be called, and every public
+property set, from the browser: $answering only draws the page. So each action checks who's asking, and a reply is
+claimed on the server before the model is called. The messages table needs: $table->boolean('awaiting_reply')->default(false);
 public function send(): void
 {
+    Gate::authorize('reply', $this->conversation);
     $this->validate(['prompt' => ['required', 'string', 'max:2000']]);
     // Per person, not per tab: 20 messages a minute. Consider a daily cap too.
     if (! RateLimiter::attempt('chat:'.auth()->id(), 20, fn () => true)) {
         throw ValidationException::withMessages(['prompt' => 'You\'re sending quickly. Try again in a minute.']);
     }
-    $this->messages[] = $this->conversation->messages()->create(['mine' => true, 'body' => $this->prompt]);
+    // awaiting_reply: this message may get one reply, which respond() claims.
+    $this->messages[] = $this->conversation->messages()->create(['mine' => true, 'body' => $this->prompt, 'awaiting_reply' => true]);
     $this->reset('prompt');
     $this->answering = true;
     $this->js('$wire.respond()');
@@ -31,13 +35,20 @@ public function send(): void
 
 public function respond(): void
 {
-    // Only the reply send() asked for: called again from the browser, it would be one more paid call each time.
-    if (! $this->answering) {
+    Gate::authorize('reply', $this->conversation);
+    // Claimed in one UPDATE: of two requests at once, only one changes the row, so only one calls (and pays for) the
+    // model. Called with nothing waiting, it does nothing. If the call fails, set awaiting_reply back so a retry can claim it.
+    $waiting = $this->conversation->messages()->where('awaiting_reply', true)->latest('id')->value('id');
+    $claimed = $waiting !== null && $this->conversation->messages()->whereKey($waiting)->where('awaiting_reply', true)->update(['awaiting_reply' => false]) === 1;
+    if (! $claimed) {
+        $this->answering = false;
+
         return;
     }
+    // The recent messages from the database, not $this->messages, which the browser can change too.
+    $recent = $this->conversation->messages()->latest('id')->limit(20)->get()->reverse()->values();
     $answer = '';
-    // The recent messages, not the whole history, which would cost more with every reply.
-    foreach ($this->model->stream(array_slice($this->messages, -20)) as $chunk) {
+    foreach ($this->model->stream($recent) as $chunk) {
         $answer .= $chunk;
         $this->stream(to: 'answer', content: e($chunk));
     }

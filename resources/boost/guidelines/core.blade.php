@@ -14,5 +14,5 @@ Bladewell widgets are Blade components, each with a small vanilla JS module, cop
 - Toasts: `return back()->with('success', 'Saved.')` from a controller, `$this->dispatch('toast', type: 'success', message: 'Saved.')` from Livewire, `data-toast="success" data-toast-message="Saved."` on a clickable element, or `toast.success('Saved.')` in a script. The layout needs `<x-widget.toast />` once.
 - In a long table, render the row menu once, `<x-widget.dropdown.menu id="order-actions">`, and give each row only its trigger, `<x-widget.dropdown menu="order-actions" :values="['id' => $order->id]" />`, with `:id` placeholders in the menu's links: `route('orders.edit', ':id')`.
 - Scripts reach widgets through `window.modal`, `window.toast`, `window.dropdown`, `window.popover`, `window.tabs` and the others, by id or element.
-- The date picker submits `Y-m-d` and stops at today unless given `:max="false"`. Validate past dates with `new \App\Rules\NotAfterToday`, not `before_or_equal:today`, which uses the server's UTC date.
+- The date picker submits `Y-m-d` and stops at today unless given `:max="false"`. Validate past dates with `new \App\Rules\NotAfterToday`, not `before_or_equal:today`, which uses the server's configured timezone, not the visitor's.
 @endverbatim
