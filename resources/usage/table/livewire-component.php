@@ -45,10 +45,12 @@ class Invoices extends Component
     {
         $sort = in_array($this->sort, ['number', 'date', 'amount'], true) ? $this->sort : 'date';
         $perPage = in_array($this->perPage, [10, 25, 50, 100], true) ? $this->perPage : 10;
+        // Capped, and % and _ taken as themselves: otherwise a search of % matches every row.
+        $search = addcslashes(mb_substr(trim($this->search), 0, 100), '%_\\');
 
         return view('livewire.invoices', [
             'invoices' => auth()->user()->invoices()
-                ->when($this->search, fn ($query) => $query->where('number', 'like', "%{$this->search}%"))
+                ->when($search !== '', fn ($query) => $query->where('number', 'like', "%{$search}%"))
                 ->orderBy($sort, $this->direction === 'desc' ? 'desc' : 'asc')
                 ->paginate($perPage),
         ]);

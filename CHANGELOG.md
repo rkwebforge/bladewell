@@ -10,6 +10,10 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Fixed
+
+- **kanban, file-upload, select, chat, table, date-range-picker**: the usage examples now do in code what their server notes ask, so a copied example brings the safeguard with it. The kanban move route checks the move against the order's current stage, not only where the card lands. The file upload loads submitted ids through the person's own uploads. The select's search endpoint needs a signed-in person and searches only their customers, where it listed everyone's names and emails. The chat component throttles sending, replies only when a reply is due, and sends the model only recent messages. The table's Livewire search is escaped and capped, as its controller example was. The date range rules check the Y-m-d the field sends. No widget changes.
+
 ## [1.4.8] - 2026-11-03
 
 ### Fixed

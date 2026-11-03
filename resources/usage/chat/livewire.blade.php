@@ -15,10 +15,14 @@
     </x-slot:composer>
 </x-widget.chat>
 
-{{-- In the component:
+{{-- In the component. Each reply is a paid model call, and every public method can be called from the browser, so:
 public function send(): void
 {
     $this->validate(['prompt' => ['required', 'string', 'max:2000']]);
+    // Per person, not per tab: 20 messages a minute. Consider a daily cap too.
+    if (! RateLimiter::attempt('chat:'.auth()->id(), 20, fn () => true)) {
+        throw ValidationException::withMessages(['prompt' => 'You\'re sending quickly. Try again in a minute.']);
+    }
     $this->messages[] = $this->conversation->messages()->create(['mine' => true, 'body' => $this->prompt]);
     $this->reset('prompt');
     $this->answering = true;
@@ -27,8 +31,13 @@ public function send(): void
 
 public function respond(): void
 {
+    // Only the reply send() asked for: called again from the browser, it would be one more paid call each time.
+    if (! $this->answering) {
+        return;
+    }
     $answer = '';
-    foreach ($this->model->stream($this->messages) as $chunk) {
+    // The recent messages, not the whole history, which would cost more with every reply.
+    foreach ($this->model->stream(array_slice($this->messages, -20)) as $chunk) {
         $answer .= $chunk;
         $this->stream(to: 'answer', content: e($chunk));
     }

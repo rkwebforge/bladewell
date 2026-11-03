@@ -13,6 +13,13 @@ Route::post('/orders/move', function (Request $request) {
     $order = Order::findOrFail($move['card']);
     Gate::authorize('update', $order);
 
+    // Which stage each can move to, from where it is now: the order's own stage, never the `from` the browser sent.
+    // Rule::in() above only says where a card may land; this says from where. Reordering within its column is fine.
+    $next = ['new' => ['packed'], 'packed' => ['new', 'shipped'], 'shipped' => ['packed']];
+    if ($move['to'] !== $order->stage && ! in_array($move['to'], $next[$order->stage] ?? [], true)) {
+        throw ValidationException::withMessages(['to' => "A {$order->stage} order can't go straight to {$move['to']}."]);
+    }
+
     DB::transaction(function () use ($order, $move) {
         // Close the gap it leaves, then make room where it lands.
         Order::where('stage', $order->stage)->where('sort', '>', $order->sort)->decrement('sort');
