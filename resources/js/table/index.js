@@ -37,9 +37,23 @@ function toggle(row) {
     }
 }
 
+// A row's href is opened only if it's a page (http or https, this site's or another's), an email or a phone number, as
+// the search and command widgets do. A javascript: or data: link, from a URL someone typed into your app, would run as
+// code here.
+const OPENABLE = new Set(['http:', 'https:', 'mailto:', 'tel:']);
+function openable(href) {
+    try {
+        return OPENABLE.has(new URL(href, window.location.href).protocol);
+    } catch {
+        return false;
+    }
+}
+
 function activate(row, newTab) {
     if (row.hasAttribute('data-expandable')) {
         toggle(row);
+    } else if (!openable(row.dataset.href)) {
+        console.warn('Bladewell table: not opening a row whose link isn\'t a page, email or phone number:', row.dataset.href);
     } else if (newTab) {
         window.open(row.dataset.href, '_blank', 'noopener');
     } else {
@@ -1270,7 +1284,8 @@ const stackedRows = new MutationObserver((records) => {
 function linkRows(root) {
     root.querySelectorAll('tr[data-href]:not([data-row-linked])').forEach((row) => {
         const cell = [...row.children].find((td) => !td.hasAttribute('data-no-row-click'));
-        if (!cell) {
+        // No link for a href that isn't a page: Enter would run it as code, as a click would.
+        if (!cell || !openable(row.dataset.href)) {
             return;
         }
         const link = Object.assign(document.createElement('a'), {

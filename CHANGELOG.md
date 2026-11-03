@@ -10,6 +10,10 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Fixed
+
+- **table**: a clickable row whose `href` isn't a page, email or phone number (`javascript:`, `data:`) no longer opens it or gets a link, as search and command already refuse them.
+
 ## [1.4.7] - 2026-11-03
 
 ### Added
