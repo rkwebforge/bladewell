@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.4.8] - 2026-11-03
+
 ### Fixed
 
 - **table**: a clickable row whose `href` isn't a page, email or phone number (`javascript:`, `data:`) no longer opens it or gets a link, as search and command already refuse them.
@@ -307,7 +309,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.7...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.8...HEAD
+[1.4.8]: https://github.com/rkwebforge/bladewell/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/rkwebforge/bladewell/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/rkwebforge/bladewell/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/rkwebforge/bladewell/compare/v1.4.4...v1.4.5
