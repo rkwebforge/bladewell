@@ -23,13 +23,16 @@
     @if ($locked) data-locked @endif
     wire:key="kanban-card-{{ $id }}"
     {{ $attributes->class([
-        'group/card border-line bg-surface relative rounded-xl border p-3 text-sm shadow-xs transition-opacity aria-busy:opacity-60 motion-reduce:transition-none',
+        // Opacity and box-shadow: the faded states below, and the ring after a move fading out.
+        'group/card border-line bg-surface relative rounded-xl border p-3 text-sm shadow-xs transition-[opacity,box-shadow] aria-busy:opacity-60 motion-reduce:transition-none',
         // Picked up to be placed with the keys or a tap.
         'data-kanban-picked:ring-primary data-kanban-picked:shadow-lg data-kanban-picked:ring-2',
         // Dragged: a copy follows the pointer, and this waits, faded, where letting go would put it.
         'data-kanban-dragging:border-primary data-kanban-dragging:border-dashed data-kanban-dragging:opacity-40',
         // Let go: hidden for the moment the copy takes to glide into its place.
         'data-kanban-landing:opacity-0',
+        // Just moved, for a moment, so the eye finds where it went; red when the server sent it back (the script says why).
+        'data-kanban-moved:ring-primary data-kanban-moved:ring-2 data-kanban-refused:ring-error data-kanban-refused:ring-2',
         // A mouse can drag it once the script is ready, except from a readonly column.
         'group-data-[kanban-ready]/kanban:cursor-grab group-data-[readonly]/column:cursor-auto' => ! $locked,
         // So can a finger held on it: on a touch screen that holding mustn't select its text or bring up the phone's

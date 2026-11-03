@@ -10,6 +10,10 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Added
+
+- **kanban**: a moved card rings for a moment where it lands, and red for longer when your route or Livewire component sends it back.
+
 ### Fixed
 
 - **date-range-picker, modal**: no "Using null as an array offset" deprecation on PHP 8.5 from a date range picker without `wire:model` or `x-model`, or a centred modal.

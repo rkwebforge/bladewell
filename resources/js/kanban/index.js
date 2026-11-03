@@ -1,9 +1,9 @@
 // Drives <x-widget.kanban>. Cards drag with a mouse or pen, or with a finger held still on one first. Each card's
 // "Move…" button opens a menu, built here as it opens from the board as it is
 // then: the other columns (to the end of one), and up, down, to the top or to the bottom within its own. A move
-// happens at once on the page, is announced, fires kanban:move (and kanban-move, for wire:kanban-move) on the board
+// happens at once on the page, rings the card for a moment, is announced, fires kanban:move (and kanban-move, for wire:kanban-move) on the board
 // with detail { card, from, to, position, after }, and with move-url is sent there as JSON. An answer that isn't
-// 2xx, or no answer, puts the card back where it was and says why; the card is busy until then. Readonly boards,
+// 2xx, or no answer, puts the card back where it was, ringed red, and says why; the card is busy until then. Readonly boards,
 // readonly columns and locked cards never move.
 // From JS: kanban.move(card, column, position), by element or id; also on window.kanban.
 // Delegated from `document`, so boards added later (a Livewire render, fetched HTML) work without setting up.
@@ -70,6 +70,25 @@ const moving = () => !window.matchMedia('(prefers-reduced-motion: reduce)').matc
 const SLIDE = 160;
 const LIFT = 150;
 const LAND = 180;
+
+// A ring around a card for a moment after it moves, so the eye finds where it went: after the menu or the keys, nothing
+// else shows it. Red, and held longer, when the server sends it back: that answer comes a moment after the move, once
+// the eye has gone elsewhere, and the reason shows in the status line, which may be far from the card. Styled in
+// card.blade.php; its transition fades it, except for people who ask for less motion.
+const MARKED_FOR = { moved: 1200, refused: 2000 };
+const marks = new WeakMap();
+
+function mark(card, kind) {
+    unmark(card);
+    card.setAttribute(`data-kanban-${kind}`, '');
+    marks.set(card, setTimeout(() => card.removeAttribute(`data-kanban-${kind}`), MARKED_FOR[kind]));
+}
+
+function unmark(card) {
+    clearTimeout(marks.get(card));
+    card.removeAttribute('data-kanban-moved');
+    card.removeAttribute('data-kanban-refused');
+}
 
 // Where an element is laid out, leaving out the translate a slide is moving it by: what a slide measures from, and what
 // a drag works out its place by, so a card part way through a slide doesn't make the place flicker.
@@ -191,6 +210,7 @@ async function save(board, moved, detail, before) {
         }
         putBack(card, before);
         say(board, `Couldn't move ${card.dataset.label}: ${problem} It's back in ${titleOf(before.column)}.`);
+        mark(card, 'refused');
     }
 }
 
@@ -229,6 +249,7 @@ function settle(card, before, { canUndo = true } = {}) {
     }
     offerUndo(board, canUndo ? { card, before, after: now } : null);
     say(board, `Moved ${card.dataset.label} to ${where(card)}.`);
+    mark(card, 'moved');
     if (board.dataset.moveUrl) {
         save(board, card, detail, before);
     }
@@ -382,6 +403,7 @@ function pickUp(card) {
         return false;
     }
     offerUndo(board, null);
+    unmark(card);
     picked = { card, board, before: spot(card) };
     card.setAttribute('data-kanban-picked', '');
     setPlacing(board, true);
@@ -622,6 +644,8 @@ function startDrag(event) {
     release();
     const touch = event.pointerType === 'touch';
     const box = card.getBoundingClientRect();
+    // The ring is about its last move; the copy that follows the pointer has a ring of its own.
+    unmark(card);
     const ghost = card.cloneNode(true);
     // Not a card, not focusable, not read out: a picture of one.
     for (const element of [ghost, ...ghost.querySelectorAll('[id]')]) {
@@ -1058,6 +1082,7 @@ function catchUp() {
             offerUndo(board, null);
             const back = idOf(columnOf(card)) === idOf(last.before.column);
             say(board, `${card.dataset.label} is ${back ? 'back' : 'now'} in ${where(card)}.`);
+            mark(card, back ? 'refused' : 'moved');
         } else if (last) {
             last.card = card;
         }
