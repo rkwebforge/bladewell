@@ -84,7 +84,8 @@
         $drawer && $side === 'start' => 'pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] ltr:pl-[env(safe-area-inset-left)] rtl:pr-[env(safe-area-inset-right)]',
         $drawer => 'pb-[env(safe-area-inset-bottom)]',
         $sheet => 'max-sm:pb-[env(safe-area-inset-bottom)]',
-        default => null,
+        // Not null: it's a key in the panel's class list below, and null as an array key is deprecated in PHP 8.5.
+        default => '',
     };
     // The X is placed from the panel's edge, padding included, so it moves in by the same insets.
     $closeAt = match (true) {
@@ -145,7 +146,7 @@
             $drawerPanel[$side] => $drawer,
             $glide => $drawer,
             'max-sm:mt-auto max-sm:mb-0 max-sm:max-w-none max-sm:scale-100 max-sm:rounded-b-none max-sm:translate-y-full max-sm:group-open:translate-y-0 max-sm:starting:group-open:translate-y-full max-sm:will-change-[translate] max-sm:group-open:duration-500 max-sm:group-open:ease-[cubic-bezier(0.25,0.46,0.45,0.94)]' => $sheet,
-            $safeArea => $safeArea !== null,
+            $safeArea => $safeArea !== '',
         ]) }}
     >
         @if ($swipe)

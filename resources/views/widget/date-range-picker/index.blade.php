@@ -63,7 +63,8 @@
     // start input binds period.start and the end input period.end, with the same modifiers (wire:model.live …).
     $binding = \Bladewell\Support\FormField::binding($attributes);
     $bindingAttribute = array_key_first($binding);
-    $bound = $binding[$bindingAttribute] ?? null;
+    // Unbound, there's no key to look up: null as an array key is deprecated in PHP 8.5.
+    $bound = $bindingAttribute !== null ? $binding[$bindingAttribute] : null;
     $startKey = match (true) {
         $startName !== null => \Bladewell\Support\FormField::key($startName),
         $bound !== null => "{$bound}.start",
