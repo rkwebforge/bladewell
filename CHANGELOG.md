@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.4.7] - 2026-11-03
+
 ### Added
 
 - **password, otp, verification-code, text-input, textarea, number, tags, phone, checkbox, switch, datepicker, date-range-picker, time-picker, color-picker, select, table, pagination, chat, file-upload, search, command, kanban, tree, captcha**: notes on what to check and what to keep cheap in the routes behind them, with OWASP and Laravel links. They show under "On the server" on each page, and under `consider` in `bladewell:list --json` and the MCP server's `get_component` and `add_components`.
@@ -301,7 +303,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.6...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.7...HEAD
+[1.4.7]: https://github.com/rkwebforge/bladewell/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/rkwebforge/bladewell/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/rkwebforge/bladewell/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/rkwebforge/bladewell/compare/v1.4.3...v1.4.4
