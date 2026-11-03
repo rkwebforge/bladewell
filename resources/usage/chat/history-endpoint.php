@@ -10,7 +10,9 @@ final class ConversationMessagesController
     {
         Gate::authorize('view', $conversation);
 
-        $page = $conversation->messages()->latest()->simplePaginate(20);
+        // Newest first by id, which is unique and never changes, a cursor at a time: an offset page shifts as new
+        // messages arrive, and would send again ones already showing.
+        $page = $conversation->messages()->orderByDesc('id')->cursorPaginate(20);
 
         // resources/views/conversations/history.blade.php:
         // <x-widget.chat :history-url="$page->nextPageUrl()">
@@ -22,5 +24,9 @@ final class ConversationMessagesController
     }
 }
 
-// On the page itself, start with the newest 20 and point history-url at page 2:
-// <x-widget.chat :history-url="route('conversations.messages.index', [$conversation, 'page' => 2])">
+// On the page itself, the newest 20, and history-url from that same batch: it asks for what's older than the oldest
+// one showing, however many arrive meanwhile. withPath(): its next page is the history route's, not this page's.
+// $first = $conversation->messages()->orderByDesc('id')->cursorPaginate(20)->withPath(route('conversations.messages.index', $conversation));
+// <x-widget.chat :history-url="$first->nextPageUrl()">
+//     @foreach ($first->reverse() as $message) … @endforeach
+// </x-widget.chat>

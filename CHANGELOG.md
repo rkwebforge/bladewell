@@ -10,6 +10,10 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Fixed
+
+- **chat**: the Livewire example claims the exact message it answers, passed from `send()` to `respond()`, builds the model's context only up to that message, and puts the claim back if the model call fails so it can be retried. The history example pages by cursor, newest id first, so messages arriving meanwhile don't repeat ones already showing. No widget changes.
+
 ## [1.4.10] - 2026-11-03
 
 ### Fixed

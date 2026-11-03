@@ -34,14 +34,14 @@
         },
         {
             "about": "cost",
-            "note": "Load history a page at a time (20 is a good start) with `history-url`, never the whole conversation, from an index on `(conversation_id, id)`; `cursorPaginate()` keeps old pages fast.",
+            "note": "Load history a page at a time (20 is a good start) with `history-url`, never the whole conversation: by cursor, newest id first (`cursorPaginate()`), from an index on `(conversation_id, id)`. An offset page shifts as new messages arrive and repeats ones already showing; a cursor asks for what's older than the oldest one shown.",
             "links": {
                 "Laravel: Cursor pagination": "https://laravel.com/docs/pagination#cursor-pagination"
             }
         },
         {
             "about": "cost",
-            "note": "Throttle sending. For an AI assistant, each message is a paid model call: claim each reply on the server, in one conditional update, before calling the model, so two requests can't both pay for it. Consider a per-user daily limit, a cap on the reply's length, and sending the model only the recent messages, not the whole history.",
+            "note": "Throttle sending. For an AI assistant, each message is a paid model call: claim each reply on the server, for the exact message it answers and in one conditional update, before calling the model, so two requests can't both pay for it, and put the claim back if the call fails. Consider a per-user daily limit, a cap on the reply's length, and sending the model only the recent messages, not the whole history.",
             "links": {
                 "Laravel: Rate limiting": "https://laravel.com/docs/rate-limiting"
             }
