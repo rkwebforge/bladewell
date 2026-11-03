@@ -10,6 +10,46 @@
         "FormField",
         "UploadLimits"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "`accept` and `max-size` only check in the browser. Validate on the server with `File` rules or `mimes:` and `max:`, which read the file's content, not its name.",
+            "links": {
+                "OWASP: File upload": "https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html",
+                "Laravel: Validating files": "https://laravel.com/docs/validation#validating-files"
+            }
+        },
+        {
+            "about": "security",
+            "note": "Store under a generated name on a private disk, never in `public/`. Serve files through a route that authorizes, or a temporary URL, and avoid serving SVG or HTML from your own domain.",
+            "links": {
+                "OWASP: File upload": "https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html",
+                "Laravel: Temporary URLs": "https://laravel.com/docs/filesystem#temporary-urls"
+            }
+        },
+        {
+            "about": "security",
+            "note": "With `upload-url`, the form submits ids: check each belongs to the person before attaching it.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Authorization": "https://laravel.com/docs/authorization"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "A picked file may never be submitted. Consider a scheduled job that deletes uploads nobody claimed after a day, or storage keeps growing.",
+            "links": {
+                "Laravel: Task scheduling": "https://laravel.com/docs/scheduling"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Make thumbnails, scan files or extract text in a queued job, not in the upload request, so a slow file doesn't hold a worker.",
+            "links": {
+                "Laravel: Queues": "https://laravel.com/docs/queues"
+            }
+        }
+    ],
     "usage": [
         "validation",
         "direct-upload-route",

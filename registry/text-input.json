@@ -9,6 +9,25 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "`required`, `maxlength`, `pattern` and `type=\"email\"` only shape what the browser lets through; a request can skip them all. Repeat each rule in a Form Request, with `max:` on every string.",
+            "links": {
+                "OWASP: Input validation": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+                "Laravel: Validation": "https://laravel.com/docs/validation"
+            }
+        },
+        {
+            "about": "security",
+            "note": "Build the model from `$request->validated()`, not `$request->all()`, so fields the form never had (`is_admin`, `user_id`) can't be set.",
+            "links": {
+                "OWASP: Mass assignment": "https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html",
+                "Laravel: Working with validated input": "https://laravel.com/docs/validation#working-with-validated-input",
+                "Laravel: Mass assignment": "https://laravel.com/docs/eloquent#mass-assignment"
+            }
+        }
+    ],
     "usage": [
         "livewire-form"
     ],

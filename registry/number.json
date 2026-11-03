@@ -9,6 +9,30 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "`min`, `max`, `decimals` and `negative` only act in the browser: a request can send `-5`, `1e9` or `0.0001`. Repeat them in your Form Request with `integer` or `numeric`, `between:` and `decimal:0,2`.",
+            "links": {
+                "OWASP: Input validation": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+                "Laravel: Validation": "https://laravel.com/docs/validation"
+            }
+        },
+        {
+            "about": "security",
+            "note": "For money, consider storing integer cents or a `decimal` column, never `float`: floats round, and totals drift by a cent. In Livewire, a string property keeps the exact digits until you save them.",
+            "links": {
+                "Laravel: The decimal rule": "https://laravel.com/docs/validation#rule-decimal"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Without `max:`, a huge number can overflow the column: a 500 error, or a value quietly clamped, depending on the database. Match `max:` to the column type.",
+            "links": {
+                "Laravel: Validation": "https://laravel.com/docs/validation"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

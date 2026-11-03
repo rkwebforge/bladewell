@@ -9,6 +9,24 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "It submits like a checkbox: switched off, it sends nothing. Read it with `$request->boolean()`, or give it `unchecked-value=\"0\"`, and validate it with `boolean`.",
+            "links": {
+                "Laravel: Boolean input": "https://laravel.com/docs/requests#retrieving-boolean-input-values",
+                "Laravel: The boolean rule": "https://laravel.com/docs/validation#rule-boolean"
+            }
+        },
+        {
+            "about": "security",
+            "note": "A switch that changes who can see or do something (a public profile, an admin flag) needs a policy check as well as validation, and shouldn't be fillable from any other form.",
+            "links": {
+                "Laravel: Authorization": "https://laravel.com/docs/authorization",
+                "OWASP: Mass assignment": "https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

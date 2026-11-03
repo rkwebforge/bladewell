@@ -13,6 +13,24 @@
             "details": "More about the node under its label, such as a card's figures. Read out as its description."
         }
     },
+    "consider": [
+        {
+            "about": "security",
+            "note": "Authorize the node in `children-url`: its id is in the URL, and can be changed to any other.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Authorization": "https://laravel.com/docs/authorization"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "`children-url` loads a branch only when someone opens it, so the page doesn't send the whole tree. Use `withCount()` to know which children have their own, rather than loading grandchildren, and cap very wide branches.",
+            "links": {
+                "Laravel: Counting related models": "https://laravel.com/docs/eloquent-relationships#counting-related-models",
+                "Laravel: Eager loading": "https://laravel.com/docs/eloquent-relationships#eager-loading"
+            }
+        }
+    ],
     "usage": [
         "in-scripts",
         "children-endpoint",

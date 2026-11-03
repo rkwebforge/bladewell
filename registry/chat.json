@@ -7,6 +7,53 @@
         "ElementIds",
         "ChatMarkdown"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Authorize the conversation on every route: the page, `history-url` and sending. The id in the URL can be changed to any other.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Authorization": "https://laravel.com/docs/authorization"
+            }
+        },
+        {
+            "about": "security",
+            "note": "Attachments: the paperclip's `accept` only steers the picker. Check type and size in your Form Request, store under your own name on a private disk, and send them back as downloads, never SVG or HTML opened from your site.",
+            "links": {
+                "OWASP: File upload": "https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html",
+                "Laravel: Validating files": "https://laravel.com/docs/validation#validating-files"
+            }
+        },
+        {
+            "about": "security",
+            "note": "For an AI assistant, show replies with `ChatMarkdown` or `{{ }}`, never as raw HTML: what a model writes can be steered by a page or file it read.",
+            "links": {
+                "OWASP: Prompt injection": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+                "OWASP: Cross-site scripting": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Load history a page at a time (20 is a good start) with `history-url`, never the whole conversation, from an index on `(conversation_id, id)`; `cursorPaginate()` keeps old pages fast.",
+            "links": {
+                "Laravel: Cursor pagination": "https://laravel.com/docs/pagination#cursor-pagination"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Throttle sending. For an AI assistant, each message is a paid model call: consider a per-user daily limit, a cap on the reply's length, and sending the model only the recent messages, not the whole history.",
+            "links": {
+                "Laravel: Rate limiting": "https://laravel.com/docs/rate-limiting"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "For new messages from others, consider broadcasting (Reverb, Pusher) over polling: polling every few seconds is a request per open tab, all day.",
+            "links": {
+                "Laravel: Broadcasting": "https://laravel.com/docs/broadcasting"
+            }
+        }
+    ],
     "usage": [
         "sending",
         "history-endpoint",

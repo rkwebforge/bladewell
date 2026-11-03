@@ -12,6 +12,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ### Added
 
+- **password, otp, verification-code, text-input, textarea, number, tags, phone, checkbox, switch, datepicker, date-range-picker, time-picker, color-picker, select, table, pagination, chat, file-upload, search, command, kanban, tree, captcha**: notes on what to check and what to keep cheap in the routes behind them, with OWASP and Laravel links. They show under "On the server" on each page, and under `consider` in `bladewell:list --json` and the MCP server's `get_component` and `add_components`.
+- **bladewell:add** points to those notes for the widgets you name, and the Laravel Boost guidelines and MCP server tell your agent to read them before writing a widget's routes. Run `php artisan boost:update`.
 - **kanban**: a moved card rings for a moment where it lands, and red for longer when your route or Livewire component sends it back.
 
 ### Fixed

@@ -8,6 +8,24 @@
     "support": [
         "ElementIds"
     ],
+    "consider": [
+        {
+            "about": "cost",
+            "note": "If people can choose rows per page, cap it on the server (`min(100, …)`); the menu's choices don't limit what the query string can ask for.",
+            "links": {
+                "Laravel: Pagination": "https://laravel.com/docs/pagination",
+                "OWASP API4: Unrestricted resource consumption": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Consider `simplePaginate()` for the summary and load-more styles, which show no page count: it skips the `count(*)` query. For deep or endless lists, `cursorPaginate()` stays as fast on page 500 as on page 1.",
+            "links": {
+                "Laravel: Simple pagination": "https://laravel.com/docs/pagination#simple-pagination",
+                "Laravel: Cursor pagination": "https://laravel.com/docs/pagination#cursor-pagination"
+            }
+        }
+    ],
     "usage": [
         "livewire-component",
         "livewire-view"

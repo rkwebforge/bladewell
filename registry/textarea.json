@@ -8,6 +8,24 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "`maxlength` and the counter only guide typing. Add `max:` in your Form Request too, or one request can store megabytes in a column you load on every page.",
+            "links": {
+                "OWASP: Input validation": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+                "Laravel: Validation": "https://laravel.com/docs/validation"
+            }
+        },
+        {
+            "about": "security",
+            "note": "Show it back with `{{ }}`. If you turn it into Markdown or HTML, sanitise the result first: what people write ends up in other people's browsers.",
+            "links": {
+                "OWASP: Cross-site scripting": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+                "Laravel: Displaying data in Blade": "https://laravel.com/docs/blade#displaying-data"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

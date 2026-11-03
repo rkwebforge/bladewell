@@ -9,6 +9,23 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "An unticked box sends nothing, so a value left out of the request never turns off. Read it with `$request->boolean()`, or give the box `unchecked-value=\"0\"`, and validate it with `boolean`.",
+            "links": {
+                "Laravel: Boolean input": "https://laravel.com/docs/requests#retrieving-boolean-input-values",
+                "Laravel: The boolean rule": "https://laravel.com/docs/validation#rule-boolean"
+            }
+        },
+        {
+            "about": "security",
+            "note": "For terms or consent, validate with `accepted`, and consider saving when it was given and to which version, so you can show it later.",
+            "links": {
+                "Laravel: The accepted rule": "https://laravel.com/docs/validation#rule-accepted"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

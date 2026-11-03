@@ -122,7 +122,7 @@ final class AddWidgetCommand extends Command
             $this->components->warn("{$untracked} file(s) differ from this version and were installed before bladewell.lock kept track, so they were left alone. If you haven't edited them, re-run with --force (it covers only the widgets you name, so name only those you haven't edited; for the theme, delete it and re-run); from then on updates apply by themselves.");
         }
 
-        $this->notes($widgets, $target, rebuild: !$dryRun && $writes > 0);
+        $this->notes($widgets, $target, rebuild: !$dryRun && $writes > 0, requested: $requested);
 
         return self::SUCCESS;
     }
@@ -219,8 +219,9 @@ final class AddWidgetCommand extends Command
      * Things the installer can't do for the user: packages and extensions to install, rules to use.
      *
      * @param  list<Widget>  $widgets
+     * @param  list<string>  $requested  the names given, without those brought along
      */
-    private function notes(array $widgets, InstallTarget $target, bool $rebuild): void
+    private function notes(array $widgets, InstallTarget $target, bool $rebuild, array $requested): void
     {
         $packages = array_unique(array_merge(...array_map(static fn (Widget $widget): array => $widget->composer, $widgets)));
         $missing = array_filter($packages, static fn (string $package): bool => !InstalledVersions::isInstalled($package));
@@ -242,6 +243,17 @@ final class AddWidgetCommand extends Command
         }
         if (in_array('Captcha', $rules, true)) {
             $hints[] = "For a Turnstile, reCAPTCHA or hCaptcha field, check the token with new \\{$target->rulesNamespace}\\Captcha('turnstile'); its keys go in config/services.php.";
+        }
+        // The named widgets only: a table brings select and search along, but their routes aren't the table's. One line
+        // each, unless --all or --installed names so many that it would bury the rest.
+        $considered = array_values(array_filter($widgets, static fn (Widget $widget): bool => in_array($widget->name, $requested, true) && $widget->consider !== []));
+        if (count($considered) > 3) {
+            $hints[] = 'Things to consider in the routes behind '.implode(', ', array_map(static fn (Widget $widget): string => $widget->name, $considered)).' (security, server cost): under "On the server" on each one\'s page, https://www.bladewellui.com/components/{name}#consider';
+        } else {
+            foreach ($considered as $widget) {
+                $count = count($widget->consider);
+                $hints[] = "{$widget->name}: {$count} ".($count === 1 ? 'thing' : 'things')." to consider in the routes behind it (security, server cost): https://www.bladewellui.com/components/{$widget->name}#consider";
+            }
         }
         if ($rebuild) {
             $hints[] = 'Rebuild your assets: npm run build (or keep npm run dev running).';

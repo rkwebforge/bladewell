@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bladewell\Mcp;
 
+use Bladewell\Consideration;
 use Bladewell\FileStatus;
 use Bladewell\Installer;
 use Bladewell\InstallTarget;
@@ -29,6 +30,7 @@ final class Server
 
     private const string INSTRUCTIONS = 'Bladewell copies Blade + Tailwind CSS v4 components into this Laravel app, where they become the app\'s own files, used as <x-widget.{name}>. '
         .'Find components with list_components, read one with get_component (props, slots, examples, Livewire usage) before writing it into a view, and check project_status for what is installed and edited. '
+        .'Before writing the routes a component calls or submits to, read its consider notes in get_component (security, and server cost such as paging and caching): apply what fits the app, and tell the person which you left out. '
         .'add_components without confirm is a dry run: show the person its file list, and call it again with confirm: true only once they agree. It never overwrites files they edited unless force is true. '
         .'After installing, the assets need rebuilding (npm run build, or a running npm run dev).';
 
@@ -272,16 +274,25 @@ final class Server
             $this->installer->apply($planned);
         }
         $writes = array_filter($planned, static fn (PlannedFile $file): bool => $file->status->writes());
+        // The named components only: a table brings select and search along, but their routes aren't the table's.
+        $consider = [];
+        foreach ($widgets as $widget) {
+            if (in_array($widget->name, $names, true) && $widget->consider !== []) {
+                $consider[$widget->name] = array_map(static fn (Consideration $item): array => $item->toArray(), $widget->consider);
+            }
+        }
 
         return [
             'written' => $confirm,
             'next' => match (true) {
                 !$confirm && $writes !== [] => 'Dry run: nothing was written. Show these files to the person; call again with confirm: true to install.',
                 !$confirm => 'Nothing to write: everything named is already up to date.',
-                $writes !== [] => 'Installed. Rebuild the assets: npm run build (or keep npm run dev running).',
+                $writes !== [] => 'Installed. Rebuild the assets: npm run build (or keep npm run dev running).'.($consider === [] ? '' : ' Before writing the routes behind them, weigh each note in consider.'),
                 default => 'Already up to date: nothing was written.',
             },
             'components' => array_map(static fn (Widget $widget): string => $widget->name, $widgets),
+            // Additive: by component, the notes for the routes behind it (as in get_component); an object even when empty.
+            'consider' => (object) $consider,
             'broughtAlong' => array_values(array_diff(array_map(static fn (Widget $widget): string => $widget->name, $widgets), $names)),
             'files' => array_values(array_map(fn (PlannedFile $file): array => ['path' => $this->relative($file), 'status' => $file->status->value], array_filter($planned, static fn (PlannedFile $file): bool => $file->status !== FileStatus::Unchanged))),
             'warnings' => array_values(array_filter([

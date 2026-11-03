@@ -29,6 +29,8 @@ final readonly class WidgetDetails
             'examples-use' => $widget->examplesUse,
             'composer' => $widget->composer,
             'php-extensions' => $widget->phpExtensions,
+            // Advice for the routes it talks to: what the browser can't enforce, and what costs more than it needs to.
+            'consider' => array_map(static fn (Consideration $item): array => $item->toArray(), $widget->consider),
             'usage' => array_map(static fn (Snippet $snippet): array => [
                 'title' => $snippet->title,
                 'description' => $snippet->description,

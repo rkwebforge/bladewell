@@ -19,6 +19,23 @@
     "php-extensions": [
         "intl"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "The picker keeps end after start and both in range, but a request can send any two dates. Validate both with `date_format:Y-m-d`, and the end with `after_or_equal:` the start field, along with `NotAfterToday` where the range is in the past.",
+            "links": {
+                "Laravel: Validation": "https://laravel.com/docs/validation"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "A range is often a report: a wide one can scan years of rows. Consider capping how many days a request may ask for, indexing the date column, and caching results for past ranges, which don't change.",
+            "links": {
+                "Laravel: Cache": "https://laravel.com/docs/cache#retrieving-items-from-the-cache",
+                "OWASP API4: Unrestricted resource consumption": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

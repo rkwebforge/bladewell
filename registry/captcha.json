@@ -12,6 +12,22 @@
     "rules": [
         "Captcha"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Check the answer on the server on every submit (the `Captcha` rule), and keep provider secrets in `.env`. A captcha slows bots; it doesn't replace rate limiting or authorization.",
+            "links": {
+                "Laravel: Rate limiting": "https://laravel.com/docs/rate-limiting"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Each provider check is a call to another server, and some bill past a free tier. Consider it only where abuse happens (sign-up, contact, password reset), or only after a few failed tries.",
+            "links": {
+                "Laravel: Rate limiting": "https://laravel.com/docs/rate-limiting"
+            }
+        }
+    ],
     "usage": [
         "captcha-validation",
         "livewire"

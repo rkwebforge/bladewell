@@ -9,6 +9,16 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "A colour usually ends up in CSS or a `style` attribute, shown to other people, and anything typed there can change the page. Validate with `hex_color` before you save it, and only ever output a value that passed.",
+            "links": {
+                "Laravel: The hex_color rule": "https://laravel.com/docs/validation#rule-hex-color",
+                "OWASP: Cross-site scripting": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

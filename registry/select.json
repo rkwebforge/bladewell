@@ -10,6 +10,32 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "The options in the page don't limit what can be posted. Check the value with `Rule::in()` or `exists:`, and with `multiple`, cap how many with `max:` on the array.",
+            "links": {
+                "OWASP: Input validation": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+                "Laravel: The in rule": "https://laravel.com/docs/validation#rule-in"
+            }
+        },
+        {
+            "about": "security",
+            "note": "With `search-url`, the endpoint lists records to whoever calls it, not only through this field. Scope it to what the person may see, and send only the value, label and meta.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Authorization": "https://laravel.com/docs/authorization"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "With `search-url`, it asks as people type. Consider `limit()` (20 is plenty), throttle the route, raise `search-min-length` to 2 or 3 on big tables, and index the column you search. `like '%…%'` can't use a normal index, so a prefix match or full-text search scales better.",
+            "links": {
+                "Laravel: Rate limiting routes": "https://laravel.com/docs/routing#rate-limiting",
+                "Laravel: Scout": "https://laravel.com/docs/scout"
+            }
+        }
+    ],
     "usage": [
         "search-endpoint",
         "livewire"

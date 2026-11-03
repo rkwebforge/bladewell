@@ -14,6 +14,22 @@
     "php-extensions": [
         "intl"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "`min`, `max`, `step` and the slots only limit what's offered. Validate with `date_format:H:i`, and check the time against the same hours on the server. A time alone has no timezone: consider saving it with a date and the person's timezone, or a booking moves by an hour when the clocks change.",
+            "links": {
+                "Laravel: The date_format rule": "https://laravel.com/docs/validation#rule-date-format"
+            }
+        },
+        {
+            "about": "security",
+            "note": "With slots for bookings, check the slot is still free when the form arrives, in a transaction with a lock or a unique index: two people can pick the same one at once.",
+            "links": {
+                "Laravel: Pessimistic locking": "https://laravel.com/docs/queries#pessimistic-locking"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

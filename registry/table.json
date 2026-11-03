@@ -11,6 +11,46 @@
     "support": [
         "ElementIds"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Pass `orderBy()` and filters only columns from your own list, never the raw query string: an open sort lets anyone sort by, and so learn about, columns you don't show.",
+            "links": {
+                "OWASP: SQL injection": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+            }
+        },
+        {
+            "about": "security",
+            "note": "Bulk actions send `selected[]`, which is whatever the browser chose. Load those rows through the person's own scope and authorize each, as for any other input.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Authorization": "https://laravel.com/docs/authorization"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Always paginate, and if a `per_page` comes from the request, cap it (`min(100, …)`): `?per_page=100000` would otherwise load the whole table.",
+            "links": {
+                "Laravel: Pagination": "https://laravel.com/docs/pagination",
+                "OWASP API4: Unrestricted resource consumption": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Offset pages slow down as they go deeper: the database reads and throws away every row before the page. Consider `cursorPaginate()` for infinite scroll or big tables, and `simplePaginate()` when you don't show a page count, which skips the `count(*)` query.",
+            "links": {
+                "Laravel: Cursor pagination": "https://laravel.com/docs/pagination#cursor-pagination",
+                "Laravel: Simple pagination": "https://laravel.com/docs/pagination#simple-pagination"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Filters re-run the query as people type, and option counts add a grouped count per filter. Index the columns you filter on, consider caching the counts for a minute, and `cache-for` keeps pages already fetched in the browser so going back doesn't ask again.",
+            "links": {
+                "Laravel: Cache": "https://laravel.com/docs/cache#retrieving-items-from-the-cache"
+            }
+        }
+    ],
     "usage": [
         "in-a-controller",
         "livewire-component",

@@ -7,6 +7,24 @@
     "support": [
         "ElementIds"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "The `suggest-url` endpoint answers anyone who calls it. Scope results to what the person may see, and leave out pages and actions they can't open.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Authorization": "https://laravel.com/docs/authorization"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "With `suggest-url`, each pause in typing is a request. Throttle the route, `limit()` the results, and consider caching answers briefly; the pages and actions you list in the page itself cost nothing.",
+            "links": {
+                "Laravel: Rate limiting routes": "https://laravel.com/docs/routing#rate-limiting",
+                "Laravel: Cache": "https://laravel.com/docs/cache#retrieving-items-from-the-cache"
+            }
+        }
+    ],
     "usage": [
         "in-scripts",
         "livewire"

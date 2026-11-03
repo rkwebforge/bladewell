@@ -8,6 +8,31 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Store the code hashed, as you would a password, with an expiry (10 minutes is common), and delete it once it's used, so it works once. Compare with `hash_equals()` or `Hash::check()`, not `==`.",
+            "links": {
+                "OWASP: Multi-factor authentication": "https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html",
+                "Laravel: Hashing": "https://laravel.com/docs/hashing"
+            }
+        },
+        {
+            "about": "security",
+            "note": "Consider allowing a few tries per code (5 is common) and then asking for a new one, and throttling by account as well as IP: a 6-digit code is only a million guesses.",
+            "links": {
+                "OWASP: Authentication": "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+                "Laravel: Rate limiting": "https://laravel.com/docs/rate-limiting"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Each resend is an email or SMS, and SMS is billed per message. Consider one resend a minute and a daily cap per account and per phone number, which also stops people using your form to send texts to numbers they don't own.",
+            "links": {
+                "Laravel: Rate limiting": "https://laravel.com/docs/rate-limiting"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

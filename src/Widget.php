@@ -24,6 +24,7 @@ final readonly class Widget
      * @param  string|null  $heading  for headings, when the name doesn't read right as one (otp → OTP)
      * @param  string|null  $group  the catalogue's heading it's listed under (Forms), for related widgets
      * @param  list<string>  $examplesUse  other widgets its examples use, not installed with it: the page names them
+     * @param  list<Consideration>  $consider  what to weigh on the server when wiring it up: security and server cost
      */
     public function __construct(
         public string $name,
@@ -39,6 +40,7 @@ final readonly class Widget
         public ?string $heading = null,
         public ?string $group = null,
         public array $examplesUse = [],
+        public array $consider = [],
     ) {}
 
     /** Date range picker, for headings: the manifest's title, or else the name. */
@@ -76,6 +78,7 @@ final readonly class Widget
             $data['title'] ?? null,
             $data['group'] ?? null,
             self::strings($name, $data, 'examples-use'),
+            Consideration::listFromManifest($name, $data),
         );
     }
 

@@ -10,6 +10,24 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "`max` and the suggestions only act in the browser: a request can send any number of tags, of any length. Cap both in your Form Request (`max:` on the array, and on each with `tags.*`), and drop duplicates in any case.",
+            "links": {
+                "OWASP: Input validation": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+                "Laravel: Validation": "https://laravel.com/docs/validation"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "If each new tag becomes a row, typos and one-offs pile up and every tag list grows. Consider limiting tags to an allowlist (`Rule::in()` or `exists:`) where the set is known, or tidying unused tags with a scheduled job.",
+            "links": {
+                "Laravel: The in rule": "https://laravel.com/docs/validation#rule-in",
+                "Laravel: Task scheduling": "https://laravel.com/docs/scheduling"
+            }
+        }
+    ],
     "usage": [
         "livewire"
     ],

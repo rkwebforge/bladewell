@@ -9,6 +9,31 @@
         "ElementIds",
         "FormField"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "The `suggest-url` endpoint answers anyone who calls it, signed in or not. Scope results to what the person may see, and escape `%` and `_` in like queries, as the usage shows.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "OWASP: SQL injection": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "The widget waits 200ms after typing, cancels stale requests and remembers answers, but it's still a request per pause. Throttle the route, `limit()` the results (8 is plenty), consider `suggest-min` of 2 or 3 on big tables, and index the column. For large catalogues, full-text search (Scout) scales better than `like '%…%'`.",
+            "links": {
+                "Laravel: Rate limiting routes": "https://laravel.com/docs/routing#rate-limiting",
+                "Laravel: Scout": "https://laravel.com/docs/scout"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Popular queries repeat. Consider caching each answer for a minute or two with `Cache::remember()`, keyed by the query (and the user, if results differ by who asks).",
+            "links": {
+                "Laravel: Cache": "https://laravel.com/docs/cache#retrieving-items-from-the-cache"
+            }
+        }
+    ],
     "usage": [
         "suggestions-endpoint",
         "livewire"

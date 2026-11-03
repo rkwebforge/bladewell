@@ -19,6 +19,15 @@
     "php-extensions": [
         "intl"
     ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Its `max` of today is the person's today, but `before_or_equal:today` on the server is UTC's, so near midnight it turns away a real today or lets tomorrow through. Validate with `NotAfterToday` (or `MinimumAge` for birthdays), which come with it, and `date_format:Y-m-d`.",
+            "links": {
+                "Laravel: The date_format rule": "https://laravel.com/docs/validation#rule-date-format"
+            }
+        }
+    ],
     "usage": [
         "in-other-languages",
         "livewire"
