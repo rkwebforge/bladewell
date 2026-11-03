@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.4.10] - 2026-11-03
+
 ### Fixed
 
 - **chat, select, kanban**: the usage examples hold up to forged and simultaneous requests. Chat authorizes both Livewire actions and claims each reply in one conditional update before calling the model, select checks the submitted id through the same `customers()` relationship as its search, and kanban checks a move against the order it locks inside its transaction. No widget changes.
@@ -321,7 +323,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.9...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.10...HEAD
+[1.4.10]: https://github.com/rkwebforge/bladewell/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/rkwebforge/bladewell/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/rkwebforge/bladewell/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/rkwebforge/bladewell/compare/v1.4.6...v1.4.7
