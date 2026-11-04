@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.4.11] - 2026-11-04
+
 ### Fixed
 
 - **chat**: the Livewire example claims the exact message it answers, passed from `send()` to `respond()`, builds the model's context only up to that message, and puts the claim back if the model call fails so it can be retried. The history example pages by cursor, newest id first, so messages arriving meanwhile don't repeat ones already showing. No widget changes.
@@ -327,7 +329,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.10...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.11...HEAD
+[1.4.11]: https://github.com/rkwebforge/bladewell/compare/v1.4.10...v1.4.11
 [1.4.10]: https://github.com/rkwebforge/bladewell/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/rkwebforge/bladewell/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/rkwebforge/bladewell/compare/v1.4.7...v1.4.8
