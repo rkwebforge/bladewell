@@ -8,9 +8,7 @@
         "search",
         "select"
     ],
-    "support": [
-        "ElementIds"
-    ],
+    "support": ["ElementIds"],
     "consider": [
         {
             "about": "security",
@@ -51,23 +49,19 @@
             }
         }
     ],
-    "usage": [
-        "in-a-controller",
-        "livewire-component",
-        "livewire-view"
-    ],
+    "usage": ["in-a-controller", "livewire-component", "livewire-view"],
     "examples": [
         "filters",
-        "clickable-rows",
         "sortable",
         "selectable",
         "expandable-rows",
+        "clickable-rows",
         "stacked",
+        "infinite-scroll",
         "compact",
-        "loading",
         "drawer-pagination",
         "jump-pagination",
-        "infinite-scroll",
+        "loading",
         "empty"
     ],
     "slots": {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
 
 // Demo data for the preview only. The sort key is checked against a fixed list, as a controller must.
 return static function (): array {
@@ -19,8 +20,11 @@ return static function (): array {
         ->map(fn (array $payment): array => [...$payment, 'amount' => '$'.number_format($payment['value'], 2)]);
     $page = Paginator::resolveCurrentPage('pay_page');
 
+    // Its own sort only, where an app would use withQueryString(): the catalogue page holds several tables, and links
+    // carrying every other table's query would combine into endless URLs for crawlers. The table's script keeps the
+    // other tables where they are from the address bar.
     return ['payments' => (new LengthAwarePaginator($all->forPage($page, 6)->values(), $all->count(), 6, $page, [
         'path' => request()->url(),
         'pageName' => 'pay_page',
-    ]))->withQueryString()];
+    ]))->appends(Arr::only(request()->query(), ['sort', 'direction']))];
 };

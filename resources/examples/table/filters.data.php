@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 // Demo data for the preview only. Every filter and sort key is checked against a fixed list before it's used, as
@@ -65,10 +66,11 @@ return static function (): array {
     $page = Paginator::resolveCurrentPage('order_page');
 
     return [
+        // Its own filters and sort only, where an app would use withQueryString(): see sortable.data.php.
         'orders' => (new LengthAwarePaginator($matches->forPage($page, 8)->values(), $matches->count(), 8, $page, [
             'path' => request()->url(),
             'pageName' => 'order_page',
-        ]))->withQueryString(),
+        ]))->appends(Arr::only(request()->query(), ['order_q', 'order_status', 'order_payment', 'order_period', 'order_sort', 'order_dir'])),
         'filters' => $filters,
         'statuses' => $counted($statuses, 'status', fn (array $order, string $value): bool => $order['status'] === $value),
         'payments' => $counted($payments, 'payment', fn (array $order, string $value): bool => $order['payment'] === $value),
