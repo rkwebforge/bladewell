@@ -7,7 +7,8 @@ Route::get('/products/suggest', function (Request $request) {
     // It answers anyone, signed in or not: only what the store shows everyone, never drafts or hidden products.
     return Product::query()
         ->where('is_published', true)
-        ->where('name', 'like', '%'.addcslashes($q, '%_\\').'%')
+        // % and _ typed match themselves, the same on every database (ESCAPE '!'), and LOWER() ignores case.
+        ->whereRaw("LOWER(name) LIKE LOWER(?) ESCAPE '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $q).'%'])
         // Each suggestion shows its category: loaded with them, not one query per result.
         ->with('category:id,name')
         ->orderBy('name')

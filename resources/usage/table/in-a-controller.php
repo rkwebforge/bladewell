@@ -18,9 +18,11 @@ Payment::query()->orderBy($sort, $direction)->paginate(10)->withQueryString();
 // before it reaches the query, bind values (never interpolate them into whereRaw), and keep the query string so
 // page and sort links carry the filters.
 $status = in_array($request->query('status'), ['paid', 'pending', 'refunded', 'failed'], true) ? $request->query('status') : null;
-$search = mb_substr(trim((string) $request->query('q')), 0, 100);
+// is_string(): ?q[]=x sends an array, which would otherwise end in an error page.
+$search = is_string($request->query('q')) ? mb_substr(trim($request->query('q')), 0, 100) : '';
 Order::query()
-    ->when($search !== '', fn ($query) => $query->where('number', 'like', '%'.addcslashes($search, '%_\\').'%'))
+    // % and _ typed match themselves, the same on every database (ESCAPE '!'), and LOWER() ignores case.
+    ->when($search !== '', fn ($query) => $query->whereRaw("LOWER(number) LIKE LOWER(?) ESCAPE '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search).'%']))
     ->when($status, fn ($query) => $query->where('status', $status))
     ->latest()
     ->paginate(10)
@@ -38,7 +40,7 @@ foreach (array_unique(explode(',', (string) $request->query('sort'))) as $i => $
 
 // Option counts (faceted filters): each option's meta is how many rows picking it would give, counting every
 // other filter but its own. The table updates them in the toolbar after each change.
-$statusCounts = Order::query()->when($search !== '', fn ($query) => $query->where('number', 'like', '%'.addcslashes($search, '%_\\').'%'))
+$statusCounts = Order::query()->when($search !== '', fn ($query) => $query->whereRaw("LOWER(number) LIKE LOWER(?) ESCAPE '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search).'%']))
     ->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
 $statusOptions = collect(['paid' => 'Paid', 'pending' => 'Pending'])
     ->map(fn (string $label, string $value): array => ['value' => $value, 'label' => $label, 'meta' => (string) ($statusCounts[$value] ?? 0)])

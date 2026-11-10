@@ -7,7 +7,8 @@ Route::get('/customers/search', function (Request $request) {
 
     // Their own (or their team's), never Customer::query(), which would list everyone's.
     return $request->user()->customers()
-        ->where('name', 'like', '%'.addcslashes($q, '%_\\').'%')
+        // % and _ typed match themselves, the same on every database (ESCAPE '!'), and LOWER() ignores case.
+        ->whereRaw("LOWER(name) LIKE LOWER(?) ESCAPE '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $q).'%'])
         ->orderBy('name')
         ->limit(20)
         ->get()

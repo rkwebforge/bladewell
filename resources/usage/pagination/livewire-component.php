@@ -25,7 +25,8 @@ class Orders extends Component
     {
         return view('livewire.orders', [
             'orders' => auth()->user()->orders()
-                ->when($this->search, fn ($query) => $query->where('number', 'like', '%'.addcslashes($this->search, '%_\\').'%'))
+                // % and _ typed match themselves, the same on every database (ESCAPE '!'), and LOWER() ignores case.
+                ->when($this->search, fn ($query) => $query->whereRaw("LOWER(number) LIKE LOWER(?) ESCAPE '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_substr($this->search, 0, 100)).'%']))
                 ->latest()
                 ->paginate(min(max($this->perPage, 1), 100)),
         ]);

@@ -10,6 +10,10 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Fixed
+
+- **table, select, search, pagination**: the usage notes' searches give the same results on MySQL, PostgreSQL and SQLite: `%` and `_` typed into a search match themselves, and case is ignored, with `LOWER(…) LIKE LOWER(?) ESCAPE '!'` in place of `addcslashes()`, whose backslash escape SQLite doesn't read. The table's controller note also ignores a `q` sent as an array instead of failing. No widget changes.
+
 ## [1.4.11] - 2026-11-04
 
 ### Fixed
