@@ -1,0 +1,2 @@
+{{-- A day with more events than per-day shows the first ones and a "more" button, which opens all of them, in full, with their times and status. view="month" keeps the grid where there's no room for titles, as on a phone: each day with events shows how many, on a button that lists them. --}}
+<x-widget.calendar label="Appointments" timezone="Europe/London" view="month" :events="$events" :per-day="2" :nav="false" />

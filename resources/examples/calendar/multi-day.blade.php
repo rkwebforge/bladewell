@@ -1,0 +1,2 @@
+{{-- Events over several days are one bar across them, kept in the same row for the week, with an arrow where one carries on from the week before or into the next. All-day events are dates, so no timezone moves them; an end is the moment or day after the event, so one ending at midnight stays on its own day. --}}
+<x-widget.calendar label="Warehouse calendar" timezone="Europe/London" :events="$events" :nav="false" />

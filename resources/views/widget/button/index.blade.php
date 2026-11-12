@@ -69,7 +69,9 @@
     }
 
     $classes = [
-        'group/button relative inline-flex min-w-fit items-center justify-center gap-1.5 border font-medium whitespace-nowrap select-none transition-all outline-none',
+        // Its colours, and the press, ease over a fifth of a second, slowing as they arrive: long enough to see the change
+        // happen, short enough not to wait for. Not for people who've asked for less motion.
+        'group/button relative inline-flex min-w-fit items-center justify-center gap-1.5 border font-medium whitespace-nowrap select-none transition-all duration-200 ease-out outline-none motion-reduce:transition-none',
         'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         // A guarded (busy) button is aria-disabled, not disabled, so it keeps focus; it ignores the pointer instead.
         'not-disabled:active:scale-95 disabled:cursor-not-allowed aria-busy:cursor-wait aria-busy:pointer-events-none',

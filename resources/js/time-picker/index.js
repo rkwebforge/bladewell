@@ -68,6 +68,13 @@ function setValue(root, time) {
     }
     root.querySelectorAll('[role="listbox"]:not([data-time-picker-column]) [role="option"]').forEach((option) => {
         option.setAttribute('aria-selected', String(option.dataset.value === time));
+        // The list has one check, not one an option: it goes with the choice.
+        if (option.dataset.value === time) {
+            const check = option.parentElement.querySelector('[data-time-picker-check]');
+            if (check && check.parentElement !== option) {
+                option.append(check);
+            }
+        }
     });
     if (input.value === time) {
         return;

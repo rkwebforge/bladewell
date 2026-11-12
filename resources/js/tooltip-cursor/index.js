@@ -93,8 +93,9 @@ function linkAll(scope = document) {
 }
 
 // Whether any of the element can still be seen: not scrolled out of a container that clips it (a table that scrolls
-// inside itself, a modal's body) or the window, and not covered there (a table's sticky header). The same check as
-// '../field''s inView, kept here since the tooltip needs nothing else from the field.
+// inside itself, a modal's body) or the window, and not covered there (a table's sticky header). Looked for at its
+// middle and just inside its corners: one with something drawn over its middle (an event on a calendar, under a later
+// one) is still seen at its edges. As '../field''s inView, kept here since the tooltip needs nothing else from the field.
 function inView(element, bubble) {
     const box = element.getBoundingClientRect();
     let [top, right, bottom, left] = [Math.max(box.top, 0), Math.min(box.right, window.innerWidth), Math.min(box.bottom, window.innerHeight), Math.max(box.left, 0)];
@@ -108,9 +109,20 @@ function inView(element, bubble) {
     if (bottom - top < 1 || right - left < 1) {
         return false;
     }
-    const hit = document.elementsFromPoint((left + right) / 2, (top + bottom) / 2).find((node) => !bubble.contains(node));
+    const inset = Math.min(2, (right - left) / 2, (bottom - top) / 2);
+    const points = [
+        [(left + right) / 2, (top + bottom) / 2],
+        [left + inset, top + inset],
+        [right - inset, top + inset],
+        [left + inset, bottom - inset],
+        [right - inset, bottom - inset],
+    ];
 
-    return !hit || element.contains(hit);
+    return points.some(([x, y]) => {
+        const hit = document.elementsFromPoint(x, y).find((node) => !bubble.contains(node));
+
+        return !hit || element.contains(hit);
+    });
 }
 
 // After the pointer and below it, or on the other side of it where that would run off the window. Above a finger,

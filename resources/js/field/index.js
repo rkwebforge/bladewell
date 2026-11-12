@@ -39,6 +39,12 @@ function clearInvalid(event) {
     if (!field || event.target.closest('[popover]')) {
         return;
     }
+    clearError(field);
+}
+
+// Takes a field's error away, as editing it does. Exported for a script that showed one with showError() and finds it
+// no longer applies, as the filter builder does when the other end of a range is changed.
+export function clearError(field) {
     field.removeAttribute('data-invalid');
     field.querySelector('[data-field-error]')?.remove();
     // The hint shows again, so it's announced again: it stood aside for the error (FormField::aria).
@@ -79,12 +85,29 @@ function showRequired(field) {
     if (field.querySelector('[data-field-error]') || !trigger) {
         return trigger;
     }
+
+    return showError(field, field.dataset.requiredMessage);
+}
+
+// Shows message as the field's error, in the frame's own style and as the server marks it up, and returns the control
+// it describes. For a check a script makes before anything is sent, as the filter builder does; editing the field
+// takes it away (clearInvalid). A field already showing one has its message replaced.
+export function showError(field, message) {
+    const trigger = field.querySelector(CHOICE_TRIGGER) ?? field.querySelector('input:not([type="hidden"]), textarea');
+    const shown = field.querySelector('[data-field-error] p');
+    if (!trigger || shown) {
+        if (shown) {
+            shown.textContent = message;
+        }
+
+        return trigger;
+    }
     const error = document.createElement('div');
     error.dataset.fieldError = '';
     error.className = 'mt-1 flex items-start gap-1';
     error.innerHTML = ALERT_ICON;
-    const message = Object.assign(document.createElement('p'), { id: `${trigger.id}-error`, className: 'text-error break-words', textContent: field.dataset.requiredMessage });
-    error.append(message);
+    const text = Object.assign(document.createElement('p'), { id: `${trigger.id}-error`, className: 'text-error break-words', textContent: message });
+    error.append(text);
     // Where the server would have put it: under the box, above any hint (which the invalid state hides).
     const info = field.querySelector('[data-field-info]');
     info ? info.parentElement.before(error) : field.append(error);
@@ -93,7 +116,7 @@ function showRequired(field) {
     trigger.setAttribute('aria-invalid', 'true');
     // The error instead of the hint, which the invalid state hides, as the server does it (FormField::aria).
     const describedBy = new Set((trigger.getAttribute('aria-describedby') ?? '').split(' ').filter((id) => id && id !== info?.id));
-    trigger.setAttribute('aria-describedby', [message.id, ...describedBy].join(' '));
+    trigger.setAttribute('aria-describedby', [text.id, ...describedBy].join(' '));
 
     return trigger;
 }

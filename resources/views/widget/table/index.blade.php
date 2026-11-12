@@ -158,60 +158,22 @@
     }
 
     // Sorting: only a key the columns mark sortable counts, whatever the query string says. This only draws the
-    // state; your controller must check the key against its own list before it reaches orderBy().
+    // state; your controller must check the key against its own list before it reaches orderBy(). TableSort reads the
+    // order and builds the links: a plain click sorts by that column alone (ascending, descending, then no sort), and
+    // with multi-sort, Shift+click adds the column, flips it, or drops it.
     $sortable = $columns->where('sortable')->pluck('key')->all();
-    // The order as [key => direction], highest priority first: one key, or with multi-sort, the comma lists of sort
-    // and direction side by side (sort=status,amount&direction=asc,desc). A single sort reads as it always has.
-    $sortValue = $sort ?? $pageQuery[$sortName] ?? null;
-    $directionValue = $direction ?? $pageQuery[$directionName] ?? null;
-    $directions = explode(',', is_string($directionValue) ? $directionValue : '');
-    $order = [];
-    foreach (explode(',', is_string($sortValue) ? $sortValue : '') as $i => $key) {
-        if (in_array($key, $sortable, true) && ! isset($order[$key])) {
-            $order[$key] = ($directions[$i] ?? null) === 'desc' ? 'desc' : 'asc';
-        }
-    }
-    $order = $multiSort ? $order : array_slice($order, 0, 1, true);
-    $sort = array_key_first($order);
-    $direction = $sort !== null ? $order[$sort] : 'asc';
-    $orderUrl = function (array $next) use ($sortName, $directionName, $isPaginator, $isCursor, $rows, $id, $pageUrl, $pageQuery): string {
-        $query = array_merge($pageQuery, [$sortName => implode(',', array_keys($next)), $directionName => implode(',', $next)]);
-        if ($next === []) {
-            unset($query[$sortName], $query[$directionName]);
-        }
-        // A new order starts again at the first page.
-        if ($isPaginator) {
-            unset($query[$isCursor ? $rows->getCursorName() : $rows->getPageName()]);
-        }
-
-        return $pageUrl.($query ? '?'.\Illuminate\Support\Arr::query($query) : '').($id ? '#'.$id : '');
-    };
-    // A plain click sorts by this column alone, in three steps from its own state: ascending, descending, then no sort
-    // at all (back to the order the rows came in).
-    $sortNext = fn (string $key): ?string => match ($order[$key] ?? null) {
-        null => 'asc',
-        'asc' => 'desc',
-        default => null,
-    };
-    $sortUrl = fn (string $key): string => $orderUrl(($next = $sortNext($key)) ? [$key => $next] : []);
-    // What that click does, for screen readers: the link text ends with it.
-    $sortHint = fn (string $key): string => match ($sortNext($key)) {
+    $tableSort = \Bladewell\Support\TableSort::read($sortable, $sort ?? $pageQuery[$sortName] ?? null, $direction ?? $pageQuery[$directionName] ?? null, (bool) $multiSort)
+        ->linkedTo($pageUrl, $pageQuery, $sortName, $directionName, $isPaginator ? ($isCursor ? $rows->getCursorName() : $rows->getPageName()) : null, $id);
+    $order = $tableSort->order;
+    $sort = $tableSort->key();
+    $direction = $tableSort->direction();
+    $sortUrl = fn (string $key): string => $tableSort->url($key);
+    $addSortUrl = fn (string $key): string => $tableSort->addUrl($key);
+    // What a plain click does, for screen readers: the link text ends with it.
+    $sortHint = fn (string $key): string => match ($tableSort->next($key)) {
         'asc' => 'sort ascending',
         'desc' => 'sort descending',
         default => 'remove sort',
-    };
-    // Shift+click with multi-sort: add the column last, or flip it, or (after descending) drop it.
-    $addSortUrl = function (string $key) use ($order, $orderUrl): string {
-        $next = $order;
-        if (! isset($next[$key])) {
-            $next[$key] = 'asc';
-        } elseif ($next[$key] === 'asc') {
-            $next[$key] = 'desc';
-        } else {
-            unset($next[$key]);
-        }
-
-        return $orderUrl($next);
     };
 
     // Per-column alignment, written out in full for Tailwind (positions 1 to 13, which covers 12 columns plus

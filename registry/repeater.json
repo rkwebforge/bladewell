@@ -1,0 +1,55 @@
+{
+    "group": "Forms",
+    "description": "A list of rows of fields the person can add to, remove from and reorder: order lines, travellers, contacts. Rows are keyed, not numbered, so old input, validation errors and focus stay with the right row after every change. Any field works in a row, select and date pickers included. Keyboard reorderable, announced to screen readers, with a minimum and maximum number of rows.",
+    "requires": [
+        "field",
+        "button",
+        "icon"
+    ],
+    "support": [
+        "ElementIds",
+        "FormField"
+    ],
+    "examples-use": [
+        "text-input",
+        "number",
+        "datepicker",
+        "select"
+    ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "A request can send any keys and any number of rows. Cap them with `max:` on the array, and look each existing key up through the record it belongs to (`$order->lines()->findOrFail($key)`), never as a bare id, or anyone could edit anyone's rows.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Validating arrays": "https://laravel.com/docs/validation#validating-arrays"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Every row is in the page and in the request, so keep lists to what a person edits by hand: a few dozen rows, a hundred or so at most, each with a few fields. Past that, or with a select or date picker in every row, page the records or edit them in a table instead. `max:` caps what the server takes either way, and PHP's `max_input_vars` (1000 by default) quietly drops fields past it: 200 rows of 5 fields already reach it.",
+            "links": {
+                "Laravel: Validating arrays": "https://laravel.com/docs/validation#validating-arrays"
+            }
+        }
+    ],
+    "usage": [
+        "validation",
+        "livewire-component",
+        "livewire-view"
+    ],
+    "examples": [
+        "order-lines",
+        "team-invites",
+        "invoice-total",
+        "with-errors",
+        "custom-fields",
+        "travellers",
+        "questions"
+    ],
+    "slots": {
+        "x-widget.repeater": {
+            "empty": "Shown while there are no rows: what the list is for, so the add button makes sense on its own."
+        }
+    }
+}

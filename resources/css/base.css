@@ -236,3 +236,8 @@
 @source inline("[--table-window:calc(2.5rem+{1..50}*4rem)]");
 @source inline("[--slider-from:{0..100}]");
 @source inline("[--slider-to:{0..100}]");
+@source inline("[--calendar-from:{0..94}]");
+@source inline("[--calendar-length:{2..96}]");
+@source inline("[--calendar-column:{0..11}]");
+@source inline("[--calendar-columns:{1..12}]");
+@source inline("[--calendar-span:{1..12}]");

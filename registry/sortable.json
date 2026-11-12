@@ -1,0 +1,49 @@
+{
+    "title": "Sortable list",
+    "group": "Forms",
+    "description": "Items people put in order: FAQs, menu links, a product's photos. Each item has a handle that drags with a mouse, a pen or a finger, or picks the item up for the arrow keys, and Move up and Move down buttons. Every move is announced and can be undone, focus stays where it was, and the item rings for a moment where it lands. A move fires sortable:move, and with move-url is sent to your app one at a time, which keeps it or sends the list back to its last saved order with a reason; with a version, a change someone else made first is caught and the person offered a reload. With a name the order submits with its form as name[], and comes back after a failed submit. Lists or wrapping grids of tiles, right to left too. Every item moves: keep pinned ones, like a Home link, outside the list, and make a filtered or paged list readonly, where an order means nothing for the items not shown. Works inside Livewire components, with wire:model or wire:sortable-move.",
+    "requires": [
+        "field",
+        "button",
+        "icon"
+    ],
+    "support": [
+        "ElementIds",
+        "FormField"
+    ],
+    "examples-use": [
+        "text-input"
+    ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "The order arrives from the browser and can hold any ids. Validate them (`array`, `max:`, `distinct`), check they are exactly the parent's items, none missing and none from elsewhere, look them up through that parent (`$menu->links()`), never as bare ids, and authorize the change. Save it in one transaction with the parent locked, and pass `version` so your route can answer 409 when someone else reordered first, instead of quietly overwriting their order.",
+            "links": {
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+                "Laravel: Validating arrays": "https://laravel.com/docs/validation#validating-arrays",
+                "Laravel: Pessimistic locking": "https://laravel.com/docs/queries#pessimistic-locking"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Saving the whole order is one update per item on every move: fine for a list someone orders by hand. For long lists, move only the one item, by `item` and `after`, with sort values that leave gaps (1000, 2000, …), so a move usually updates one row.",
+            "links": {}
+        }
+    ],
+    "usage": [
+        "move-route",
+        "form",
+        "livewire",
+        "in-scripts"
+    ],
+    "examples": [
+        "images",
+        "faqs",
+        "menu-links"
+    ],
+    "slots": {
+        "x-widget.sortable": {
+            "empty": "Shown while there are no items: what the list is for."
+        }
+    }
+}

@@ -10,9 +10,24 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Added
+
+- **calendar**: events in a month, week or day view, or as an agenda on narrow screens. Multi-day bars, overlapping events side by side, a "more" list for busy days and a line at the current time. All-day events keep their dates in any timezone. `views` adds a switch between views, the arrows change the period without reloading the page, and `keys` reads your models' own fields. Works with Livewire. `php artisan bladewell:add calendar`
+- **sortable**: drag, keyboard and Move up/down reordering for lists and grids, like FAQs, menu links or photos. Moves are announced, undoable and keep focus. `move-url` saves them one at a time, `version` catches conflicting edits, and `name` submits the order as `name[]`. Works with Livewire. `php artisan bladewell:add sortable`
+- **repeater**: rows of fields people add, remove and reorder, like order lines. Rows are keyed, so old input, errors and focus stay with the right row. `min`, `max`, `compact`, `movable` and Livewire actions. `php artisan bladewell:add repeater`
+- **image-cropper**: crop an image by drag, pinch or keyboard before it's uploaded, or send coordinates for the server to cut a stored one. Square, round or 16:9 frames, quarter turns, resized and EXIF-free output. `php artisan bladewell:add image-cropper`
+- **filter-builder**: people build filters from field, condition and value rows, matching all or any. `Filters` and `FilterField` validate them and apply them to a query or a collection, the same on MySQL, PostgreSQL and SQLite. Works with Livewire. `php artisan bladewell:add filter-builder`
+
+### Changed
+
+- **button**: its colours ease over a slightly longer moment on hover and press, and don't animate for people who've asked their system for less motion.
+- **time-picker, table, select**: lighter markup for the time-picker, a new `TableSort` helper for the table (added by `bladewell:add --installed`), and a reorganised select script. Nothing looks or works differently.
+
 ### Fixed
 
-- **table, select, search, pagination**: the usage notes' searches give the same results on MySQL, PostgreSQL and SQLite: `%` and `_` typed into a search match themselves, and case is ignored, with `LOWER(…) LIKE LOWER(?) ESCAPE '!'` in place of `addcslashes()`, whose backslash escape SQLite doesn't read. The table's controller note also ignores a `q` sent as an array instead of failing. No widget changes.
+- **tooltip-cursor**: shows over an element whose middle is covered while its edges can still be seen, instead of staying hidden.
+- **file-upload**: a long file name is cut short with an ellipsis on a narrow screen, instead of pushing its row out of the page.
+- **table, select, search, pagination**: the usage notes' searches match the same on MySQL, PostgreSQL and SQLite, and `%` and `_` match themselves. No widget changes.
 
 ## [1.4.11] - 2026-11-04
 

@@ -209,6 +209,8 @@ function upload(root, entry) {
     body.append('file', entry.file);
     const xhr = new XMLHttpRequest();
     entry.xhr = xhr;
+    sending.add(entry);
+    xhr.addEventListener('loadend', () => sending.delete(entry));
     xhr.open('POST', root.dataset.uploadUrl);
     xhr.setRequestHeader('Accept', 'application/json');
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -261,6 +263,22 @@ function upload(root, entry) {
     });
     xhr.send(body);
 }
+
+// Uploads on their way. One whose widget leaves the page (a repeater row removed, a modal's content swapped) is
+// stopped: nothing would submit its id, so the stored file would only be left behind. Checked once the change is
+// done, so a widget only moved (a row moved up) keeps uploading.
+const sending = new Set();
+new MutationObserver((records) => {
+    if (sending.size === 0 || !records.some((record) => record.removedNodes.length > 0)) {
+        return;
+    }
+    for (const entry of sending) {
+        if (!entry.el.isConnected) {
+            entry.xhr?.abort();
+            entry.xhr = null;
+        }
+    }
+}).observe(document.documentElement, { childList: true, subtree: true });
 
 // A file picked or dropped on a dropzone joins the list. The browser's pick replaces its FileList, so it's read
 // here and the input is rebuilt from the whole list (syncInput).

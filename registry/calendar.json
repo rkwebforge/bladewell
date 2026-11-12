@@ -1,0 +1,49 @@
+{
+    "description": "Events by month, week or day: bookings, appointments, shifts, a team's leave. Multi-day events run as bars, overlapping ones sit side by side, busy days get a \"more\" list, and on a phone it becomes an agenda. All-day events keep their dates in any timezone; times show in the timezone you give, and ends are exclusive. views adds a switch between views, and the arrows change the period without reloading the page. Pass arrays, or your models with keys. Read-only: events can link to your pages. Works with Livewire.",
+    "requires": [
+        "button",
+        "icon",
+        "popover",
+        "tooltip-cursor"
+    ],
+    "support": [
+        "Calendar",
+        "CalendarBlock",
+        "CalendarDay",
+        "CalendarEvent",
+        "CalendarMonth",
+        "CalendarWeek",
+        "ElementIds",
+        "LocalDate"
+    ],
+    "php-extensions": [
+        "intl"
+    ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Everything passed to the calendar is in the page, whether it shows or not. Load only the events the person may see, filtered in the query (a policy or a scope), never by hiding them in the view, and leave private details out of the title on a calendar others can see. Titles and statuses are escaped, and an `href` that isn't a path or an http, https, mailto or tel address (such as `javascript:`) is dropped, so events people enter themselves can be shown as they are.",
+            "links": {
+                "Laravel: Authorization": "https://laravel.com/docs/authorization",
+                "OWASP: Insecure direct object references": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "The date comes from the URL, so anyone can ask for any month, week or day. Load only what's shown, with `Calendar::range()` and an index on the start and end columns, and give `min` and `max` where dates outside them mean nothing, so a crawler following Next doesn't walk on for ever.",
+            "links": {}
+        }
+    ],
+    "usage": [
+        "loading-events",
+        "livewire"
+    ],
+    "examples": [
+        "month",
+        "week",
+        "day",
+        "multi-day",
+        "busy-days",
+        "agenda"
+    ]
+}

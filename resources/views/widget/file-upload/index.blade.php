@@ -142,7 +142,7 @@
 
     <ul data-file-list @if ($live) wire:ignore @endif aria-label="{{ $label ? $label.': ' : '' }}chosen files" class="mt-3 grid gap-2 empty:hidden">
         @foreach ($uploaded as $file)
-            <li data-file-item data-state="done" class="group/file border-line bg-surface flex items-center gap-3 rounded-2xl border px-4 py-3">
+            <li data-file-item data-state="done" class="group/file border-line bg-surface flex min-w-0 items-center gap-3 rounded-2xl border px-4 py-3">
                 <x-widget.icon name="file" class="text-muted size-5" />
                 <div class="min-w-0 flex-1">
                     <p class="flex min-w-0 items-baseline gap-2">
@@ -164,7 +164,7 @@
 
     {{-- One file row, filled in by the script. It's here rather than in the JS so you can restyle it in the Blade you own. --}}
     <template data-file-template>
-        <li data-file-item class="group/file border-line bg-surface flex items-center gap-3 rounded-2xl border px-4 py-3 data-[state=error]:border-error/40 data-[state=error]:bg-error/5">
+        <li data-file-item class="group/file border-line bg-surface flex min-w-0 items-center gap-3 rounded-2xl border px-4 py-3 data-[state=error]:border-error/40 data-[state=error]:bg-error/5">
             <x-widget.icon name="file" class="text-muted size-5" />
             <div class="min-w-0 flex-1">
                 <p class="flex min-w-0 items-baseline gap-2">

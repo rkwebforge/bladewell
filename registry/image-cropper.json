@@ -1,0 +1,43 @@
+{
+    "group": "Forms",
+    "description": "Crop an image before it's sent: drag, pinch or use the keyboard to move and zoom it under a square, round or 16:9 frame, and turn it a quarter at a time. Linked to a file input or file upload, it hands over the cropped file in place of the picked one, upright whatever the photo's EXIF orientation, scaled to a maximum size and without its EXIF data, so upload-url and Livewire only ever send the crop. Or, given a stored image, it sends the crop's coordinates for the server to cut.",
+    "requires": [
+        "field",
+        "button",
+        "icon"
+    ],
+    "support": [
+        "ElementIds",
+        "FormField"
+    ],
+    "examples-use": [
+        "file-upload"
+    ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "The cropped file is made in the browser, so a request can send any file instead. Validate it as an image on the server (`image`, `mimes:`, `dimensions:`) and re-encode it before storing, which also drops anything hidden in it.",
+            "links": {
+                "OWASP: File upload": "https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html",
+                "Laravel: The dimensions rule": "https://laravel.com/docs/validation#rule-dimensions"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Cropping on the server opens the whole image in memory: about 4 bytes a pixel, so 190 MB for a 48-megapixel photo. Check its size with `getimagesize()` before decoding and refuse what's too large, and crop in a queued job if it's slow.",
+            "links": {
+                "PHP: getimagesize": "https://www.php.net/manual/en/function.getimagesize.php",
+                "Laravel: Queues": "https://laravel.com/docs/queues"
+            }
+        }
+    ],
+    "usage": [
+        "crop-on-the-server",
+        "livewire"
+    ],
+    "examples": [
+        "avatar",
+        "cover-image",
+        "crop-on-the-server"
+    ]
+}

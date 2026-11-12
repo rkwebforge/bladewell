@@ -248,8 +248,12 @@
             role="listbox"
             aria-label="{{ $label ?? 'Choose a time' }}"
             data-time-picker-popover
-            class="border-line bg-surface text-foreground fixed inset-auto m-0 hidden max-h-72 min-w-40 flex-col overflow-y-auto overscroll-contain rounded-2xl border p-1.5 text-sm shadow-lg open:flex [scrollbar-width:thin]"
+            {{-- The options' look is written once, here (*: styles each child), not on every one of what can be 96 options. --}}
+            class="border-line bg-surface text-foreground fixed inset-auto m-0 hidden max-h-72 min-w-40 flex-col overflow-y-auto overscroll-contain rounded-2xl border p-1.5 text-sm shadow-lg open:flex [scrollbar-width:thin] *:focus-visible:bg-field *:hover:bg-field *:aria-selected:bg-primary/10 *:aria-selected:text-primary *:flex *:shrink-0 *:cursor-pointer *:items-center *:justify-between *:gap-3 *:rounded-xl *:px-3 *:py-2 *:tabular-nums *:outline-none *:select-none *:aria-disabled:cursor-not-allowed *:aria-disabled:opacity-40"
         >
+            {{-- One check for the list, in the chosen time (or the first, where it stays hidden until one is chosen);
+                 the script moves it as the choice changes. --}}
+            @php($checked = max(0, (int) $times->search(fn (array $slot): bool => $slot['time'] === $value)))
             @foreach ($times as $i => $slot)
                 <div
                     id="{{ $id }}-option-{{ $i }}"
@@ -258,8 +262,7 @@
                     data-value="{{ $slot['time'] }}"
                     aria-selected="{{ $value === $slot['time'] ? 'true' : 'false' }}"
                     @if ($slot['disabled']) aria-disabled="true" @endif
-                    class="focus-visible:bg-field hover:bg-field aria-selected:bg-primary/10 aria-selected:text-primary flex shrink-0 cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2 tabular-nums outline-none select-none aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
-                >{{ $format($slot['time']) }}<x-widget.icon name="check" class="in-aria-selected:block hidden size-4" /></div>
+                >{{ $format($slot['time']) }}@if ($i === $checked)<x-widget.icon name="check" data-time-picker-check class="in-aria-selected:block hidden size-4" />@endif</div>
             @endforeach
         </div>
     @endif
@@ -286,7 +289,8 @@
                          the listbox's own name instead. --}}
                     <div class="flex flex-col gap-1">
                         <span aria-hidden="true" class="text-muted h-4 text-center text-xs font-medium">{{ $heading }}</span>
-                        <div role="listbox" aria-label="{{ $partLabel }}" data-time-picker-column="{{ $part }}" class="flex max-h-60 w-14 flex-col gap-0.5 overflow-y-auto overscroll-contain [scrollbar-width:none]">
+                        {{-- The options' look, written once for the column (*: styles each child). --}}
+                        <div role="listbox" aria-label="{{ $partLabel }}" data-time-picker-column="{{ $part }}" class="flex max-h-60 w-14 flex-col gap-0.5 overflow-y-auto overscroll-contain [scrollbar-width:none] *:hover:bg-field *:focus-visible:ring-primary *:aria-selected:bg-primary-fill *:aria-selected:text-on-primary *:grid *:h-9 *:shrink-0 *:cursor-pointer *:place-items-center *:rounded-lg *:tabular-nums *:outline-none *:select-none *:focus-visible:ring-2 *:focus-visible:ring-inset *:aria-disabled:cursor-not-allowed *:aria-disabled:opacity-30">
                             {{-- One Tab stop per column, the chosen value or else the first, so Tab moves from column to column. --}}
                             @foreach ($choices as $choice)
                                 <div
@@ -294,7 +298,6 @@
                                     tabindex="{{ $choice === (in_array($chosen, $choices, true) ? $chosen : reset($choices)) ? 0 : -1 }}"
                                     data-value="{{ $choice }}"
                                     aria-selected="{{ $chosen === $choice ? 'true' : 'false' }}"
-                                    class="hover:bg-field focus-visible:ring-primary aria-selected:bg-primary-fill aria-selected:text-on-primary grid h-9 shrink-0 cursor-pointer place-items-center rounded-lg tabular-nums outline-none select-none focus-visible:ring-2 focus-visible:ring-inset aria-disabled:cursor-not-allowed aria-disabled:opacity-30"
                                 >{{ $part === 'period' ? $periods[$choice] : str_pad((string) $choice, 2, '0', STR_PAD_LEFT) }}</div>
                             @endforeach
                         </div>

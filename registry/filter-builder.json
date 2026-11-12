@@ -1,0 +1,52 @@
+{
+    "group": "Forms",
+    "description": "Lets people build their own filters: rows of a field, a condition and a value, matching all or any. Conditions follow the field's type: contains or starts with for text, more than or between for numbers, before, between or in the last N days for dates, any of for choices. Sent as one field, so it filters a table in place and keeps a shareable link. Comes with Filters, which reads the request against your own list of fields, turns down anything else with the reason, and applies it to a query or collection with every value bound. Editing the filters needs JavaScript; without it, the current ones show and are sent unchanged.",
+    "requires": [
+        "field",
+        "repeater",
+        "select",
+        "text-input",
+        "number",
+        "datepicker"
+    ],
+    "support": [
+        "Filters",
+        "FilterField",
+        "FilterType",
+        "FilterOperator",
+        "FilterState",
+        "FilterCondition",
+        "FilterCollection"
+    ],
+    "examples-use": [
+        "table"
+    ],
+    "consider": [
+        {
+            "about": "security",
+            "note": "Every field you offer can be worked out, even if it isn't shown: \"salary is more than 50000\", then 75000, narrows anyone's salary down. Offer only fields the person may already see, and build the list per person (Salary for admins only). Apply the filters with `Filters::apply()` on a query already limited to what they may see (their own orders), never as the only constraint.",
+            "links": {
+                "OWASP: Broken access control": "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+                "Laravel: Authorization": "https://laravel.com/docs/authorization"
+            }
+        },
+        {
+            "about": "cost",
+            "note": "Text conditions compare `LOWER(column)`, which a normal index can't serve, and contains reads every row. On large tables index `LOWER(column)` (an expression index, in PostgreSQL and MySQL 8), or use full-text search for words. Index the columns your number, date and choice fields use, keep the list short, and up to 10 conditions are read from a request. A `using()` field with `whereHas` runs a subquery per row.",
+            "links": {
+                "PostgreSQL: Indexes on expressions": "https://www.postgresql.org/docs/current/indexes-expressional.html",
+                "MySQL: Functional key parts": "https://dev.mysql.com/doc/refman/8.0/en/create-index.html#create-index-functional-key-parts",
+                "Laravel: Scout": "https://laravel.com/docs/scout"
+            }
+        }
+    ],
+    "usage": [
+        "in-a-controller",
+        "livewire-component",
+        "livewire-view"
+    ],
+    "examples": [
+        "orders-table",
+        "report"
+    ]
+}

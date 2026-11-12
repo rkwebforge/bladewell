@@ -8,7 +8,7 @@
         "search",
         "select"
     ],
-    "support": ["ElementIds"],
+    "support": ["ElementIds", "TableSort"],
     "consider": [
         {
             "about": "security",
