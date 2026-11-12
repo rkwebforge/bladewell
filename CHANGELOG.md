@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-12
+
 ### Added
 
 - **calendar**: events in a month, week or day view, or as an agenda on narrow screens. Multi-day bars, overlapping events side by side, a "more" list for busy days and a line at the current time. All-day events keep their dates in any timezone. `views` adds a switch between views, the arrows change the period without reloading the page, and `keys` reads your models' own fields. Works with Livewire. `php artisan bladewell:add calendar`
@@ -348,7 +350,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.4.11...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/rkwebforge/bladewell/compare/v1.4.11...v1.5.0
 [1.4.11]: https://github.com/rkwebforge/bladewell/compare/v1.4.10...v1.4.11
 [1.4.10]: https://github.com/rkwebforge/bladewell/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/rkwebforge/bladewell/compare/v1.4.8...v1.4.9
