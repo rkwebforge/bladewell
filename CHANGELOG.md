@@ -10,6 +10,27 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Added
+
+- **tags**: `required` stops an empty submit in the browser, with the field's own error style and focus in the box, as select and the pickers do. The message is the new `required-message` prop.
+
+### Fixed
+
+- **datepicker, date-range-picker**: the calendar closes when Tab moves focus out of it.
+- **dropdown**: type-ahead stays on the focused item when it already matches the letter; pressing the letter again moves on.
+- **file-upload**: the direct-upload route in Usage checks the file type on the server and stores on the private `local` disk.
+- **image-cropper**: lets go of each crop's memory as soon as it's cut, so picking several large photos on a phone no longer reloads the tab.
+- **pagination, table**: the extra Apply button only shows when JavaScript is off.
+- **phone**: resetting the form puts the country back along with the number.
+- **popover**: a popover stays in place, and closes when its trigger scrolls away, after a popover opened inside it closes.
+- **select**: follows a Livewire render that changes its search address, `multiple` or `display`, or draws its chips and clear button again.
+- **select, search, time-picker, phone**: a list that can't fit beside its field, with the on-screen keyboard up, stays on screen.
+- **sortable**: a list with another list inside one of its items submits only its own items' order, from the start.
+- **table**: after a sort, screen readers hear the column that was clicked, also with multi-sort, and "Sort removed from …" when it leaves the sort.
+- **tabs**: tab keys that differ only in punctuation or spacing (`a b`, `a-b`) each get their own ids, so every tab still labels its own panel.
+- **tags**: a suggestion picked from the browser's list is added at once.
+- **toast**: toasts shown together are all announced, not just the last, and toasts already showing move into a modal opened after them, where they can be clicked.
+
 ## [1.5.1] - 2026-11-13
 
 ### Fixed

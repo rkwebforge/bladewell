@@ -182,10 +182,12 @@ function typeahead(menu, character) {
 
     const items = itemsOf(menu);
     const start = items.indexOf(document.activeElement);
-    // One letter, or the same letter pressed again and again (a, a, a), moves on to the next item that starts with it;
-    // several letters (sa) look from the current item on.
-    const prefix = /^(.)\1*$/.test(typed) ? typed[0] : typed;
-    const offset = prefix.length === 1 ? 1 : 0;
+    // One letter jumps to the first item that starts with it, counting the one focused (so a first press stays put when
+    // that already matches, as in a native select); the same letter pressed again (a, a) moves on to the next. Several
+    // letters (sa) look from the current item on.
+    const repeated = /^(.)\1+$/.test(typed);
+    const prefix = repeated ? typed[0] : typed;
+    const offset = repeated ? 1 : 0;
     for (let step = 0; step < items.length; step++) {
         const item = items[(start + offset + step + items.length) % items.length];
         if (item.textContent.trim().toLowerCase().startsWith(prefix)) {

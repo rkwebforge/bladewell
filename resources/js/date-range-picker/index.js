@@ -489,6 +489,14 @@ function initDateRange(root) {
         // The on-screen keyboard changes only the visible height, so placing it again is enough.
         window.visualViewport?.addEventListener('resize', position);
     });
+
+    // Focus leaving the calendar (Tab past its last day) closes it, as Esc and a click outside do; without this it
+    // would stay on screen over whatever has focus now. Not when focus goes back to the trigger.
+    popover.addEventListener('focusout', (event) => {
+        if (event.relatedTarget && !popover.contains(event.relatedTarget) && !trigger.contains(event.relatedTarget)) {
+            popover.hidePopover();
+        }
+    });
 }
 
 export function initDateRangePickers(scope = document) {

@@ -11,7 +11,9 @@ const GAP = 6;
 const PANEL = '[data-popover-panel]';
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-let openPanel = null;
+// Every open panel, not just the last: one can open inside another's panel, and the outer one must keep following the
+// page (and closing when its trigger scrolls away) once the inner one closes.
+const openPanels = new Set();
 
 const parts = (panel) => {
     const root = panel.closest('[data-popover]');
@@ -50,10 +52,10 @@ function inView(trigger, panel) {
 }
 
 function position() {
-    if (!openPanel) {
-        return;
-    }
-    const panel = openPanel;
+    openPanels.forEach(place);
+}
+
+function place(panel) {
     const { root, trigger } = parts(panel);
     // In the top layer nothing clips it: with its trigger scrolled out of view it would point at nothing. Close it.
     if (!inView(trigger, panel)) {
@@ -118,8 +120,8 @@ document.addEventListener('toggle', (event) => {
     trigger.setAttribute('aria-expanded', String(open));
 
     if (open) {
-        openPanel = panel;
-        position();
+        openPanels.add(panel);
+        place(panel);
         // Only for this opening: the content may change before the next.
         panel.querySelectorAll('[data-popover-autofocus]').forEach((element) => {
             element.removeAttribute('autofocus');
@@ -150,8 +152,8 @@ document.addEventListener('toggle', (event) => {
         return;
     }
 
-    if (openPanel === panel) {
-        openPanel = null;
+    openPanels.delete(panel);
+    if (openPanels.size === 0) {
         window.removeEventListener('scroll', position, true);
         window.removeEventListener('resize', position);
     }

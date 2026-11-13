@@ -4,11 +4,13 @@ Route::post('/uploads', StoreUploadController::class)->middleware('auth')->name(
 
 final class StoreUploadController
 {
-    // StoreUploadRequest: ['file' => ['required', File::default()->max('10mb')]], and authorize() for who may upload.
+    // StoreUploadRequest: ['file' => ['required', File::types(['pdf', 'jpg', 'png'])->max('10mb')]], and authorize()
+    // for who may upload. The widget's accept only filters the file picker, so the types are checked here. Kept on the
+    // private local disk: a file on the public one opens from your site's own address.
     public function __invoke(StoreUploadRequest $request): JsonResponse
     {
         $upload = $request->user()->uploads()->create([
-            'path' => $request->file('file')->store('uploads'),
+            'path' => $request->file('file')->store('uploads', 'local'),
             'name' => $request->file('file')->getClientOriginalName(),
             'size' => $request->file('file')->getSize(),
         ]);

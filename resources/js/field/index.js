@@ -66,7 +66,7 @@ document.addEventListener('change', clearInvalid);
 // submit. Stop the submit here instead, with the message in the frame's own error style, and focus the first
 // one: its accessible description then reads the message out. Capture phase, so it runs before the submit
 // guard (widget/button) and any other submit handler sees defaultPrevented. The server still validates.
-const CHOICE_TRIGGER = '[data-select-trigger], [data-datepicker-trigger], [data-date-range-trigger], [data-time-picker-trigger]';
+const CHOICE_TRIGGER = '[data-select-trigger], [data-datepicker-trigger], [data-date-range-trigger], [data-time-picker-trigger], [data-tags-input]';
 const ALERT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="text-error mt-0.5 size-3.5 shrink-0"><circle cx="12" cy="12" r="8.75"/><path d="M12 7.75v5"/><path d="M12 16.25h.01"/></svg>';
 
 // Chosen: a multiple select has at least one value input; otherwise every named value input (both ends of a
@@ -75,6 +75,11 @@ function hasChoice(field) {
     const list = field.querySelector('[data-select-values]');
     if (list) {
         return !list.dataset.name || list.querySelector('input') !== null;
+    }
+    // Tags submit through their hidden multi-select, not through hidden inputs.
+    const tags = field.querySelector('[data-tags-value]');
+    if (tags) {
+        return !tags.name || tags.options.length > 0;
     }
 
     return [...field.querySelectorAll('input[type="hidden"][name]')].every((input) => input.value !== '');
@@ -241,7 +246,11 @@ export function placeBeside(popover, box, { gap, edge, scroller = null }) {
         height = popover.offsetHeight;
     }
 
-    return below ? box.bottom + gap : box.top - gap - height;
+    // Kept on screen: held to no shorter than three rows, it can still be taller than the room it has, and would start
+    // above the top of what can be seen (or end below the bottom).
+    const top = below ? box.bottom + gap : box.top - gap - height;
+
+    return Math.max(view.top + edge, Math.min(top, view.bottom - edge - height));
 }
 
 // --- Popovers that lose their field ------------------------------------------------------------------------

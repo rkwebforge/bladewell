@@ -34,6 +34,8 @@ const fold = (text) => text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase(
 const ready = new WeakSet();
 // Each field's way to take on a value set from outside (see refreshPhones).
 const followers = new WeakMap();
+// Per phone field, what form.reset() puts back: the country and number the page was drawn with.
+const resetters = new WeakMap();
 
 function initPhone(root) {
     if (ready.has(root)) {
@@ -58,6 +60,9 @@ function initPhone(root) {
     const nameOf = (iso) => names?.of(iso) ?? iso;
 
     let country = hidden.dataset.country;
+    // A reset puts the national box back but not the hidden input (a hidden input's value is its default) nor the
+    // country: both come from what the page was drawn with.
+    const drawn = { country, value: hidden.value };
     let options = [];
     let active = -1;
 
@@ -258,6 +263,13 @@ function initPhone(root) {
 
     showCountry();
 
+    resetters.set(root, () => {
+        country = drawn.country;
+        hidden.value = drawn.value;
+        hidden.dataset.country = drawn.country;
+        showCountry();
+    });
+
     // The hidden input changed from outside (a Livewire render, the server setting or clearing the number): show it.
     followers.set(root, () => {
         // Not while it's being typed in: a render can answer an earlier keystroke, and the field holds the newer value.
@@ -283,6 +295,14 @@ export function refreshPhones(scope = document) {
 }
 
 initPhones();
+
+// form.reset(): the reset event comes before the browser puts the fields back, so the country follows a task later.
+document.addEventListener('reset', (event) => {
+    const form = event.target;
+    if (form instanceof HTMLFormElement) {
+        setTimeout(() => form.querySelectorAll('[data-phone]').forEach((root) => resetters.get(root)?.()));
+    }
+});
 
 // Phone fields added to the page later (a Livewire render or wire:navigate, fetched HTML) set themselves up.
 new MutationObserver((records) => {

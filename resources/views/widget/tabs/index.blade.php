@@ -43,7 +43,18 @@
     // Bound with wire:model, the server's property says which tab is open, so a render may change it. Otherwise the
     // person does, and renders leave their choice alone (wire:ignore.self below).
     $bound = \Bladewell\Support\FormField::binding($attributes) !== [];
-    $slug = static fn (string $key): string => trim((string) preg_replace('/[^A-Za-z0-9_-]+/', '-', $key), '-');
+    // Each key as an id part. Two keys can come out alike ('a b' and 'a-b'): the second gets -2, so every tab and panel
+    // keeps its own id and points at its own partner. Worked out here, in key order, so a render gives the same ids.
+    $slugs = [];
+    foreach ($items as $item) {
+        $base = trim((string) preg_replace('/[^A-Za-z0-9_-]+/', '-', $item['key']), '-');
+        $candidate = $base;
+        for ($n = 2; in_array($candidate, $slugs, true); $n++) {
+            $candidate = "{$base}-{$n}";
+        }
+        $slugs[$item['key']] = $candidate;
+    }
+    $slug = static fn (string $key): string => $slugs[$key];
 
     $list = [
         'underline' => 'border-line flex gap-6 border-b',

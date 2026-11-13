@@ -606,7 +606,22 @@ function transparent(canvas) {
     return false;
 }
 
-const encode = (canvas, type, quality) => new Promise((resolve) => (type === 'image/jpeg' ? flatten(canvas) : canvas).toBlob(resolve, type, quality));
+// A canvas keeps its pixels until it's sized down, not just until nothing points at it: a multi-image pick on a phone
+// would otherwise hold every crop at once, and iOS reloads the tab, losing them all.
+const emptyCanvas = (canvas) => {
+    canvas.width = 0;
+    canvas.height = 0;
+};
+
+const encode = (canvas, type, quality) => new Promise((resolve) => {
+    const flat = type === 'image/jpeg' ? flatten(canvas) : null;
+    (flat ?? canvas).toBlob((blob) => {
+        if (flat) {
+            emptyCanvas(flat);
+        }
+        resolve(blob);
+    }, type, quality);
+});
 
 // The type to make: format, else the picked image's if it's jpeg, png or webp. Anything else (HEIC, AVIF, BMP) as
 // jpeg, or png when it has transparency: a photo as png is several times the size, and could be over max-size. Never
@@ -640,15 +655,21 @@ async function render(root, state) {
 
     const type = typeFor(root, state, canvas);
     const quality = Number(root.dataset.quality) || 0.9;
-    let blob = await encode(canvas, type, quality);
-    // Null when the browser couldn't make it, out of memory as a phone can be: apply says so and keeps the crop.
-    if (!blob) {
-        throw new Error('The cropped image could not be encoded.');
-    }
-    // A browser that can't write webp (Safari, as of writing) quietly writes png instead, several times the size of a
-    // photo as jpeg. A photo with nothing see-through goes as jpeg, if the input takes it; one with transparency stays png.
-    if (blob.type !== type && type === 'image/webp' && accepts(inputOf(root), 'image/jpeg') && !transparent(canvas)) {
-        blob = (await encode(canvas, 'image/jpeg', quality)) ?? blob;
+    let blob;
+    try {
+        blob = await encode(canvas, type, quality);
+        // Null when the browser couldn't make it, out of memory as a phone can be: apply says so and keeps the crop.
+        if (!blob) {
+            throw new Error('The cropped image could not be encoded.');
+        }
+        // A browser that can't write webp (Safari, as of writing) quietly writes png instead, several times the size of
+        // a photo as jpeg. A photo with nothing see-through goes as jpeg, if the input takes it; one with transparency
+        // stays png.
+        if (blob.type !== type && type === 'image/webp' && accepts(inputOf(root), 'image/jpeg') && !transparent(canvas)) {
+            blob = (await encode(canvas, 'image/jpeg', quality)) ?? blob;
+        }
+    } finally {
+        emptyCanvas(canvas);
     }
     const name = `${state.file.name.replace(/\.[^.]+$/, '')}.${EXTENSIONS[blob.type] ?? 'png'}`;
 

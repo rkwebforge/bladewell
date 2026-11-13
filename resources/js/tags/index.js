@@ -112,9 +112,11 @@ on('paste', '[data-tags-input]', (event, input) => {
     }
 });
 
-// The browser's suggestions: picking one sets the box without any typing (no inputType), so add it at once.
+// The browser's suggestions: picking one fills the box in one go (insertReplacementText, or no inputType at all), so
+// add it at once rather than waiting for the box to be left.
 on('input', '[data-tags-input]', (event, input) => {
-    if (!event.inputType && input.list && [...input.list.options].some((option) => option.value === input.value)) {
+    const picked = !event.inputType || event.inputType === 'insertReplacementText';
+    if (picked && input.list && [...input.list.options].some((option) => option.value === input.value)) {
         add(partsOf(input), [input.value]);
         input.value = '';
     }

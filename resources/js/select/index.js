@@ -120,8 +120,26 @@ function drawChips(select, picked) {
     placeholder.hidden = picked.length > 0;
 }
 
+// A Livewire render can change what the select is (multiple, how several show, where searches go) or draw again the
+// parts the script writes into; the script sets up once, so those are read again where they're used.
+function reread(select) {
+    const { root, popup } = select;
+    select.multiple = root.dataset.multiple === 'true';
+    select.displayMode = root.dataset.display ?? 'list';
+    select.searchUrl = root.dataset.searchUrl;
+    select.display = root.querySelector('[data-select-display]');
+    select.meta = root.querySelector('[data-select-meta]');
+    select.values = root.querySelector('[data-select-values]');
+    select.model = root.querySelector('[data-select-model]');
+    select.clearButton = root.querySelector('[data-select-clear]');
+    select.chips = root.querySelector('[data-select-chips]');
+    select.chipTemplate = root.querySelector('[data-select-chip-template]');
+    select.empty = popup.querySelector('[data-select-empty]');
+}
+
 // Redraws the trigger from the options' aria-selected: one label, several joined, a count, or chips.
 function refresh(select) {
+    reread(select);
     const { root, display, meta, clearButton } = select;
     const picked = chosenOf(select);
     const text = picked.map((option) => option.dataset.label).join(', ');
@@ -452,6 +470,8 @@ function triggerKey(select, event) {
 // The list opened or closed: the trigger says so, and while it's open it follows the field as the page scrolls or
 // resizes, and starts on the chosen option, like a native select.
 function toggled(select, open) {
+    // Before a search starts with the old address.
+    reread(select);
     const { trigger, popup, search } = select;
     trigger.setAttribute('aria-expanded', String(open));
 
@@ -486,19 +506,20 @@ function initSelect(root) {
     ready.add(root);
 
     const select = selectOf(root);
-    const { trigger, popup, search, chips, clearButton } = select;
+    const { trigger, popup, search } = select;
     select.reposition = () => position(select);
 
-    // Readonly: nothing is removed, by a chip's button, Backspace or the clear button.
-    chips?.addEventListener('click', (event) => {
+    // Readonly: nothing is removed, by a chip's button, Backspace or the clear button. On the root, so chips and a clear
+    // button a render draws again still work.
+    root.addEventListener('click', (event) => {
         const remove = event.target.closest('[data-select-chip-remove]');
-        if (remove && !isReadonly(select)) {
+        if (remove?.closest('[data-select-chips]') && !isReadonly(select)) {
             unpick(select, optionsOf(select).find((option) => option.dataset.value === remove.dataset.value));
             trigger.focus();
         }
     });
-    clearButton?.addEventListener('click', () => {
-        if (isReadonly(select)) {
+    root.addEventListener('click', (event) => {
+        if (!event.target.closest('[data-select-clear]') || isReadonly(select)) {
             return;
         }
         optionsOf(select).forEach((option) => option.setAttribute('aria-selected', 'false'));

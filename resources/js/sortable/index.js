@@ -901,6 +901,12 @@ function initList(list) {
     const select = list.querySelector('select[data-sortable-value]');
     if (select) {
         arrange(list, [...select.options].map((option) => option.value));
+        // The Blade reads the ids from everything in its slot, a list nested inside an item included: keep this list's
+        // own, in their order. Quietly: nothing was changed by hand, and an event would send a Livewire update on load.
+        const own = itemsIn(list).map(idOf);
+        if (own.join('\n') !== [...select.options].map((option) => option.value).join('\n')) {
+            select.replaceChildren(...own.map((id) => new Option(id, id, true, true)));
+        }
     }
     // refresh() shows the handles and buttons (data-sortable-ready). The list keeps that through a Livewire render
     // (wire:ignore.self on it).

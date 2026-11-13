@@ -446,12 +446,22 @@ function settle(fresh, { sort }) {
     }
     fresh.tabIndex = -1;
     fresh.focus({ preventScroll: true });
-    // After a sort, say the new order; after a page change, the page.
-    const sorted = sort ? fresh.querySelector('th[aria-sort]') : null;
-    if (sorted) {
-        announce(`Sorted by ${sorted.dataset.label}, ${sorted.getAttribute('aria-sort')}`);
+    // After a sort, say the new order; after a page change, the page. The column clicked, not the leading one: with
+    // multi-sort those differ, and a column leaving the sort has no aria-sort at all.
+    if (sort) {
+        const clicked = lastSortKey ? fresh.querySelector(`th[data-sort-key="${CSS.escape(lastSortKey)}"]`) : null;
+        const sorted = fresh.querySelector('th[aria-sort]');
+        if (clicked) {
+            const state = clicked.dataset.sortState;
+            announce(state ? `Sorted by ${clicked.dataset.label}, ${state}` : `Sort removed from ${clicked.dataset.label}`);
 
-        return;
+            return;
+        }
+        if (sorted) {
+            announce(`Sorted by ${sorted.dataset.label}, ${sorted.getAttribute('aria-sort')}`);
+
+            return;
+        }
     }
     // Numbers and jump styles mark the current page with aria-current; the drawer shows it on its sheet button.
     const current = fresh.querySelector('[data-table-pagination] [aria-current="page"], [data-table-pagination] [data-modal-open]')?.textContent.trim();
@@ -469,9 +479,12 @@ const inLivewire = (root) => root.closest('[wire\\:id]') !== null;
 const wireFor = (root) => window.Livewire?.find(root.closest('[wire\\:id]')?.getAttribute('wire:id'));
 // Tables whose page or sort is changing: their ticked boxes and open rows start fresh, as they do without Livewire.
 const resetting = new WeakSet();
+// The column whose header link was just followed: settle() announces that one, not the leading sort column.
+let lastSortKey = null;
 
-async function changePage(root, href, { sort = false }) {
+async function changePage(root, href, { sort = false, key = null }) {
     typingEntry.delete(root.id);
+    lastSortKey = sort ? key : null;
     if (!inLivewire(root)) {
         swapTable(root, withOtherTables(href, root), { push: true, sort });
 
@@ -554,7 +567,7 @@ document.addEventListener('click', (event) => {
         return;
     }
     event.preventDefault();
-    changePage(root, url.href, { sort: link.hasAttribute('data-table-sort') });
+    changePage(root, url.href, { sort: link.hasAttribute('data-table-sort'), key: link.closest('th')?.dataset.sortKey ?? null });
 });
 
 // The "go to page" form: same thing, built from its GET fields.

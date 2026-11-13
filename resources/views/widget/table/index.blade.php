@@ -405,6 +405,8 @@
                             <th
                                 scope="col"
                                 data-label="{{ $column['label'] }}"
+                                {{-- Which column, and where it stands now: the script names the one clicked, which with multi-sort isn't always the lead. --}}
+                                @if ($column['sortable']) data-sort-key="{{ $column['key'] }}" data-sort-state="{{ $ordered ? ($columnDirection === 'desc' ? 'descending' : 'ascending') : '' }}" @endif
                                 {{-- aria-sort on the leading column only, as ARIA asks; the others say their place in the link text. --}}
                                 @if ($sorted) aria-sort="{{ $direction === 'desc' ? 'descending' : 'ascending' }}" @endif
                                 @class(['sticky top-0 z-[1] bg-inherit' => $sticky])

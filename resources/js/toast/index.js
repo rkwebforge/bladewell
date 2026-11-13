@@ -117,12 +117,38 @@ function place() {
     nodes.forEach((node) => home.parent.insertBefore(node, before));
 }
 
+// Messages waiting to be read, per role: toasts shown together (a flash pair) are read together, not the last one only.
+const pending = { status: [], alert: [] };
+const flushes = { status: null, alert: null };
+
 function announce(role, text) {
-    const region = regions[role === 'alert' ? 'alert' : 'status'];
-    // Emptied first and filled a moment later, so the same message twice in a row is read twice.
-    region.textContent = '';
-    setTimeout(() => { region.textContent = text; }, 100);
+    const key = role === 'alert' ? 'alert' : 'status';
+    pending[key].push(text);
+    clearTimeout(flushes[key]);
+    flushes[key] = setTimeout(() => {
+        // Each one ends as a sentence, so a reader pauses between them.
+        const said = pending[key].length === 1 ? pending[key][0] : pending[key].map((one) => (/[.!?…]$/.test(one) ? one : `${one}.`)).join(' ');
+        pending[key] = [];
+        const region = regions?.[key];
+        if (!region) {
+            return;
+        }
+        // Emptied first and filled a moment later, so the same message twice in a row is read twice.
+        region.textContent = '';
+        setTimeout(() => { region.textContent = said; }, 100);
+    }, 50);
 }
+
+// A modal opened while toasts are showing would leave them outside it: under its backdrop and inert. Move them in, as
+// for toasts added while it's open. toggle doesn't bubble, so in the capture phase.
+document.addEventListener('toggle', (event) => {
+    if (container && event.newState === 'open' && event.target instanceof HTMLDialogElement && event.target.matches(':modal')) {
+        place();
+        if (toasts.size > 0) {
+            showContainer();
+        }
+    }
+}, true);
 
 // A modal that closes with the toasts inside takes them out of view; move them back and show them again.
 document.addEventListener('close', (event) => {

@@ -1,5 +1,9 @@
 /* Behaviour the widgets rely on. Imported after tailwindcss; no colours here, those live in theme.css. */
 
+/* not-noscript:hidden: the Apply buttons the pagination and the table show only when JavaScript is off (the script
+   submits on change). The browser knows the scripting state before it first paints, so nothing flashes. */
+@custom-variant noscript (@media (scripting: none));
+
 /* Tailwind v4 resets buttons to cursor: default; restore the pointer for every clickable button. */
 @layer base {
     button:not(:disabled),
