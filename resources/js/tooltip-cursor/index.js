@@ -72,6 +72,10 @@ function link(root) {
         root.addEventListener('touchmove', holdPage, { passive: false });
     }
     if (target === root && [...root.childNodes].every((node) => node === bubble || !node.textContent.trim())) {
+        // It stands in for the icon, so it's an image: a plain span can't take a name (as in the tooltip widget).
+        if (!root.hasAttribute('role')) {
+            root.setAttribute('role', 'img');
+        }
         root.setAttribute('aria-label', bubble.textContent.trim());
 
         return;

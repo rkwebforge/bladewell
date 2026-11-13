@@ -38,9 +38,17 @@ function initPriceRoll(root) {
     const text = root.querySelector('[data-price-roll-text]');
     const label = root.dataset.label ? `${root.dataset.label}: ` : '';
     const decimals = root.dataset.decimals === undefined ? {} : { minimumFractionDigits: Number(root.dataset.decimals), maximumFractionDigits: Number(root.dataset.decimals) };
-    const format = new Intl.NumberFormat(root.dataset.locale || undefined, root.dataset.currency
-        ? { style: 'currency', currency: root.dataset.currency, ...decimals }
-        : decimals).format;
+    // A locale or currency code the browser doesn't know throws, which would stop every other price roll on the page:
+    // fall back to a plain number in the browser's own locale instead.
+    let format;
+    try {
+        format = new Intl.NumberFormat(root.dataset.locale || undefined, root.dataset.currency
+            ? { style: 'currency', currency: root.dataset.currency, ...decimals }
+            : decimals).format;
+    } catch (error) {
+        console.warn('Bladewell price-roll: falling back to a plain number:', error.message);
+        format = new Intl.NumberFormat(undefined, decimals).format;
+    }
     let current = Number(root.dataset.value) || 0;
     let trendTimer = null;
 

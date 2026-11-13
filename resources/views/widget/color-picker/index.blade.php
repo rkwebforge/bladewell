@@ -67,7 +67,8 @@
             autocomplete="off"
             spellcheck="false"
             maxlength="7"
-            pattern="#[0-9a-fA-F]{6}"
+            {{-- Every form the script tidies (#abc, abc, #aabbcc), so Enter on #abc isn't refused; the form sends #aabbcc. --}}
+            pattern="#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})"
             @disabled($disabled)
             @readonly($readonly)
             {{ $field->controlAttributes($attributes, (bool) $info)->class(['placeholder:text-muted h-full min-w-0 flex-1 bg-transparent font-mono uppercase outline-none disabled:cursor-not-allowed']) }}

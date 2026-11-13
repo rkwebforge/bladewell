@@ -64,17 +64,18 @@ function fieldFor(link) {
 
 // A flashed alert (data-announce) is read out once through a live region that was already on the page, the
 // only kind screen readers announce reliably. Errors and warnings interrupt; the rest wait their turn.
-// Each alert is read out once; one that arrives with a Livewire render is announced then (see afterRender).
+// Each message is read out once; one that arrives with a Livewire render is announced then (see afterRender). Keyed on
+// the text, not just the element: a render keeps the alert's element and swaps in the new flash's text.
 const regions = {};
-const announced = new WeakSet();
+const announced = new WeakMap();
 const textOf = (alert) => alert.textContent.trim().replace(/\s+/g, ' ');
 
 function announce(alerts) {
-    const fresh = alerts.filter((alert) => !announced.has(alert));
+    const fresh = alerts.filter((alert) => announced.get(alert) !== textOf(alert));
     if (fresh.length === 0) {
         return;
     }
-    fresh.forEach((alert) => announced.add(alert));
+    fresh.forEach((alert) => announced.set(alert, textOf(alert)));
     for (const role of ['status', 'alert']) {
         if (!regions[role]?.isConnected) {
             regions[role] = Object.assign(document.createElement('div'), { className: 'sr-only' });

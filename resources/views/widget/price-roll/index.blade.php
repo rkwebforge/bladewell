@@ -21,7 +21,8 @@
 
 @php
     $value = is_numeric($value) ? (float) $value : 0.0;
-    $locale ??= str_replace('_', '-', app()->getLocale());
+    // de_DE as well as de-DE: PHP takes both, but the browser's Intl, which rolls the number, only the second.
+    $locale = str_replace('_', '-', $locale ?? app()->getLocale());
     // Each character of the price is its own flex item, so the row must run in the price's own direction, not the
     // page's: "$1,234" stays in order on an Arabic page, and an Arabic-script price reads right to left anywhere.
     $priceDirection = in_array(strtolower(explode('-', $locale)[0]), ['ar', 'he', 'fa', 'ur', 'ps', 'yi', 'dv', 'ug', 'ckb', 'sd'], true) ? 'rtl' : 'ltr';

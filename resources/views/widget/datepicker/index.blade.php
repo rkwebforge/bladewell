@@ -108,9 +108,11 @@
     box="h-12 items-center"
     :class="$attributes->get('class')"
 >
+    {{-- wire:ignore.self: the script keeps aria-expanded in step with the calendar; a render would reset it. --}}
     <button
         type="button"
         id="{{ $id }}"
+        wire:ignore.self
         {{-- Readonly: a button that opens nothing, so it says it has no popup; "read only" joins its name instead, as a
              button can't carry aria-readonly. --}}
         @unless ($readonly) popovertarget="{{ $id }}-calendar" aria-haspopup="dialog" aria-expanded="false" @endunless

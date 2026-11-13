@@ -89,6 +89,17 @@ document.addEventListener('input', (event) => {
     }
 });
 
+// Enter in the box submits before it's left, so the colour is tidied as the form goes, not only on focusout: the form
+// sends #aabbcc, never the #abc typed. (The data a form sends is read after its submit event.)
+document.addEventListener('submit', (event) => {
+    event.target.querySelectorAll?.('[data-color-hex]').forEach((hex) => {
+        const color = normalise(hex.value);
+        if (color && hex.value !== color) {
+            pick(partsOf(hex), color);
+        }
+    });
+}, true);
+
 document.addEventListener('focusout', (event) => {
     const hex = event.target.matches?.('[data-color-hex]') ? event.target : null;
     if (!hex || hex.value.trim() === '') {

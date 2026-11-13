@@ -43,10 +43,12 @@
 </nav>
 
 {{-- Bottom sheet reuses the modal behaviour (data-modal): Esc, backdrop click, focus return, scroll lock, and a finger
-     dragging it down (data-modal-sheet: the dialog itself is what slides). --}}
+     dragging it down (data-modal-sheet: the dialog itself is what slides). wire:ignore.self, as on the modal: a Livewire
+     render would take away the browser's `open` and shut the sheet mid-choice. --}}
 <dialog
     id="{{ $sheetId }}"
     data-modal
+    wire:ignore.self
     data-modal-sheet
     data-close-on-backdrop
     tabindex="-1"

@@ -165,12 +165,24 @@ document.addEventListener('toggle', (event) => {
 }, true);
 
 // Focus leaving the panel (Tab past its last control, or Shift+Tab back to the trigger) closes it, as a click outside
-// does. Without this, the panel would stay open behind whatever has focus now.
+// does. Without this, the panel would stay open behind whatever has focus now. Not when the trigger is being pressed:
+// its click closes the panel, and closing it here first would have that click open it again (Chrome focuses a pressed
+// button, so the panel only flickered).
+let pressedTrigger = null;
+document.addEventListener('pointerdown', (event) => {
+    pressedTrigger = event.target.closest?.('[data-popover-trigger]') ?? null;
+}, true);
+document.addEventListener('pointerup', () => setTimeout(() => { pressedTrigger = null; }), true);
+
 document.addEventListener('focusout', (event) => {
     const panel = event.target.closest?.(PANEL);
-    if (panel?.matches(':popover-open') && event.relatedTarget && !panel.contains(event.relatedTarget)) {
-        panel.hidePopover();
+    if (!panel?.matches(':popover-open') || !event.relatedTarget || panel.contains(event.relatedTarget)) {
+        return;
     }
+    if (pressedTrigger && pressedTrigger === parts(panel).trigger && pressedTrigger.contains(event.relatedTarget)) {
+        return;
+    }
+    panel.hidePopover();
 });
 
 document.addEventListener('click', (event) => {

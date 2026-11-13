@@ -10,6 +10,18 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Fixed
+
+- **alert, datepicker, date-range-picker, modal, pagination**: smoother with Livewire. Each new flash message is announced, the pickers and the page sheet keep their open state through a render, and `open` modals also open after `wire:navigate`.
+- **color-picker**: Enter on a three-digit colour (#abc) submits it as #aabbcc.
+- **number, phone, verification-code**: pasting reads numbers with thousands separators (1,234), and a whole number or code pasted into a filled field replaces what was there. Undo in a number field always leaves a number.
+- **otp, verification-code**: the complete event fires once per code, and a letter typed over an OTP digit keeps the digit.
+- **popover**: clicking the trigger again closes it in Chrome and Edge.
+- **price-roll**: accepts locales written as `de_DE`, and shows a plain number for a currency code the browser doesn't know.
+- **slider**: readonly also holds for pointer drags.
+- **toast**: appears in the top-most modal when several are open.
+- **tooltip-cursor**: names an icon with no text for screen readers.
+
 ## [1.5.0] - 2026-11-12
 
 ### Added
@@ -35,27 +47,26 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ### Fixed
 
-- **chat**: the Livewire example claims the exact message it answers, passed from `send()` to `respond()`, builds the model's context only up to that message, and puts the claim back if the model call fails so it can be retried. The history example pages by cursor, newest id first, so messages arriving meanwhile don't repeat ones already showing. No widget changes.
+- **chat**: the Livewire and history usage examples are more robust when messages arrive at the same time. No widget changes.
 
 ## [1.4.10] - 2026-11-03
 
 ### Fixed
 
-- **chat, select, kanban**: the usage examples hold up to forged and simultaneous requests. Chat authorizes both Livewire actions and claims each reply in one conditional update before calling the model, select checks the submitted id through the same `customers()` relationship as its search, and kanban checks a move against the order it locks inside its transaction. No widget changes.
-- **search, command, otp, verification-code, show-if**: search suggests only published products and loads their category with them, search and command key a cached answer by the active workspace too, so switching workspaces never shows the last one's results, the code fields' notes say to use a code up in one conditional update, and show-if gets a server note on enforcing its condition with `required_if:`, `exclude_unless:` or `prohibited_unless:`. No widget changes.
-- **datepicker, date-range-picker**: the notes say `before_or_equal:today` uses the server's configured timezone, not that it's UTC, and that a closed period's report is cached only once its data is stable, with a short TTL or cleared when records change. The Laravel Boost guidelines say the same; run `php artisan boost:update`.
+- **chat, select, kanban, search, command, otp, verification-code, show-if**: server-side usage examples and notes refined. No widget changes.
+- **datepicker, date-range-picker**: the notes on timezones and caching are clearer. Run `php artisan boost:update` for the matching Boost guidelines.
 
 ## [1.4.9] - 2026-11-03
 
 ### Fixed
 
-- **kanban, file-upload, select, chat, table, date-range-picker**: the usage examples now do in code what their server notes ask. The select's search endpoint needs a signed-in person and searches only their own customers, where it listed everyone's names and emails. Kanban checks a move against the card's current stage, file upload attaches only the person's own uploads, chat throttles sending, the table's Livewire search is escaped and capped, and the date range rules check the Y-m-d the field sends. No widget changes.
+- **kanban, file-upload, select, chat, table, date-range-picker**: the usage examples now follow their own server notes. No widget changes.
 
 ## [1.4.8] - 2026-11-03
 
 ### Fixed
 
-- **table**: a clickable row whose `href` isn't a page, email or phone number (`javascript:`, `data:`) no longer opens it or gets a link, as search and command already refuse them.
+- **table**: clickable rows accept the same links as search and command.
 
 ## [1.4.7] - 2026-11-03
 

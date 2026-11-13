@@ -77,10 +77,10 @@
         ->merge($field->aria($attributes, (bool) $info)->getAttributes());
     $inputName = $name ? ($range ? "{$name}[]" : $name) : null;
     // One thumb: the native range input, restyled, so its own keyboard (arrows, Page Up and Down, Home, End) and screen
-    // reader support stay.
+    // reader support stay. The thumb takes its pointer events from the input: readonly's pointer-events-none must reach it.
     $thumb = 'appearance-none bg-transparent absolute inset-0 m-0 h-full w-full outline-none disabled:cursor-not-allowed [&::-moz-range-track]:bg-transparent '
-        .'[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:bg-surface [&::-webkit-slider-thumb]:shadow-sm '
-        .'[&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:bg-surface [&::-moz-range-thumb]:shadow-sm '
+        .'[&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:bg-surface [&::-webkit-slider-thumb]:shadow-sm '
+        .'[&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:bg-surface [&::-moz-range-thumb]:shadow-sm '
         .'focus-visible:[&::-webkit-slider-thumb]:ring-2 focus-visible:[&::-webkit-slider-thumb]:ring-primary focus-visible:[&::-webkit-slider-thumb]:ring-offset-2 focus-visible:[&::-webkit-slider-thumb]:ring-offset-surface '
         .'focus-visible:[&::-moz-range-thumb]:ring-2 focus-visible:[&::-moz-range-thumb]:ring-primary '
         .'group-data-invalid/field:[&::-webkit-slider-thumb]:border-error group-data-invalid/field:[&::-moz-range-thumb]:border-error';

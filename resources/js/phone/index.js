@@ -101,6 +101,21 @@ function initPhone(root) {
         }
     }
 
+    // A whole international number (+1 202 …, 0044 20 …) pasted into a field that already holds a number replaces it:
+    // going in at the caret, the two would run together into one long number under the old country.
+    national.addEventListener('beforeinput', (event) => {
+        if (!['insertFromPaste', 'insertFromDrop'].includes(event.inputType) || national.value.trim() === '') {
+            return;
+        }
+        const pasted = latinDigits(event.data ?? event.dataTransfer?.getData('text/plain') ?? '').trim();
+        if (!/^(\+|00)\d/.test(pasted.replace(/[\s\-().]/g, ''))) {
+            return;
+        }
+        event.preventDefault();
+        national.value = pasted;
+        national.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
+    });
+
     national.addEventListener('input', (event) => {
         const typed = latinDigits(national.value);
         if (typed !== national.value) {

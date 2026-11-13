@@ -118,13 +118,77 @@ function syncValueNow(input) {
     value === '' || Number.isNaN(Number(value)) ? input.removeAttribute('aria-valuenow') : input.setAttribute('aria-valuenow', value);
 }
 
+// A number that arrives whole (pasted, dropped, autofilled) may be written with grouping: 1,234 from an English
+// spreadsheet. Read as a decimal it would become 1.23 in a field of 2 decimals. One separator with three digits after
+// it, where the locale groups with that separator and the field takes fewer than three decimals, is grouping. Never
+// while typing, which goes a key at a time: a third decimal typed into 1.23 would turn it into 1234.
+const ARRIVES_WHOLE = new Set(['insertFromPaste', 'insertFromDrop', 'insertReplacementText', '', undefined]);
+function ungroupArrived(value, input) {
+    const { group } = separators(input.dataset.locale);
+    const other = group === ',' ? '.' : ',';
+    const raw = latinDigits(value);
+    if (Number(input.dataset.decimals) >= 3 || ![',', '.'].includes(group) || raw.includes(other) || raw.split(group).length !== 2) {
+        return value;
+    }
+
+    return /\d\D*$/.test(raw.split(group)[0]) && /^\d{3}(\D*)$/.test(raw.split(group)[1]) ? raw.replace(group, '') : value;
+}
+
+// A paste goes in at the caret, as text does, but two numbers run together are no number at all: 1.333 pasted after
+// 1.33 would read as 1.331.333, grouping, so 1331333. When the pasted number has a decimal point and so does what's left
+// of the field around it, the pasted number replaces the field's instead.
+document.addEventListener('beforeinput', (event) => {
+    const input = event.target;
+    if (!input.matches?.('[data-number-input]') || !['insertFromPaste', 'insertFromDrop'].includes(event.inputType)) {
+        return;
+    }
+    const pasted = event.data ?? event.dataTransfer?.getData('text/plain') ?? '';
+    const grouped = 'grouped' in input.dataset;
+    const point = grouped ? separators(input.dataset.locale).decimal : '.';
+    const pastedPoint = grouped
+        ? latinDigits(pasted).includes(point)
+        : normaliseDecimal(latinDigits(ungroupArrived(pasted, input))).includes('.');
+    const kept = input.value.slice(0, input.selectionStart ?? input.value.length) + input.value.slice(input.selectionEnd ?? input.value.length);
+    if (!pastedPoint || !kept.includes(point)) {
+        return;
+    }
+    event.preventDefault();
+    input.value = pasted;
+    input.setSelectionRange(pasted.length, pasted.length);
+    input.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
+});
+
+// Undo and redo replay the browser's own history of the field, which misses every change this script makes (a decimal
+// cut, a paste read or replaced). Replayed onto the current number they can leave two numbers in one: 7.25 with an old
+// 1.33 put back into it, read as 725133. When they leave something that isn't one number, the field keeps the number it
+// showed instead.
+const shown = new WeakMap();
+on('focusin', '[data-number-input]', (event, input) => shown.set(input, input.value));
+function oneNumber(input) {
+    const raw = latinDigits(input.value).trim();
+    if (!('grouped' in input.dataset)) {
+        return /^-?\d*(\.\d*)?$/.test(raw);
+    }
+    const { group, decimal } = separators(input.dataset.locale);
+    const plain = raw.split(group).join('').replace(/\s/g, '');
+
+    return plain.split(decimal).length <= 2 && /^-?\d*$/.test(plain.replace(decimal, ''));
+}
+
 on('input', '[data-number-input]', (event, input) => {
+    if (['historyUndo', 'historyRedo'].includes(event.inputType) && shown.has(input) && !oneNumber(input)) {
+        input.value = shown.get(input);
+        input.setSelectionRange(input.value.length, input.value.length);
+    }
     if ('grouped' in input.dataset) {
         setNumber(input, regroup(input), { format: false });
+        shown.set(input, input.value);
 
         return;
     }
-    replaceValue(input, sanitizeNumber(input.value, Number(input.dataset.decimals), 'negative' in input.dataset));
+    const value = ARRIVES_WHOLE.has(event.inputType) ? ungroupArrived(input.value, input) : input.value;
+    replaceValue(input, sanitizeNumber(value, Number(input.dataset.decimals), 'negative' in input.dataset));
+    shown.set(input, input.value);
     syncValueNow(input);
 });
 

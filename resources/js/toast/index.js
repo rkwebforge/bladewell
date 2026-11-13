@@ -45,8 +45,12 @@ let regions = null;
 
 // An open modal <dialog> makes everything outside it inert, top-layer popovers included, so toasts drawn over
 // it can't be clicked (a click falls through to the backdrop) and screen readers skip them. While a modal is open
-// the container, and the live regions below, move inside the top-most one, and back when it closes.
-const topModal = () => [...document.querySelectorAll('dialog:modal')].at(-1) ?? null;
+// the container, and the live regions below, move inside the top-most one, and back when it closes. The top one is the
+// one focus is in (the browser makes those below it inert), not the last on the page: a modal further down the page can
+// be open underneath. Last on the page only when focus is in none of them.
+const topModal = () => document.activeElement?.closest('dialog:modal')
+    ?? [...document.querySelectorAll('dialog:modal')].at(-1)
+    ?? null;
 
 // A toast's own element isn't a live region: it arrives with its text already in it, inside a popover that was
 // hidden a moment before, and screen readers often miss that. These two are always on the page, empty until a

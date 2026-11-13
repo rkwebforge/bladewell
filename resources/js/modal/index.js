@@ -326,5 +326,8 @@ export const modal = { open, close, confirm };
 // Global so inline handlers and other scripts can call modal.open('id').
 window.modal = modal;
 
-// e.g. :open="$errors->any()" to reopen a form modal after failed validation.
-document.querySelectorAll(`${MODAL}[data-open-on-load]`).forEach((dialog) => open(dialog));
+// e.g. :open="$errors->any()" to reopen a form modal after failed validation. Again after wire:navigate, which swaps
+// the page in without loading this module again.
+const openOnLoad = () => document.querySelectorAll(`${MODAL}[data-open-on-load]`).forEach((dialog) => open(dialog));
+openOnLoad();
+document.addEventListener('livewire:navigated', openOnLoad);

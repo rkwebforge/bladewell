@@ -107,7 +107,8 @@
         @if ($negative) data-negative @endif
         @if ($min !== null) data-min="{{ $min }}" @endif
         @if ($max !== null) data-max="{{ $max }}" @endif
-        @if ($grouped) data-grouped data-locale="{{ $locale }}" @endif
+        data-locale="{{ $locale }}"
+        @if ($grouped) data-grouped @endif
         @disabled($disabled)
         @readonly($readonly)
         {{ ($grouped ? $field->visibleAttributes($attributes, (bool) $info) : $field->controlAttributes($attributes, (bool) $info))->class([

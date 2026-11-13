@@ -9,6 +9,10 @@ const otpBoxes = (root) => [...root.querySelectorAll('[data-otp-box]')];
 // Digits typed on any keyboard (Arabic ١٢٣, Persian ۱۲۳…) count as 0-9.
 const otpClean = (root, text) => ('alphanumeric' in root.dataset ? latinDigits(text).replace(/[^a-z0-9]/gi, '').toUpperCase() : latinDigits(text).replace(/\D/g, ''));
 
+// The code each field last announced as complete: an extra key on a full field leaves the same code, and a second
+// otp:complete would make an auto-submit hook post it twice.
+const completed = new WeakMap();
+
 function otpSync(root) {
     const boxes = otpBoxes(root);
     const hidden = root.querySelector('[data-otp-value]');
@@ -18,7 +22,10 @@ function otpSync(root) {
     // Both events: tools like Alpine x-model and Livewire wire:model listen for `input`, plain forms for `change`.
     hidden.dispatchEvent(new Event('input', { bubbles: true }));
     hidden.dispatchEvent(new Event('change', { bubbles: true }));
-    if (value.length === boxes.length) {
+    if (value.length < boxes.length) {
+        completed.delete(root);
+    } else if (completed.get(root) !== value) {
+        completed.set(root, value);
         // Hook for auto-submit: root.addEventListener('otp:complete', (e) => form.requestSubmit()). The colon name matches the
         // other widgets' events; otp-complete is the name it was first sent as, and stays.
         for (const name of ['otp:complete', 'otp-complete']) {
@@ -50,7 +57,8 @@ on('input', '[data-otp-box]', (event, box) => {
     if (event.inputType === 'insertText') {
         digits = otpClean(root, event.data ?? '');
         if (!digits) {
-            box.value = otpClean(root, box.value).slice(0, 1);
+            // A letter typed over the box's (selected) digit: keep the digit, which the submitted code still holds.
+            box.value = otpClean(root, box.value).slice(0, 1) || (root.querySelector('[data-otp-value]').value[index] ?? '');
 
             return;
         }

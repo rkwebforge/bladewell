@@ -74,6 +74,16 @@ document.addEventListener('modal:before-open', (event) => {
     }
 }, true);
 
+// A Livewire render empties the list (the server sends it empty): refill it in a sheet that is open.
+const refill = (Livewire) => Livewire.hook('morphed', () => {
+    document.querySelectorAll('dialog[open] [data-page-list]:not([data-built])').forEach(build);
+});
+if (window.Livewire) {
+    refill(window.Livewire);
+} else {
+    document.addEventListener('livewire:init', () => refill(window.Livewire));
+}
+
 // --- Table footer: rows per page ------------------------------------------------------------------
 
 // Submits as soon as a size is picked; the Apply button is only there for when JavaScript isn't (see footer.blade.php).
