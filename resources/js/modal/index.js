@@ -267,11 +267,11 @@ window.addEventListener('modal-close', (event) => close(event.detail?.id, { forc
 // confirmation needs no markup. Text goes in with textContent, so a title or message can't inject HTML.
 const CONFIRM_DIALOG = 'group fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto overscroll-contain bg-transparent px-2.5 py-8 opacity-0 outline-none transition-all transition-discrete duration-300 open:flex open:opacity-100 starting:open:opacity-0 motion-reduce:transition-none backdrop:bg-foreground/40 backdrop:opacity-0 backdrop:transition-opacity backdrop:duration-300 open:backdrop:opacity-100 starting:open:backdrop:opacity-0 motion-reduce:backdrop:transition-none';
 const CONFIRM_PANEL = 'bg-surface text-foreground relative m-auto w-full max-w-sm scale-95 rounded-3xl p-6 shadow-xl transition-transform duration-300 group-open:scale-100 starting:group-open:scale-95 motion-reduce:transition-none';
-const BUTTON = 'relative inline-flex min-w-fit items-center justify-center gap-1.5 rounded-xl border border-transparent px-4 py-3 text-sm font-medium whitespace-nowrap outline-none transition-all focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface active:scale-95';
+const BUTTON = 'relative inline-flex min-w-fit items-center justify-center gap-1.5 rounded-xl border border-transparent px-4 py-3 text-sm font-medium whitespace-nowrap outline-none transition-[color,background-color,border-color,scale] duration-200 ease-out motion-reduce:transition-none focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface active:scale-[0.97] active:duration-100';
 const BUTTON_LOOK = {
     neutral: 'bg-field text-foreground hover:bg-line',
     primary: 'bg-primary-fill text-on-primary hover:bg-primary-hover',
-    danger: 'bg-error-fill text-white hover:brightness-90',
+    danger: 'bg-error-fill text-white hover:bg-[color-mix(in_oklab,var(--color-error-fill)_85%,black)]',
 };
 let confirmCount = 0;
 

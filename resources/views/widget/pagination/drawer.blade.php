@@ -53,7 +53,7 @@
     data-close-on-backdrop
     tabindex="-1"
     aria-label="Choose a page"
-    class="fixed inset-x-0 top-auto bottom-0 m-0 mx-auto h-auto max-h-none w-full max-w-110 translate-y-full bg-transparent p-0 outline-none transition-all transition-discrete duration-300 open:translate-y-0 starting:open:translate-y-full motion-reduce:transition-none backdrop:bg-foreground/40"
+    class="fixed inset-x-0 top-auto bottom-0 m-0 mx-auto h-auto max-h-none w-full max-w-110 translate-y-full bg-transparent p-0 outline-none transition-all transition-discrete duration-300 open:translate-y-0 starting:open:translate-y-full motion-reduce:transition-none backdrop:bg-foreground/40 backdrop:opacity-0 backdrop:transition-opacity backdrop:duration-300 open:backdrop:opacity-100 starting:open:backdrop:opacity-0 motion-reduce:backdrop:transition-none"
 >
     {{-- The bottom padding clears the home indicator where the page is drawn under it (viewport-fit=cover, as NativePHP
          and home-screen web apps do); env() is 0 everywhere else. --}}

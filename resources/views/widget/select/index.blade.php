@@ -227,7 +227,7 @@
         id="{{ $id }}-popup"
         popover
         data-select-popup
-        class="border-line bg-surface text-foreground fixed inset-auto m-0 overflow-hidden rounded-2xl border p-0 text-sm font-medium shadow-lg"
+        class="border-line bg-surface text-foreground fixed inset-auto m-0 overflow-hidden rounded-2xl border p-0 text-sm font-medium shadow-lg origin-top opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none"
     >
         @if ($showSearch)
             <div class="border-line border-b p-2">

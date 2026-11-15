@@ -75,7 +75,7 @@
 
     <input type="hidden" @if ($name) name="{{ $name }}" @endif value="{{ \Bladewell\Support\Countries::international($selected, $national) }}" data-phone-value data-country="{{ $selected }}" {{ $field->bindings($attributes) }}>
 
-    <div id="{{ $field->id }}-countries" popover data-phone-popover class="border-line bg-surface text-foreground fixed inset-auto m-0 overflow-hidden rounded-2xl border p-0 text-sm shadow-lg">
+    <div id="{{ $field->id }}-countries" popover data-phone-popover class="border-line bg-surface text-foreground fixed inset-auto m-0 overflow-hidden rounded-2xl border p-0 text-sm shadow-lg origin-top opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none">
         <div class="border-line border-b p-2">
             {{-- A fixed id: Livewire's morph matches elements by id, and a generated one would swap in a box without the script's listeners. --}}
             <x-widget.search :id="$field->id.'-search'" size="sm" placeholder="Search countries or codes" data-phone-search role="searchbox" aria-controls="{{ $field->id }}-country-list" autocomplete="off" />

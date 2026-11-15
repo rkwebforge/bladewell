@@ -147,7 +147,7 @@
         role="dialog"
         aria-label="{{ $label ?? 'Choose a date' }}"
         data-datepicker-popover
-        class="border-line text-foreground fixed inset-auto m-0 overflow-y-auto overscroll-contain rounded-md border bg-surface p-3 shadow-lg"
+        class="border-line text-foreground fixed inset-auto m-0 overflow-y-auto overscroll-contain rounded-md border bg-surface p-3 shadow-lg origin-top opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none"
     >
         {{-- Selects never shrink, so the full month name always shows; a <select> is as wide as its
              longest option, so if "September" fits at the 252px minimum, every month does. --}}

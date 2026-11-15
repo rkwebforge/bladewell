@@ -67,7 +67,7 @@
     "slots": {
         "x-widget.table": {
             "filters": "Fields for the toolbar above the table (search, selects). It filters as you type or pick, in place, back on page 1; your controller checks every value.",
-            "bulk": "Buttons for the bar that appears when rows are ticked (selectable); they submit the ticked rows with the bulk form.",
+            "bulk": "Buttons for the selection bar above the rows (selectable), disabled until a row is ticked; they submit the ticked rows with the bulk form.",
             "footer": "Rows under the data, e.g. <tr><td>Total</td>…</tr>, aligned with the columns; hidden while empty or loading."
         },
         "x-widget.table.row": {

@@ -123,7 +123,7 @@
     @if ($suggest)
         {{-- In the top layer (a popover), so the box's rounded clip and a table or modal can't cut it off; the script
              places it under the box and fills it. wire:ignore: a Livewire render would empty it while it's open. --}}
-        <div id="{{ $id }}-suggestions" role="listbox" aria-label="Suggestions" popover="manual" wire:ignore data-search-suggestions class="border-line bg-surface text-foreground fixed inset-auto m-0 max-h-80 overflow-y-auto overscroll-contain rounded-2xl border p-1.5 text-sm shadow-lg [scrollbar-width:thin]"></div>
+        <div id="{{ $id }}-suggestions" role="listbox" aria-label="Suggestions" popover="manual" wire:ignore data-search-suggestions class="border-line bg-surface text-foreground fixed inset-auto m-0 max-h-80 overflow-y-auto overscroll-contain rounded-2xl border p-1.5 text-sm shadow-lg origin-top opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none [scrollbar-width:thin]"></div>
         {{-- What a screen reader hears as suggestions come and go. --}}
         <p data-search-status role="status" class="sr-only"></p>
         {{-- One suggestion and one group heading, filled in by the script. Here rather than in the JS so you can restyle

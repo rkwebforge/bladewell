@@ -1,7 +1,7 @@
 // Drives <x-widget.select>. Open/close, Esc and click-outside come from the native popover;
 // this adds keyboard navigation, type-to-jump, search filtering (or, with search-url, searching your app) and positioning
 // under the field.
-import { closeIfOutOfView, placeBeside } from '../field';
+import { chipIn, chipOut, closeIfOutOfView, placeBeside } from '../field';
 
 const VIEWPORT_EDGE = 16;
 const GAP = 4;
@@ -103,19 +103,39 @@ function move(select, step, from = select.active) {
     }
 }
 
+// Keeps the chips still chosen where they are, slides new ones in at their place and removed ones out, so a change
+// animates only what changed. The first draw (and one after a render drew them again) just puts them there.
 function drawChips(select, picked) {
     const { chips, chipTemplate, trigger } = select;
-    chips.querySelectorAll('[data-select-chip]').forEach((chip) => chip.remove());
     const placeholder = chips.querySelector('[data-select-chips-placeholder]');
+    const valueOf = (chip) => chip.querySelector('[data-select-chip-remove]').dataset.value;
+    const shown = new Map([...chips.querySelectorAll('[data-select-chip]:not([data-leaving])')].map((chip) => [valueOf(chip), chip]));
+    const animate = chips.dataset.drawn === 'true';
+    chips.dataset.drawn = 'true';
+    const wanted = new Set(picked.map((option) => option.dataset.value));
+    shown.forEach((chip, value) => {
+        if (!wanted.has(value)) {
+            animate ? chipOut(chip) : chip.remove();
+        }
+    });
+    let previous = null;
     for (const option of picked) {
-        const chip = chipTemplate.content.firstElementChild.cloneNode(true);
+        let chip = shown.get(option.dataset.value);
+        if (!chip) {
+            chip = chipTemplate.content.firstElementChild.cloneNode(true);
+            chip.querySelector('[data-select-chip-remove]').dataset.value = option.dataset.value;
+            // Just after the chip before it, or first; a leaving chip stays where it is until it's gone.
+            previous ? previous.after(chip) : (chips.querySelector('[data-select-chip]') ?? placeholder).before(chip);
+            if (animate) {
+                chipIn(chip);
+            }
+        }
         const remove = chip.querySelector('[data-select-chip-remove]');
         chip.querySelector('[data-select-chip-label]').textContent = option.dataset.label;
-        remove.dataset.value = option.dataset.value;
         remove.setAttribute('aria-label', `Remove ${option.dataset.label}`);
         remove.disabled = trigger.disabled;
         remove.hidden = isReadonly(select);
-        placeholder.before(chip);
+        previous = chip;
     }
     placeholder.hidden = picked.length > 0;
 }
@@ -381,6 +401,11 @@ function filter(select, query) {
     move(select, 1, -1);
 }
 
+// The field can change size while the list is open: a chosen chip wraps onto a new line, or one leaving lets a line go.
+// The list follows it. Watched only while open, so it costs nothing otherwise.
+const observed = new WeakMap();
+const anchorSizes = new ResizeObserver((entries) => entries.forEach((entry) => observed.get(entry.target)?.reposition()));
+
 function position(select) {
     const { anchor, popup, listbox } = select;
     if (closeIfOutOfView(anchor, popup)) {
@@ -476,6 +501,7 @@ function toggled(select, open) {
     trigger.setAttribute('aria-expanded', String(open));
 
     if (!open) {
+        anchorSizes.unobserve(select.anchor);
         window.removeEventListener('scroll', select.reposition, true);
         window.removeEventListener('resize', select.reposition);
         window.visualViewport?.removeEventListener('resize', select.reposition);
@@ -497,6 +523,8 @@ function toggled(select, open) {
     window.addEventListener('scroll', select.reposition, true);
     window.addEventListener('resize', select.reposition);
     window.visualViewport?.addEventListener('resize', select.reposition);
+    observed.set(select.anchor, select);
+    anchorSizes.observe(select.anchor);
 }
 
 function initSelect(root) {
@@ -508,6 +536,10 @@ function initSelect(root) {
     const select = selectOf(root);
     const { trigger, popup, search } = select;
     select.reposition = () => position(select);
+    // The server drew the chips already: from here on, a change animates (see drawChips).
+    if (select.chips) {
+        select.chips.dataset.drawn = 'true';
+    }
 
     // Readonly: nothing is removed, by a chip's button, Backspace or the clear button. On the root, so chips and a clear
     // button a render draws again still work.

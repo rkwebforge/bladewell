@@ -274,6 +274,8 @@ function initDatepicker(root) {
 
         popover.style.top = `${top}px`;
         popover.style.left = `${alignedLeft(box, width, tools.rtl)}px`;
+        // Grows out of the field: from its bottom edge when it opened above.
+        popover.dataset.side = top < box.top ? 'top' : 'bottom';
     }
 
     const KEY_MOVES = {

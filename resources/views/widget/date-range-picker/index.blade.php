@@ -188,7 +188,7 @@
         role="dialog"
         aria-label="{{ $label ?? 'Choose dates' }}"
         data-date-range-popover
-        class="border-line text-foreground bg-surface fixed inset-auto m-0 overflow-y-auto overscroll-contain rounded-md border p-3 shadow-lg"
+        class="border-line text-foreground bg-surface fixed inset-auto m-0 overflow-y-auto overscroll-contain rounded-md border p-3 shadow-lg origin-top opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none"
     >
         {{-- The selects and arrows drive the first month shown; a second month, when there is room, follows it. --}}
         <div class="mb-2 flex items-center justify-between">

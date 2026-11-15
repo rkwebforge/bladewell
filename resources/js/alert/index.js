@@ -14,7 +14,8 @@ document.addEventListener('click', (event) => {
             focusNextAfter(alert);
         }
         alert.dataset.leaving = '';
-        setTimeout(() => putAway(alert), window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : LEAVE_MS);
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setTimeout(() => (still ? putAway(alert) : collapse(alert, () => putAway(alert))), still ? 0 : LEAVE_MS);
 
         return;
     }
@@ -108,6 +109,31 @@ if (summary && (document.activeElement === document.body || document.activeEleme
 // still renders. So there it's hidden instead, and hidden again after each render for as long as it says the same
 // thing; a different message in its place is news, and shows.
 const dismissedText = new WeakMap();
+
+// Once faded, the alert closes up its space over the same 200ms, so what's below slides up rather than jumping.
+function collapse(alert, done) {
+    const style = getComputedStyle(alert);
+    const sides = ['paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'borderTopWidth', 'borderBottomWidth'];
+    const from = { height: `${alert.offsetHeight}px` };
+    const to = { height: '0px' };
+    sides.forEach((side) => {
+        from[side] = style[side];
+        to[side] = '0px';
+    });
+    alert.style.overflow = 'hidden';
+    alert.style.boxSizing = 'border-box';
+    const finish = () => {
+        alert.style.overflow = '';
+        alert.style.boxSizing = '';
+        done();
+    };
+    const animation = alert.animate([from, to], { duration: LEAVE_MS, easing: 'ease-out', fill: 'forwards' });
+    animation.onfinish = () => {
+        // Removed or hidden first, then the held end frame let go, so it never shows full size again in between.
+        finish();
+        animation.cancel();
+    };
+}
 
 function putAway(alert) {
     if (!alert.closest('[wire\\:id]')) {

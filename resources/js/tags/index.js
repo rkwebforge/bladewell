@@ -4,7 +4,7 @@
 // twice, and past max nothing more is. The hidden select, which is what submits and what wire:model binds, follows
 // every change; a screen reader hears each one.
 
-import { on } from '../field';
+import { chipIn, chipOut, on } from '../field';
 
 const ROOT = '[data-field]';
 
@@ -20,7 +20,9 @@ const partsOf = (element) => {
         status: root.querySelector('[data-tags-status]'),
     };
 };
-const tagsOf = (parts) => [...parts.list.querySelectorAll('[data-tags-chip]')].map((chip) => chip.dataset.value);
+// A chip on its way out (data-leaving) is already gone as far as the value goes.
+const chipsOf = (parts) => [...parts.list.querySelectorAll('[data-tags-chip]:not([data-leaving])')];
+const tagsOf = (parts) => chipsOf(parts).map((chip) => chip.dataset.value);
 
 function say(parts, message) {
     // Emptied first, so the same message twice is still read out.
@@ -55,6 +57,7 @@ function add(parts, texts) {
         chip.querySelector('span').textContent = text;
         chip.querySelector('[data-tags-remove]').setAttribute('aria-label', `Remove ${text}`);
         parts.list.append(chip);
+        chipIn(chip);
         added.push(text);
     }
     if (added.length > 0) {
@@ -65,7 +68,7 @@ function add(parts, texts) {
 
 function remove(parts, chip) {
     const text = chip.dataset.value;
-    chip.remove();
+    chipOut(chip);
     sync(parts);
     say(parts, `Removed ${text}.`);
 }
@@ -88,7 +91,7 @@ on('keydown', '[data-tags-input]', (event, input) => {
         add(parts, split(input.value));
         input.value = '';
     } else if (event.key === 'Backspace' && input.value === '') {
-        const last = parts.list.querySelector('[data-tags-chip]:last-of-type');
+        const last = chipsOf(parts).at(-1);
         if (last) {
             event.preventDefault();
             remove(parts, last);

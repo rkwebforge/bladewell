@@ -249,7 +249,7 @@
             aria-label="{{ $label ?? 'Choose a time' }}"
             data-time-picker-popover
             {{-- The options' look is written once, here (*: styles each child), not on every one of what can be 96 options. --}}
-            class="border-line bg-surface text-foreground fixed inset-auto m-0 hidden max-h-72 min-w-40 flex-col overflow-y-auto overscroll-contain rounded-2xl border p-1.5 text-sm shadow-lg open:flex [scrollbar-width:thin] *:focus-visible:bg-field *:hover:bg-field *:aria-selected:bg-primary/10 *:aria-selected:text-primary *:flex *:shrink-0 *:cursor-pointer *:items-center *:justify-between *:gap-3 *:rounded-xl *:px-3 *:py-2 *:tabular-nums *:outline-none *:select-none *:aria-disabled:cursor-not-allowed *:aria-disabled:opacity-40"
+            class="border-line bg-surface text-foreground fixed inset-auto m-0 hidden max-h-72 min-w-40 flex-col overflow-y-auto overscroll-contain rounded-2xl border p-1.5 text-sm shadow-lg open:flex origin-top opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none [scrollbar-width:thin] *:focus-visible:bg-field *:hover:bg-field *:aria-selected:bg-primary/10 *:aria-selected:text-primary *:flex *:shrink-0 *:cursor-pointer *:items-center *:justify-between *:gap-3 *:rounded-xl *:px-3 *:py-2 *:tabular-nums *:outline-none *:select-none *:aria-disabled:cursor-not-allowed *:aria-disabled:opacity-40"
         >
             {{-- One check for the list, in the chosen time (or the first, where it stays hidden until one is chosen);
                  the script moves it as the choice changes. --}}
@@ -277,7 +277,7 @@
             role="dialog"
             aria-label="{{ $label ?? 'Choose a time' }}"
             data-time-picker-popover
-            class="border-line bg-surface text-foreground fixed inset-auto m-0 hidden flex-col rounded-2xl border p-2 text-sm shadow-lg open:flex"
+            class="border-line bg-surface text-foreground fixed inset-auto m-0 hidden flex-col rounded-2xl border p-2 text-sm shadow-lg open:flex origin-top opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none"
         >
             <div class="flex gap-1">
                 @foreach (array_filter([

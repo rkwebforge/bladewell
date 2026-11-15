@@ -1169,8 +1169,8 @@ function restoreSelection(root, rows) {
 const lastCount = new WeakMap();
 
 // Checkboxes, the select-all box (checked, half-checked or clear) and the bulk bar, all from what's ticked.
-// announceCount: after the user ticked or cleared something, say the new count; the label sits in a bar that
-// has only just appeared, and screen readers don't read a live region they didn't see arrive.
+// announceCount: after the user ticked or cleared something, say the new count through the shared live region, which
+// screen readers read more reliably than a status that changes in place.
 function syncSelection(root, { announceCount = false } = {}) {
     const boxes = [...root.querySelectorAll('[data-table-select]')];
     // One in the header, and one above the cards when a stacked table is on a phone.
@@ -1188,12 +1188,30 @@ function syncSelection(root, { announceCount = false } = {}) {
         all.checked = boxes.length > 0 && ticked === boxes.length;
         all.indeterminate = count > 0 && !all.checked;
     });
-    bar.hidden = count === 0;
+    // The bar is always there, so ticking a row never moves the rows under the pointer. With nothing ticked it says how
+    // to start (the server's text), Clear is hidden but keeps its place, and the bulk buttons wait, disabled, until
+    // there's something to act on. Only buttons disabled here are enabled again: one your app disabled stays so.
+    const empty = count === 0;
+    bar.toggleAttribute('data-empty', empty);
     const text = elsewhere ? `${count} selected (${elsewhere} on other pages)` : `${count} selected`;
     const label = root.querySelector('[data-table-selected-count]');
     if (label) {
-        label.textContent = text;
+        label.dataset.idleText ??= label.textContent.trim();
+        label.textContent = empty ? label.dataset.idleText : text;
     }
+    const waiting = [...bar.querySelectorAll('button:not([data-table-clear]), input[type="submit"]')];
+    if (empty && waiting.some((button) => button === document.activeElement)) {
+        [...root.querySelectorAll('[data-table-select-all]')].find((all) => all.offsetParent !== null)?.focus();
+    }
+    waiting.forEach((button) => {
+        if (empty && !button.disabled) {
+            button.disabled = true;
+            button.dataset.tableWaiting = '';
+        } else if (!empty && 'tableWaiting' in button.dataset) {
+            button.disabled = false;
+            delete button.dataset.tableWaiting;
+        }
+    });
     if (announceCount && lastCount.get(root) !== text) {
         announce(count === 0 ? 'Selection cleared' : text);
     }
@@ -1389,6 +1407,8 @@ function placeColumnsMenu(menu) {
     menu.style.inset = 'auto';
     menu.style.left = `${left}px`;
     menu.style.top = `${top}px`;
+    // Grows out of its button: from the bottom edge when it opened above.
+    menu.dataset.side = top < anchor.top ? 'top' : 'bottom';
     // Invisible until here (see table/index), so it never flashes where the browser first puts it.
     menu.dataset.placed = '';
 }

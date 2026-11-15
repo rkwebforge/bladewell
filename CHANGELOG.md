@@ -10,6 +10,21 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Changed
+
+- **table**: the selection bar stays in place, with its buttons disabled until a row is ticked, so ticking a row no longer shifts the rows.
+
+### Fixed
+
+- **alert**: dismissing one no longer makes the content below jump.
+- **button**: secondary and tertiary no longer flicker on hover, and the press feels smoother.
+- **command, pagination**: the command palette and the pagination drawer's backdrop fade in and out, as a modal does.
+- **select**: the open list follows the field when picked chips wrap onto a new line.
+- **select, datepicker, date-range-picker, time-picker, phone, search, table**: popups open and close smoothly, as the dropdown does.
+- **tags, select**: chips ease in and out as they're added and removed.
+- **tooltip-cursor**: fades in, as the tooltip does.
+- **tree**: nodes open and close smoothly.
+
 ## [1.5.2] - 2026-11-13
 
 ### Added

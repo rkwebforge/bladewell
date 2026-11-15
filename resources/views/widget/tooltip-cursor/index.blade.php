@@ -26,5 +26,5 @@
         {{-- The script moves it with the pointer (inline top and left); a Livewire render would wipe that. The text still updates. --}}
         wire:ignore.self
         data-tooltip-cursor-bubble
-        class="bg-foreground text-surface pointer-events-none fixed inset-auto m-0 hidden max-w-64 rounded-lg px-2.5 py-1.5 text-xs leading-snug font-medium shadow-lg open:block"
+        class="bg-foreground text-surface pointer-events-none fixed inset-auto m-0 hidden max-w-64 rounded-lg px-2.5 py-1.5 text-xs leading-snug font-medium shadow-lg open:block opacity-0 transition-opacity duration-150 open:opacity-100 starting:open:opacity-0 motion-reduce:transition-none"
     >{{ $text }}</span></span><?php /* No newline after this: PHP drops it after a closing tag, so no space trails the component in running text. */ ?>

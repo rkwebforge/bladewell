@@ -65,9 +65,9 @@
     @if ($shortcut) data-shortcut="{{ $shortcut }}" @endif
     @if ($suggestUrl) data-suggest-url="{{ $suggestUrl }}" @endif
     @if ($recent) data-recent @endif
-    class="group fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none bg-transparent px-3 pt-[12dvh] outline-none open:flex open:flex-col open:items-center backdrop:bg-foreground/40"
+    class="group fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none flex-col items-center bg-transparent px-3 pt-[12dvh] opacity-0 outline-none transition-all transition-discrete duration-200 open:flex open:opacity-100 starting:open:opacity-0 motion-reduce:transition-none backdrop:bg-foreground/40 backdrop:opacity-0 backdrop:transition-opacity backdrop:duration-200 open:backdrop:opacity-100 starting:open:backdrop:opacity-0 motion-reduce:backdrop:transition-none"
 >
-    <div class="bg-surface text-foreground flex max-h-[min(32rem,76dvh)] w-full max-w-xl flex-col overflow-hidden rounded-2xl shadow-xl">
+    <div class="bg-surface text-foreground flex max-h-[min(32rem,76dvh)] w-full max-w-xl scale-95 flex-col overflow-hidden rounded-2xl shadow-xl transition-transform duration-200 group-open:scale-100 starting:group-open:scale-95 motion-reduce:transition-none">
         <div class="border-line flex items-center gap-2 border-b px-4">
             <x-widget.icon name="search" class="text-foreground/70 size-5 shrink-0" />
             <input

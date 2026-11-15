@@ -7,7 +7,7 @@
 
 <a
     href="{{ $href ?? url()->previous() }}"
-    {{ $attributes->class(['text-foreground focus-visible:ring-primary inline-flex max-w-fit items-center gap-1.5 rounded-md text-sm outline-none hover:opacity-80 focus-visible:ring-2']) }}
+    {{ $attributes->class(['text-foreground focus-visible:ring-primary inline-flex max-w-fit items-center gap-1.5 rounded-md text-sm outline-none hover:opacity-80 transition-opacity duration-200 ease-out motion-reduce:transition-none focus-visible:ring-2']) }}
 >
     {{-- Points back, which is right in right-to-left pages. --}}
     <x-widget.icon name="arrow-left" class="size-4 rtl:-scale-x-100" />

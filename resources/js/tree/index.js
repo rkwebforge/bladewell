@@ -31,8 +31,8 @@ function parentItem(item) {
     return parent?.matches(ITEM) ? parent : null;
 }
 
-// The nodes a person can see, in reading order: none inside a closed node.
-const visibleItems = (tree) => [...tree.querySelectorAll(ITEM)].filter((item) => !item.parentElement.closest('[data-tree-group][hidden]'));
+// The nodes a person can see, in reading order: none inside a closed node, or one still animating shut.
+const visibleItems = (tree) => [...tree.querySelectorAll(ITEM)].filter((item) => !item.parentElement.closest('[data-tree-group]:is([hidden], [data-closing])'));
 
 // --- Focus ------------------------------------------------------------------------------------------------------------
 
@@ -60,6 +60,97 @@ function focusItem(item, { scroll = true } = {}) {
 
 const loading = new WeakMap();
 
+// Children slide open and shut as the accordion's panels do: height and opacity, over the same 300ms. The org chart's
+// children spread sideways, so there they fade, and the cards they push aside slide over to make room (or, once they've
+// faded out, back). Opening shows the group at once (hidden goes first, so scripts and tests see it open); closing keeps
+// it until the animation ends, marked data-closing and inert, so the keyboard and the pointer already treat it as shut.
+const DURATION = 300;
+const EASING = 'ease-out';
+const running = new WeakMap();
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sliding = new WeakMap();
+
+// Makes a change to the org chart's layout, then moves each card from where it was to where it now is. A whole item
+// moves, so the lines it draws go with it; by its own shift less its parent's, which already carries it. Measured with
+// any slide still running, so a click mid-way carries on from where the cards are.
+function slideCards(tree, change) {
+    const items = [...tree.querySelectorAll(ITEM)].filter((item) => item.checkVisibility());
+    const centre = (rect) => [rect.left + rect.width / 2, rect.top];
+    const before = new Map(items.map((item) => [item, centre(item.getBoundingClientRect())]));
+    items.forEach((item) => sliding.get(item)?.cancel());
+    change();
+    const shift = new Map();
+    for (const item of items) {
+        if (item.checkVisibility()) {
+            const [x, y] = centre(item.getBoundingClientRect());
+            shift.set(item, [before.get(item)[0] - x, before.get(item)[1] - y]);
+        }
+    }
+    for (const [item, [x, y]] of shift) {
+        const [parentX, parentY] = shift.get(parentItem(item)) ?? [0, 0];
+        const [dx, dy] = [x - parentX, y - parentY];
+        if (Math.abs(dx) >= 0.5 || Math.abs(dy) >= 0.5) {
+            const animation = item.animate([{ translate: `${dx}px ${dy}px` }, { translate: '0 0' }], { duration: DURATION, easing: EASING });
+            sliding.set(item, animation);
+        }
+    }
+}
+
+// Closing, the org chart's node gives up the width its children took by easing it in rather than sliding the cards
+// as opening does: a slide would show it at its new width at once, breaking the line to its neighbours meanwhile.
+// The fade before it and this take half the time each, so closing ends with the chevron's turn, as opening does.
+function narrow(item, group) {
+    const from = item.getBoundingClientRect().width;
+    group.hidden = true;
+    const to = item.getBoundingClientRect().width;
+    if (from - to >= 0.5) {
+        sliding.set(item, item.animate([{ minWidth: `${from}px` }, { minWidth: `${to}px` }], { duration: DURATION / 2, easing: EASING }));
+    }
+}
+
+function showGroup(item, group, open) {
+    // Where it is now, mid-animation included, so reversing a click carries on from there instead of jumping.
+    const shown = !group.hidden;
+    const fromHeight = shown ? group.getBoundingClientRect().height : 0;
+    const fromOpacity = shown ? Number(getComputedStyle(group).opacity) : 0;
+    running.get(group)?.cancel();
+    running.delete(group);
+    group.removeAttribute('data-closing');
+    group.inert = false;
+    group.style.overflow = '';
+
+    if (reducedMotion() || !group.isConnected) {
+        group.hidden = !open;
+
+        return;
+    }
+    const sideways = treeOf(item)?.dataset.variant === 'org';
+    if (open) {
+        sideways ? slideCards(treeOf(item), () => { group.hidden = false; }) : (group.hidden = false);
+    } else {
+        group.toggleAttribute('data-closing', true);
+        group.inert = true;
+    }
+    const toHeight = open ? group.getBoundingClientRect().height : 0;
+    const frames = sideways
+        ? [{ opacity: fromOpacity }, { opacity: open ? 1 : 0 }]
+        : [{ height: `${fromHeight}px`, opacity: fromOpacity }, { height: `${toHeight}px`, opacity: open ? 1 : 0 }];
+    if (!sideways) {
+        group.style.overflow = 'hidden';
+    }
+    const animation = group.animate(frames, { duration: sideways && !open ? DURATION / 2 : DURATION, easing: EASING });
+    running.set(group, animation);
+    animation.onfinish = () => {
+        running.delete(group);
+        group.style.overflow = '';
+        if (!open) {
+            sideways ? narrow(item, group) : (group.hidden = true);
+            group.removeAttribute('data-closing');
+            group.inert = false;
+        }
+    };
+}
+
 async function setOpen(item, open) {
     if (!isBranch(item) || isOpen(item) === open) {
         return;
@@ -78,7 +169,7 @@ async function setOpen(item, open) {
             });
             item.tabIndex = 0;
         }
-        group.hidden = !open;
+        showGroup(item, group, open);
     }
     item.dispatchEvent(new CustomEvent('tree:toggle', { bubbles: true, detail: { item, open } }));
     if (open && item.dataset.childrenUrl && !('loaded' in item.dataset)) {

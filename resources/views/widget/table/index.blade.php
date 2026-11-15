@@ -261,7 +261,7 @@
                      the filters. --}}
                 <div class="ms-auto noscript:hidden">
                     <x-widget.button type="button" variant="neutral" icon-start="eye" popovertarget="{{ $id }}-columns" data-table-columns-toggle class="h-full min-h-12 max-sm:w-full">Columns</x-widget.button>
-                    <div id="{{ $id }}-columns" popover data-table-columns data-fixed="{{ $columns->count() - $toggles->count() }}" class="border-line bg-surface text-foreground m-0 w-60 rounded-2xl border p-2 opacity-0 shadow-lg data-placed:opacity-100">
+                    <div id="{{ $id }}-columns" popover data-table-columns data-fixed="{{ $columns->count() - $toggles->count() }}" class="border-line bg-surface text-foreground m-0 w-60 rounded-2xl border p-2 opacity-0 shadow-lg data-placed:opacity-100 origin-top scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 open:scale-100 starting:open:scale-95 data-[side=top]:origin-bottom motion-reduce:transition-none">
                         <fieldset>
                             <legend class="text-muted px-3 pt-1 pb-2 text-xs font-medium">Show columns</legend>
                             @foreach ($toggles as $column)
@@ -289,9 +289,10 @@
 
     @if ($selectable)
         {{-- The bulk bar. Row checkboxes live in the table but submit with this form through their form attribute,
-             so the pagination forms below never end up nested inside it. resources/js/widget/table hides the bar
-             until something is selected; without JS it simply stays visible. --}}
-        <div data-table-bulk class="border-line bg-primary/5 flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 border-b px-4 py-2.5 text-sm sm:px-5">
+             so the pagination forms below never end up nested inside it. It's always shown, so ticking a row never
+             pushes the rows down; resources/js/widget/table marks it data-empty and disables your buttons while
+             nothing is ticked. Without JS it stays as rendered. --}}
+        <div data-table-bulk class="border-line bg-primary/5 data-empty:bg-transparent flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 border-b px-4 py-2.5 text-sm transition-colors duration-200 ease-out motion-reduce:transition-none sm:px-5">
             <form id="{{ $formId }}" method="{{ $bulkMethod === 'GET' ? 'GET' : 'POST' }}" @if ($bulkAction) action="{{ $bulkAction }}" @endif class="contents">
                 @unless ($bulkMethod === 'GET')
                     @csrf
@@ -299,8 +300,8 @@
                         @method($bulkMethod)
                     @endunless
                 @endunless
-                <span data-table-selected-count role="status" class="text-foreground font-medium">Select rows to act on them</span>
-                <button type="button" data-table-clear class="text-link hover:text-link-hover focus-visible:ring-primary rounded-sm outline-none focus-visible:ring-2">Clear</button>
+                <span data-table-selected-count role="status" class="text-foreground in-data-empty:text-foreground/70 in-data-empty:font-normal font-medium">Select rows to act on them</span>
+                <button type="button" data-table-clear class="in-data-empty:invisible text-link hover:text-link-hover focus-visible:ring-primary rounded-sm outline-none focus-visible:ring-2">Clear</button>
                 @isset($bulk)
                     <div class="ms-auto flex flex-wrap gap-2 max-sm:w-full max-sm:*:flex-1">{{ $bulk }}</div>
                 @endisset

@@ -74,7 +74,7 @@
         @if ($branch || ! $card)
             <span data-tree-toggle aria-hidden="true" @class(['text-foreground/70 grid size-5 shrink-0 place-items-center', 'order-last' => $card])>
                 @if ($branch)
-                    <x-widget.icon name="chevron-down" class="size-4 -rotate-90 transition-transform duration-200 group-data-busy/row:hidden group-data-expanded/row:rotate-0 motion-reduce:transition-none rtl:rotate-90 rtl:group-data-expanded/row:rotate-0" />
+                    <x-widget.icon name="chevron-down" class="size-4 -rotate-90 transition-transform duration-300 group-data-busy/row:hidden group-data-expanded/row:rotate-0 motion-reduce:transition-none rtl:rotate-90 rtl:group-data-expanded/row:rotate-0" />
                     <span class="border-line border-t-primary hidden size-4 animate-spin rounded-full border-2 group-data-busy/row:block"></span>
                 @endif
             </span>

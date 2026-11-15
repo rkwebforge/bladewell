@@ -38,10 +38,12 @@
     // Disabled looks are skipped while loading (aria-busy), so a loading button keeps its colour.
     $variants = [
         'primary' => 'bg-primary-fill text-on-primary border-transparent not-disabled:hover:bg-primary-hover disabled:not-aria-busy:bg-line disabled:not-aria-busy:text-muted',
-        'secondary' => 'bg-primary/10 text-primary border-transparent not-disabled:hover:bg-primary-hover not-disabled:hover:text-on-primary disabled:not-aria-busy:bg-field disabled:not-aria-busy:text-muted',
-        'tertiary' => 'bg-transparent text-primary border-primary/40 not-disabled:hover:border-primary-hover not-disabled:hover:bg-primary-hover not-disabled:hover:text-on-primary disabled:not-aria-busy:border-line disabled:not-aria-busy:text-muted',
+        // Secondary and tertiary deepen their tint on hover and keep their text, as the others do. Turning dark with white
+        // text crossed the two colours mid-fade, and the label vanished for a moment. Primary reads at 4.5:1 on its 20% tint.
+        'secondary' => 'bg-primary/10 text-primary border-transparent not-disabled:hover:bg-primary/20 disabled:not-aria-busy:bg-field disabled:not-aria-busy:text-muted',
+        'tertiary' => 'bg-transparent text-primary border-primary/40 not-disabled:hover:border-primary not-disabled:hover:bg-primary/10 disabled:not-aria-busy:border-line disabled:not-aria-busy:text-muted',
         // For destructive actions: delete, remove, cancel a subscription.
-        'danger' => 'bg-error-fill border-transparent text-white not-disabled:hover:brightness-90 disabled:not-aria-busy:bg-line disabled:not-aria-busy:text-muted',
+        'danger' => 'bg-error-fill border-transparent text-white not-disabled:hover:bg-[color-mix(in_oklab,var(--color-error-fill)_85%,black)] disabled:not-aria-busy:bg-line disabled:not-aria-busy:text-muted',
         // The quiet choice next to a primary action, e.g. Cancel beside Save.
         'neutral' => 'bg-field text-foreground border-transparent not-disabled:hover:bg-line disabled:not-aria-busy:text-muted',
         'link' => 'bg-transparent text-link border-transparent not-disabled:hover:text-link-hover disabled:not-aria-busy:text-muted',
@@ -69,12 +71,14 @@
     }
 
     $classes = [
-        // Its colours, and the press, ease over a fifth of a second, slowing as they arrive: long enough to see the change
-        // happen, short enough not to wait for. Not for people who've asked for less motion.
-        'group/button relative inline-flex min-w-fit items-center justify-center gap-1.5 border font-medium whitespace-nowrap select-none transition-all duration-200 ease-out outline-none motion-reduce:transition-none',
+        // Its colours ease over a fifth of a second, slowing as they arrive: long enough to see the change happen, short
+        // enough not to wait for. Only colours and the press move, so a hover repaints no more than the button's own fill.
+        // Not for people who've asked for less motion.
+        'group/button relative inline-flex min-w-fit items-center justify-center gap-1.5 border font-medium whitespace-nowrap select-none transition-[color,background-color,border-color,scale] duration-200 ease-out outline-none motion-reduce:transition-none',
         'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
-        // A guarded (busy) button is aria-disabled, not disabled, so it keeps focus; it ignores the pointer instead.
-        'not-disabled:active:scale-95 disabled:cursor-not-allowed aria-busy:cursor-wait aria-busy:pointer-events-none',
+        // The press: in quickly and only a little, so a fast click doesn't shrink and spring back; it eases back out over
+        // the usual 200ms. A guarded (busy) button is aria-disabled, not disabled, so it keeps focus; it ignores the pointer instead.
+        'not-disabled:active:scale-[0.97] not-disabled:active:duration-100 disabled:cursor-not-allowed aria-busy:cursor-wait aria-busy:pointer-events-none',
         $variants[$variant],
         $textSizes[$size],
         match (true) {

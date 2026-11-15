@@ -216,6 +216,48 @@ onLivewireMorph(refreshCounters);
 
 // --- Popovers and the on-screen keyboard -------------------------------------------------------------------
 
+// --- Chips (tags, select) ------------------------------------------------------------------------------------------
+
+const CHIP_MS = 150;
+const stillMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// A chip the person just added fades and grows in. Called only for those, so chips already on the page (a load, a
+// Livewire render) don't all play it at once.
+export function chipIn(chip) {
+    if (!stillMotion()) {
+        chip.animate([{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }], { duration: CHIP_MS, easing: 'ease-out' });
+    }
+}
+
+// A removed chip fades while it closes up its width and the gap after it, so the chips beside it slide over rather
+// than jump; then it goes. Marked data-leaving and inert at once: it's no longer a value, a Tab stop or something a
+// screen reader reads, and code that counts chips skips it.
+export function chipOut(chip) {
+    chip.dataset.leaving = '';
+    chip.inert = true;
+    chip.setAttribute('aria-hidden', 'true');
+    if (stillMotion() || !chip.isConnected) {
+        chip.remove();
+
+        return;
+    }
+    // The gap comes from the nearest box that lays chips out (a list can be display: contents).
+    let row = chip.parentElement;
+    while (row && getComputedStyle(row).display === 'contents') {
+        row = row.parentElement;
+    }
+    const gap = row ? parseFloat(getComputedStyle(row).columnGap) || 0 : 0;
+    const style = getComputedStyle(chip);
+    const from = { opacity: 1, scale: 1, width: `${chip.getBoundingClientRect().width}px`, marginInlineEnd: style.marginInlineEnd };
+    const to = { opacity: 0, scale: 0.9, width: '0px', marginInlineEnd: `${-gap}px` };
+    for (const side of ['paddingInlineStart', 'paddingInlineEnd', 'borderInlineStartWidth', 'borderInlineEndWidth']) {
+        from[side] = style[side];
+        to[side] = '0px';
+    }
+    Object.assign(chip.style, { overflow: 'hidden', whiteSpace: 'nowrap', minWidth: '0', flexShrink: '0' });
+    chip.animate([from, to], { duration: CHIP_MS, easing: 'ease-out', fill: 'forwards' }).onfinish = () => chip.remove();
+}
+
 // The part of the window that can be seen, in the coordinates getBoundingClientRect() and position: fixed use. An
 // on-screen keyboard covers the bottom of the window without changing innerHeight (iOS, and Android Chrome since 108),
 // so a popover placed by innerHeight opens under it; visualViewport knows where the keyboard starts. The keyboard
@@ -239,6 +281,8 @@ export function placeBeside(popover, box, { gap, edge, scroller = null }) {
     const roomAbove = box.top - gap - (view.top + edge);
     let height = popover.offsetHeight;
     const below = height <= roomBelow || roomBelow >= roomAbove;
+    // Which side it opens on, so it grows out of the field (origin-bottom when above).
+    popover.dataset.side = below ? 'bottom' : 'top';
     const room = below ? roomBelow : roomAbove;
     if (scroller && height > room) {
         // Never shorter than about three rows, so it stays usable.
