@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.5.3] - 2026-11-15
+
 ### Changed
 
 - **table**: the selection bar stays in place, with its buttons disabled until a row is ticked, so ticking a row no longer shifts the rows.
@@ -401,7 +403,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.2...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.3...HEAD
+[1.5.3]: https://github.com/rkwebforge/bladewell/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/rkwebforge/bladewell/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/rkwebforge/bladewell/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/rkwebforge/bladewell/compare/v1.4.11...v1.5.0
