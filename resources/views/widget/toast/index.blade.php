@@ -4,6 +4,9 @@
     // Milliseconds before a toast closes itself; false keeps it until dismissed. The rest of these props are defaults
     // too: a single toast can change them in its options.
     'autoClose' => 3000,
+    // The same, for error and warning toasts only (the ones read out at once). false keeps them until dismissed, so a
+    // slow reader or a screen magnifier doesn't miss them. Unset, they follow autoClose.
+    'alertAutoClose' => null,
     // A bar along the bottom that shows the time left before it closes.
     'showProgress' => true,
     // Holds the timer while the pointer is over a toast.
@@ -59,6 +62,7 @@
     data-toast-container
     data-position="{{ $position }}"
     data-auto-close="{{ $autoClose === false ? 'false' : (int) $autoClose }}"
+    @if ($alertAutoClose !== null) data-alert-auto-close="{{ $alertAutoClose === false ? 'false' : (int) $alertAutoClose }}" @endif
     data-show-progress="{{ $showProgress ? 'true' : 'false' }}"
     data-pause-on-hover="{{ $pauseOnHover ? 'true' : 'false' }}"
     data-pause-on-focus-loss="{{ $pauseOnFocusLoss ? 'true' : 'false' }}"

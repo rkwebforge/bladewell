@@ -39,6 +39,18 @@ function targetOf(root) {
         ?? root;
 }
 
+// What a screen reader names the target, near enough: aria-labelledby, else aria-label, else its own text (not the
+// tooltip's, when the tooltip sits inside it). Folded, to compare with the tooltip's text.
+const fold = (text) => text.trim().replace(/\s+/g, ' ').toLowerCase();
+function nameOf(target, bubble) {
+    const labelledBy = target.getAttribute('aria-labelledby');
+    if (labelledBy) {
+        return fold(labelledBy.split(' ').map((id) => document.getElementById(id)?.textContent ?? '').join(' '));
+    }
+
+    return fold(target.getAttribute('aria-label') ?? [...target.childNodes].filter((node) => node !== bubble).map((node) => node.textContent).join(' '));
+}
+
 // Points the target's aria-describedby at the tooltip (keeping the target's own ids), and drops a title saying the
 // same thing, which would otherwise show the browser's own tooltip on top of this one. Run again after a Livewire
 // render, which puts back the server's markup without them.
@@ -61,10 +73,11 @@ function link(root) {
 
         return;
     }
+    // A tooltip saying what the target is already called (an icon button labelled Edit, with Edit as its tooltip) would
+    // be read twice, "Edit, button, Edit": it describes nothing more, so it isn't a description.
     const ids = new Set((target.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean));
-    if (!ids.has(bubble.id)) {
-        target.setAttribute('aria-describedby', [...ids, bubble.id].join(' '));
-    }
+    nameOf(target, bubble) === fold(bubble.textContent) ? ids.delete(bubble.id) : ids.add(bubble.id);
+    ids.size ? target.setAttribute('aria-describedby', [...ids].join(' ')) : target.removeAttribute('aria-describedby');
     if (target.getAttribute('title')?.trim() === bubble.textContent.trim()) {
         target.removeAttribute('title');
     }
@@ -153,6 +166,8 @@ function position(root) {
 function show(root, { finger = false } = {}) {
     clearTimeout(showTimer);
     clearTimeout(hideTimer);
+    // The text may have changed since the page loaded (Copy, then Copied!): whether it only repeats the name goes with it.
+    link(root);
     if (open === root) {
         return;
     }

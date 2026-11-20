@@ -72,7 +72,10 @@
         'segmented' => 'rounded-xl px-4 py-2 text-foreground/70 hover:text-foreground aria-selected:bg-surface aria-selected:text-foreground aria-selected:shadow-sm aria-[current=page]:bg-surface aria-[current=page]:text-foreground aria-[current=page]:shadow-sm',
         'vertical' => '-ms-px border-s-2 border-transparent px-4 py-2 text-start text-foreground/70 hover:text-foreground aria-selected:border-primary aria-selected:bg-primary/5 aria-selected:text-foreground aria-[current=page]:border-primary aria-[current=page]:bg-primary/5 aria-[current=page]:text-foreground',
     ][$variant];
-    $tabBase = 'focus-visible:ring-primary inline-flex shrink-0 items-center gap-2 font-medium whitespace-nowrap outline-none transition-colors select-none focus-visible:ring-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 '.$tab;
+    // High Contrast drops backgrounds and shadows and paints every border alike, so no variant's open tab would stand
+    // out: outline it there instead.
+    $open = 'forced-colors:aria-selected:outline-2 forced-colors:aria-selected:-outline-offset-2 forced-colors:aria-selected:outline-[Highlight] forced-colors:aria-[current=page]:outline-2 forced-colors:aria-[current=page]:-outline-offset-2 forced-colors:aria-[current=page]:outline-[Highlight]';
+    $tabBase = 'focus-visible:ring-primary inline-flex shrink-0 items-center gap-2 font-medium whitespace-nowrap outline-none transition-colors select-none focus-visible:ring-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 '.$open.' '.$tab;
 @endphp
 
 {{--
@@ -90,8 +93,9 @@
         <nav @if ($label) aria-label="{{ $label }}" @endif class="max-w-full overflow-x-auto overscroll-x-contain [scrollbar-width:thin]">
             <div @class([$list, 'w-max min-w-full' => ! $vertical && $variant !== 'segmented'])>
                 @foreach ($items as $item)
+                    {{-- Disabled: no href, so a click goes nowhere, as aria-disabled says. --}}
                     <a
-                        href="{{ $item['href'] }}"
+                        @unless ($item['disabled']) href="{{ $item['href'] }}" @endunless
                         @if ($item['key'] === $selected) aria-current="page" @endif
                         @if ($item['disabled']) aria-disabled="true" tabindex="-1" @endif
                         class="{{ $tabBase }}"
@@ -151,10 +155,13 @@
                     role="tabpanel"
                     id="{{ $id }}-panel-{{ $slug($item['key']) }}"
                     aria-labelledby="{{ $id }}-tab-{{ $slug($item['key']) }}"
-                    {{-- Focusable, so a panel with nothing focusable in it can still be reached with Tab. --}}
-                    tabindex="0"
+                    {{-- The open one focusable, so a panel with nothing focusable in it can still be reached with Tab. A closed
+                         one is hidden="until-found": find in page still reaches its text and opens its tab (resources/js/widget/tabs),
+                         and as it keeps a box of its own there, it's out of the Tab order. A disabled tab's panel stays plainly
+                         hidden, as its tab can't open. --}}
+                    tabindex="{{ $open ? 0 : -1 }}"
                     data-tab-panel="{{ $item['key'] }}"
-                    @unless ($open) hidden @endunless
+                    @unless ($open) hidden="{{ $item['disabled'] ? 'hidden' : 'until-found' }}" @endunless
                     @unless ($bound) wire:ignore.self @endunless
                     class="focus-visible:ring-primary rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
                 >{{ $__laravel_slots[$item['key']] ?? '' }}</div>

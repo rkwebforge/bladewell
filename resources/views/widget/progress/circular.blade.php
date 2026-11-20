@@ -77,7 +77,7 @@
     >
         {{-- pathLength="100" makes the dash maths plain percentages; -rotate-90 starts the arc at 12 o'clock.
              --progress is the one dynamic value; progress.set() updates it and the transition animates it. --}}
-        <svg viewBox="0 0 100 100" aria-hidden="true" class="size-full -rotate-90 group-data-indeterminate/progress:animate-spin motion-reduce:group-data-indeterminate/progress:animate-none">
+        <svg viewBox="0 0 100 100" aria-hidden="true" class="size-full -rotate-90 group-data-indeterminate/progress:animate-spin motion-reduce:group-data-indeterminate/progress:[animation-duration:6s]">
             <circle cx="50" cy="50" r="{{ $radius }}" fill="none" stroke-width="{{ $stroke }}" class="stroke-field" />
             <circle
                 data-progress-fill

@@ -10,6 +10,8 @@
 import { onLivewireMorph } from '../field';
 
 const TREE = '[data-tree]';
+// How long an item waits for its children before saying they couldn't load.
+const TIMEOUT_MS = 20_000;
 const ITEM = '[data-tree-item]';
 // The error row's look, written out here since the script builds it.
 const ERROR_ROW = 'text-error flex flex-wrap items-center gap-x-2 px-2 py-1.5 text-sm';
@@ -101,7 +103,7 @@ function slideCards(tree, change) {
 // The fade before it and this take half the time each, so closing ends with the chevron's turn, as opening does.
 function narrow(item, group) {
     const from = item.getBoundingClientRect().width;
-    group.hidden = true;
+    group.hidden = 'until-found';
     const to = item.getBoundingClientRect().width;
     if (from - to >= 0.5) {
         sliding.set(item, item.animate([{ minWidth: `${from}px` }, { minWidth: `${to}px` }], { duration: DURATION / 2, easing: EASING }));
@@ -120,7 +122,7 @@ function showGroup(item, group, open) {
     group.style.overflow = '';
 
     if (reducedMotion() || !group.isConnected) {
-        group.hidden = !open;
+        group.hidden = open ? false : 'until-found';
 
         return;
     }
@@ -144,12 +146,21 @@ function showGroup(item, group, open) {
         running.delete(group);
         group.style.overflow = '';
         if (!open) {
-            sideways ? narrow(item, group) : (group.hidden = true);
+            sideways ? narrow(item, group) : (group.hidden = 'until-found');
             group.removeAttribute('data-closing');
             group.inert = false;
         }
     };
 }
+
+// Closed branches are hidden="until-found": find in page matched a name in one, so the browser shows it. Open the branch
+// properly too, so it says it's expanded and its chevron turns.
+document.addEventListener('beforematch', (event) => {
+    const item = event.target instanceof Element && event.target.matches('[data-tree-group]') ? event.target.closest(ITEM) : null;
+    if (item && isBranch(item) && !isOpen(item)) {
+        setOpen(item, true);
+    }
+});
 
 async function setOpen(item, open) {
     if (!isBranch(item) || isOpen(item) === open) {
@@ -208,7 +219,8 @@ function load(item) {
     item.setAttribute('aria-busy', 'true');
     const done = (async () => {
         try {
-            const response = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin' });
+            // A server that never answers would leave the item busy for good: give up after a while, as a failure.
+            const response = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin', signal: AbortSignal.timeout(TIMEOUT_MS) });
             // A redirect (to a login page, say) brings back a page, not children.
             if (!response.ok || response.redirected) {
                 throw new Error(`${response.status}`);

@@ -12,7 +12,7 @@
 @endphp
 
 <li class="flex min-w-0 items-start gap-2.5 text-sm">
-    <span aria-hidden="true" class="mt-1.5 size-2 shrink-0 rounded-full {{ $dots[$event->tone] }}"></span>
+    <span aria-hidden="true" class="mt-1.5 size-2 shrink-0 rounded-full forced-color-adjust-none {{ $dots[$event->tone] }}"></span>
     <div class="min-w-0 flex-1">
         <p class="text-muted text-xs tabular-nums">{{ $calendar->timeOn($event, $day) }}</p>
         <p class="flex flex-wrap items-baseline gap-x-2 gap-y-1">

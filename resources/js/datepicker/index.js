@@ -79,14 +79,16 @@ export const horizontalStep = (key, rtl) => (key === 'ArrowRight' ? 1 : -1) * (r
 // so the grid scales with the dropdown instead of forcing a fixed width.
 export const DAY_BASE = 'mx-auto grid aspect-square w-full max-w-11 place-items-center rounded-full text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary';
 const DAY_TONE = {
-    selected: 'bg-primary-fill font-semibold text-on-primary',
+    // forced-colors: High Contrast would paint the chosen day the page colour, like every other day.
+    selected: 'bg-primary-fill font-semibold text-on-primary forced-color-adjust-none forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]',
     disabled: 'cursor-not-allowed text-muted/50',
     outside: 'text-muted hover:bg-field',
     today: 'font-semibold text-primary hover:bg-field',
     default: 'text-foreground hover:bg-field',
 };
 // Added on top of whichever tone applies, so today stays marked even when disabled or outside the month.
-export const TODAY_MARK = 'ring-1 ring-inset ring-primary';
+// High Contrast drops the ring (a shadow), so there it's an outline.
+export const TODAY_MARK = 'ring-1 ring-inset ring-primary forced-colors:outline-1 forced-colors:-outline-offset-1 forced-colors:outline-[CanvasText]';
 
 export const VIEWPORT_EDGE = 16;
 export const POPOVER_GAP = 4;

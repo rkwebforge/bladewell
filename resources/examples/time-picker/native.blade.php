@@ -1,0 +1,2 @@
+{{-- variant="native": the browser's own time field. On a phone or tablet it opens the device's time picker, which is easier to use by touch than typing into segments; on a computer it's typed with the keyboard. The browser checks required, min, max and step, and it submits HH:MM like the other variants. It writes the time the browser's way, so hour12 and locale don't apply. --}}
+<x-widget.time-picker name="pickup_at" label="Pick-up time" variant="native" min="08:00" max="20:00" :step="15" class="max-w-48" />

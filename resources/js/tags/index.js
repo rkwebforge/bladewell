@@ -4,7 +4,7 @@
 // twice, and past max nothing more is. The hidden select, which is what submits and what wire:model binds, follows
 // every change; a screen reader hears each one.
 
-import { chipIn, chipOut, on } from '../field';
+import { chipIn, chipOut, composing, on } from '../field';
 
 const ROOT = '[data-field]';
 
@@ -82,7 +82,7 @@ on('keydown', '[data-tags-input]', (event, input) => {
         return;
     }
     const parts = partsOf(input);
-    if ((event.key === 'Enter' || event.key === ',') && !event.isComposing) {
+    if ((event.key === 'Enter' || event.key === ',') && !composing(event)) {
         // An empty box lets Enter submit the form, as in any text box.
         if (event.key === 'Enter' && input.value.trim() === '') {
             return;

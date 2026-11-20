@@ -40,6 +40,10 @@ function open(target) {
     // Lets content be built just in time (e.g. the pagination page list) before focus is placed.
     dialog.dispatchEvent(new CustomEvent('modal:before-open'));
     swipeToClose(dialog);
+    // Esc and the other close requests set no return value, and the browser keeps the last one: without this, a modal
+    // closed with a button last time would report that button again on modal:closed after an Esc. Cleared on opening,
+    // not on closing, so your own close listeners still read this time's.
+    dialog.returnValue = '';
     dialog.showModal();
     stacked(dialog);
     // data-autofocus rather than the native attribute: the browser also runs page-load autofocus on

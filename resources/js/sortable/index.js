@@ -156,13 +156,28 @@ function slide(list, change) {
     }
 }
 
+// Moves node before `before` in parent without taking it out of the page, where the browser can (moveBefore): it keeps
+// focus, a pointer capture and any transition running. Elsewhere insertBefore, which takes it out and puts it back.
+function moveNode(parent, node, before) {
+    if (typeof parent.moveBefore === 'function' && node.isConnected && parent.isConnected) {
+        try {
+            parent.moveBefore(node, before);
+
+            return;
+        } catch {
+            // Not movable that way (from another document, say): the old way below.
+        }
+    }
+    parent.insertBefore(node, before);
+}
+
 // Puts the item at index (counted without the item itself), and keeps focus where it was inside it: taking an element
 // out of the page drops its focus. Scrolled into view, except while dragged: the pointer is already there.
 function place(item, index, { scroll = true } = {}) {
     const list = listOf(item);
     const focused = item.contains(document.activeElement) ? document.activeElement : null;
     const others = itemsIn(list).filter((other) => other !== item);
-    slide(list, () => boxOf(list).insertBefore(item, others[index] ?? null));
+    slide(list, () => moveNode(boxOf(list), item, others[index] ?? null));
     if (focused) {
         focused.focus({ preventScroll: true });
     }
@@ -192,12 +207,12 @@ function putBack(item, before, options = {}) {
 function arrange(list, ids) {
     const items = itemsIn(list);
     const rank = (item) => (ids.indexOf(idOf(item)) + 1) || Infinity;
-    const sorted = [...items].sort((a, b) => rank(a) - rank(b));
+    const sorted = items.toSorted((a, b) => rank(a) - rank(b));
     if (sorted.every((item, index) => item === items[index])) {
         return;
     }
     const focused = list.contains(document.activeElement) ? document.activeElement : null;
-    slide(list, () => boxOf(list).append(...sorted));
+    slide(list, () => sorted.forEach((item) => moveNode(boxOf(list), item, null)));
     focused?.focus({ preventScroll: true });
     refresh(list);
 }

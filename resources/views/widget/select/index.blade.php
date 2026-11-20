@@ -123,7 +123,7 @@
 
 {{-- data-required-message: the value is in hidden inputs, which the browser never validates, so resources/js/widget/field
      stops an empty submit itself and shows this. --}}
-<x-widget.field :required="$attributes->has('required')" :data-required-message="$attributes->has('required') && ! $disabled ? $requiredMessage : false" data-select :data-multiple="$multiple ? 'true' : false" :data-search-url="$remote ? $searchUrl : false" :data-search-min-length="$remote ? max(1, (int) $searchMinLength) : false" :data-display="$display" :data-count-label="$display === 'count' ? $countLabel : false" :id="$id" :label="$innerLabel ? null : $label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" box="relative min-h-12 items-stretch" :class="$attributes->get('class')">
+<x-widget.field :required="$attributes->has('required')" :data-required-message="$attributes->has('required') && ! $disabled && ! $readonly ? $requiredMessage : false" data-select :data-multiple="$multiple ? 'true' : false" :data-search-url="$remote ? $searchUrl : false" :data-search-min-length="$remote ? max(1, (int) $searchMinLength) : false" :data-display="$display" :data-count-label="$display === 'count' ? $countLabel : false" :id="$id" :label="$innerLabel ? null : $label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" box="relative min-h-12 items-stretch" :class="$attributes->get('class')">
     @if ($display === 'chips')
         {{-- Chips sit above the trigger, which fills the box behind them: clicking any empty spot opens the list,
              and only the chips' remove buttons take clicks of their own (a button can't sit inside the trigger). --}}

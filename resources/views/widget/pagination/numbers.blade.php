@@ -65,9 +65,9 @@
     @endif
 
     @if ($paginator->onFirstPage())
-        <span class="{{ $arrow }} {{ $off }}" aria-disabled="true"><x-widget.icon name="chevron-left" class="size-6" /></span>
+        <span class="{{ $arrow }} {{ $off }}" aria-disabled="true"><x-widget.icon name="chevron-left" class="size-6 rtl:rotate-180" /></span>
     @else
-        <a href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="Previous page" class="{{ $arrow }} {{ $link }}"><x-widget.icon name="chevron-left" class="size-6" /></a>
+        <a href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="Previous page" class="{{ $arrow }} {{ $link }}"><x-widget.icon name="chevron-left" class="size-6 rtl:rotate-180" /></a>
     @endif
 
     @foreach ($slots as $slot)
@@ -81,9 +81,9 @@
     @endforeach
 
     @if ($paginator->hasMorePages())
-        <a href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="Next page" class="{{ $arrow }} {{ $link }}"><x-widget.icon name="chevron-right" class="size-6" /></a>
+        <a href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="Next page" class="{{ $arrow }} {{ $link }}"><x-widget.icon name="chevron-right" class="size-6 rtl:rotate-180" /></a>
     @else
-        <span class="{{ $arrow }} {{ $off }}" aria-disabled="true"><x-widget.icon name="chevron-right" class="size-6" /></span>
+        <span class="{{ $arrow }} {{ $off }}" aria-disabled="true"><x-widget.icon name="chevron-right" class="size-6 rtl:rotate-180" /></span>
     @endif
 
     @if ($segmented)

@@ -49,11 +49,13 @@
                 aria-hidden="true"
                 @class([
                     'h-2 min-w-0 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none',
-                    'bg-primary' => $step <= $current,
+                    // High Contrast would paint every segment the page colour: outlined, the steps done filled.
+                    'forced-color-adjust-none forced-colors:border forced-colors:border-[CanvasText]',
+                    'bg-primary forced-colors:bg-[Highlight]' => $step <= $current,
                     // With names on show, a ring marks "you are here".
                     'ring-primary/25 ring-2' => $step === $current && ($showLabel || $showSteps),
                     // Upcoming segments at 3:1 against the page, so the bar's length reads before any label does.
-                    'bg-muted/75' => $step > $current,
+                    'bg-muted/75 forced-colors:bg-[Canvas]' => $step > $current,
                 ])
             ></span>
         @endfor

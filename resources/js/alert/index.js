@@ -77,6 +77,13 @@ function announce(alerts) {
         return;
     }
     fresh.forEach((alert) => announced.set(alert, textOf(alert)));
+    const roleOf = (alert) => (alert.dataset.announce === 'alert' ? 'alert' : 'status');
+    // Where the browser has it, ariaNotify says it straight out: a region made just now might not be noticed in time.
+    if (typeof document.ariaNotify === 'function') {
+        fresh.forEach((alert) => document.ariaNotify(textOf(alert), { priority: roleOf(alert) === 'alert' ? 'high' : 'normal' }));
+
+        return;
+    }
     for (const role of ['status', 'alert']) {
         if (!regions[role]?.isConnected) {
             regions[role] = Object.assign(document.createElement('div'), { className: 'sr-only' });
@@ -85,7 +92,6 @@ function announce(alerts) {
         }
     }
     // Emptied now and filled a moment later, so the same message flashed twice in a row is read twice.
-    const roleOf = (alert) => (alert.dataset.announce === 'alert' ? 'alert' : 'status');
     new Set(fresh.map(roleOf)).forEach((role) => { regions[role].textContent = ''; });
     setTimeout(() => {
         for (const alert of fresh) {

@@ -114,7 +114,9 @@
     @if ($branch)
         {{-- Children fetched on first open are the script's: wire:ignore keeps a Livewire render from emptying them. Others
              still render, but wire:ignore.self keeps hidden as the person left it: open or closed is theirs, as on the node. --}}
-        <ul role="group" data-tree-group @if (! $open) hidden @endif @if ($childrenUrl) wire:ignore @else wire:ignore.self @endif>
+        {{-- hidden="until-found": closed, but find in page still reaches the names in it, and resources/js/widget/tree opens the
+             branch it's in. --}}
+        <ul role="group" data-tree-group @if (! $open) hidden="until-found" @endif @if ($childrenUrl) wire:ignore @else wire:ignore.self @endif>
             {{ $slot }}
         </ul>
     @endif

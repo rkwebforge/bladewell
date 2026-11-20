@@ -139,6 +139,25 @@ document.addEventListener('click', (event) => {
 
 adoptGroups();
 
+// Opened another way than a click (find in page matching text inside it, a #fragment link to something in it): with
+// the native name gone, the browser leaves the rest of its group open, so close them here. After a click they're
+// already closing, which collapse() leaves alone. toggle doesn't bubble, so in the capture phase.
+document.addEventListener('toggle', (event) => {
+    const details = event.target;
+    if (!(details instanceof HTMLDetailsElement) || !details.open || !details.matches('[data-accordion]')) {
+        return;
+    }
+    adoptGroups();
+    const group = details.dataset.accordionGroup;
+    if (group) {
+        document.querySelectorAll(`details[data-accordion-group="${CSS.escape(group)}"][open]`).forEach((other) => {
+            if (other !== details) {
+                collapse(other);
+            }
+        });
+    }
+}, true);
+
 // <x-widget.accordion.menu> paints scrolled to its current item with CSS alone (scroll-initial-target). Browsers without
 // it yet open the menu at the top, so bring the current item into view here, centred; that runs after the first paint.
 // Only when it's out of view: a menu with `remember` may already be back where it was left, and that should stay.

@@ -4,44 +4,44 @@
 // From JS: clock.start(target), clock.pause(target), clock.reset(target) on a stopwatch or timer, by its id or element;
 // also on window.clock.
 
-const LOCALE = 'en-US';
+// The app's locale, from the Blade views (data-locale): it names the day and month, and AM/PM. English for a clock
+// drawn without one.
+const localeOf = (el) => el.dataset.locale || 'en-US';
 const formatters = new Map();
 
-// Intl formatters are costly to build, so one per timezone/setting.
-function formatter(timeZone, options) {
-    const key = `${timeZone ?? ''}|${JSON.stringify(options)}`;
+// Intl formatters are costly to build, so one per locale/timezone/setting.
+function formatter(locale, timeZone, options) {
+    const key = `${locale}|${timeZone ?? ''}|${JSON.stringify(options)}`;
     if (!formatters.has(key)) {
-        formatters.set(key, new Intl.DateTimeFormat(LOCALE, { ...options, ...(timeZone ? { timeZone } : {}) }));
+        formatters.set(key, new Intl.DateTimeFormat(locale, { ...options, ...(timeZone ? { timeZone } : {}) }));
     }
 
     return formatters.get(key);
 }
 
-// The wall-clock parts of `date` in a timezone: { year, month, day, hour, minute, second, weekday, monthName }.
-function partsIn(date, timeZone) {
-    const parts = {};
-    for (const { type, value } of formatter(timeZone, {
-        year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',
-        weekday: 'long', hourCycle: 'h23',
-    }).formatToParts(date)) {
-        parts[type] = value;
-    }
-    parts.monthName = formatter(timeZone, { month: 'long' }).format(date);
+const partsOf = (format, date) => Object.fromEntries(format.formatToParts(date).map(({ type, value }) => [type, value]));
+
+// The wall-clock parts of `date` in a timezone: { year, month, day, hour, minute, second, period }. The numbers come
+// from an English format, so they're always 0-9; AM/PM is the locale's word for it, as the server writes it from ICU.
+function partsIn(date, timeZone, locale = 'en-US') {
+    const parts = partsOf(formatter('en-US', timeZone, {
+        year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23',
+    }), date);
+    const period = partsOf(formatter(locale, timeZone, { hour: 'numeric', hourCycle: 'h12' }), date).dayPeriod;
 
     return {
         year: Number(parts.year), month: Number(parts.month), day: Number(parts.day),
-        hour: Number(parts.hour) % 24, minute: Number(parts.minute), second: Number(parts.second),
-        weekday: parts.weekday, monthName: parts.monthName,
+        hour: Number(parts.hour) % 24, minute: Number(parts.minute), second: Number(parts.second), period,
     };
 }
 
 const pad = (n) => String(n).padStart(2, '0');
 
-// "09:41" / "9:41" + "AM", matching what the Blade views print.
-function timeText({ hour, minute, second }, { hour12 = false, seconds = false } = {}) {
+// "09:41" / "9:41" + "AM" (in the locale's words), matching what the Blade views print.
+function timeText({ hour, minute, second, period }, { hour12 = false, seconds = false } = {}) {
     const h = hour12 ? String(hour % 12 || 12) : pad(hour);
 
-    return { time: `${h}:${pad(minute)}${seconds ? `:${pad(second)}` : ''}`, period: hour < 12 ? 'AM' : 'PM' };
+    return { time: `${h}:${pad(minute)}${seconds ? `:${pad(second)}` : ''}`, period: period ?? (hour < 12 ? 'AM' : 'PM') };
 }
 
 // Minutes the timezone is ahead of UTC at `date`.
@@ -60,16 +60,17 @@ const setText = (el, text) => {
 // --- Clocks: digital, analog, world -------------------------------------------------------------------
 
 function tickDigital(el, now) {
-    const p = partsIn(now, el.dataset.timezone);
+    const p = partsIn(now, el.dataset.timezone, localeOf(el));
     const { time, period } = timeText(p, { hour12: 'hour12' in el.dataset, seconds: 'seconds' in el.dataset });
     setText(el.querySelector('[data-clock-time]'), time);
     setText(el.querySelector('[data-clock-period]'), period);
-    setText(el.querySelector('[data-clock-date]'), `${p.weekday}, ${p.day} ${p.monthName}`);
+    // The weekday, day and month in the locale's own order and words, as the server writes them from ICU.
+    setText(el.querySelector('[data-clock-date]'), formatter(localeOf(el), el.dataset.timezone, { weekday: 'long', day: 'numeric', month: 'long' }).format(now));
     el.querySelector('time')?.setAttribute('datetime', now.toISOString());
 }
 
 function tickAnalog(el, now) {
-    const p = partsIn(now, el.dataset.timezone);
+    const p = partsIn(now, el.dataset.timezone, localeOf(el));
     const angles = { hour: (p.hour % 12) * 30 + p.minute * 0.5, minute: p.minute * 6 + p.second * 0.1, second: p.second * 6 };
     for (const [name, angle] of Object.entries(angles)) {
         const hand = el.querySelector(`[data-clock-hand="${name}"]`);
@@ -80,12 +81,13 @@ function tickAnalog(el, now) {
             hand.style.transform = `rotate(${angle}deg)`;
         }
     }
-    const { time, period } = timeText(p, { hour12: true });
-    setText(el.querySelector('[data-clock-spoken]'), `${time} ${period}`);
+    // The time as the locale says it, AM/PM where it goes (午後5:41 in Japanese, 5:41 PM in English), as the server writes
+    // it from ICU.
+    setText(el.querySelector('[data-clock-spoken]'), formatter(localeOf(el), el.dataset.timezone, { hour: 'numeric', minute: '2-digit', hour12: true }).format(now));
 }
 
 function tickWorld(el, now) {
-    const p = partsIn(now, el.dataset.timezone);
+    const p = partsIn(now, el.dataset.timezone, localeOf(el));
     const { time, period } = timeText(p, { hour12: 'hour12' in el.dataset });
     setText(el.querySelector('[data-clock-time]'), time);
     setText(el.querySelector('[data-clock-period]'), period);

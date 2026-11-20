@@ -7,6 +7,8 @@ const LINK = 'text-foreground focus-visible:ring-primary block w-full rounded-xl
 // ~1.9 s), so list a window around the current page plus both ends; the first/last buttons and the
 // previous/next arrows (or the numbers/jump styles, better suited to huge tables) reach the rest.
 const LIST_ALL_UP_TO = 2000;
+// How long Load more waits for the next page before saying it couldn't load it, as the table waits for a page.
+const TIMEOUT_MS = 20_000;
 const WINDOW = 100;
 const ENDS = 3;
 
@@ -231,7 +233,8 @@ document.addEventListener('click', async (event) => {
     status.textContent = '';
 
     try {
-        const response = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin' });
+        // A server that never answers would leave the button busy for good: give up after a while, as a failure.
+        const response = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin', signal: AbortSignal.timeout(TIMEOUT_MS) });
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }

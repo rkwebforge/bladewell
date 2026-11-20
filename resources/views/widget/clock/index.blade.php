@@ -25,11 +25,28 @@
     if (! array_key_exists($size, $sizes)) {
         throw new \InvalidArgumentException("Unknown size [{$size}] for <x-widget.clock>. Use one of: ".implode(', ', array_keys($sizes)).'.');
     }
+    // AM/PM and the date in the app's locale, from ICU as the browser's Intl does it (resources/js/widget/clock), so the
+    // first frame and the ticks agree word for word. Carbon's own translations differ (Chinese 晚上 for 下午). Without the
+    // intl extension, English.
+    $icuLocale = str_replace('-', '_', app()->getLocale());
+    $icu = static function (\DateTimeInterface $at, string $pattern, string $fallback) use ($icuLocale): string {
+        if (! class_exists(\IntlDateFormatter::class)) {
+            return $at->format($fallback);
+        }
+        // A skeleton (letters in braces) becomes the locale's own pattern: Thursday, November 19 or 11月19日星期四.
+        if (str_starts_with($pattern, '{')) {
+            $pattern = (string) (new \IntlDatePatternGenerator($icuLocale))->getBestPattern(trim($pattern, '{}'));
+        }
+
+        return (string) (new \IntlDateFormatter($icuLocale, \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, $at->getTimezone(), null, $pattern))->format($at) ?: $at->format($fallback);
+    };
 @endphp
 
 <div
     data-clock="digital"
     data-timezone="{{ $timezone }}"
+    {{-- The app's locale names the day and month, and AM/PM, here and in resources/js/widget/clock as it ticks. --}}
+    data-locale="{{ str_replace('_', '-', app()->getLocale()) }}"
     @if ($hour12) data-hour12 @endif
     @if ($seconds) data-seconds @endif
     {{ $attributes->class(['inline-flex flex-col gap-1']) }}
@@ -42,11 +59,11 @@
     <time datetime="{{ $now->toIso8601String() }}" class="{{ $sizes[$size] }} text-foreground leading-none font-semibold tracking-tight tabular-nums">
         <span data-clock-time>{{ $now->format($hour12 ? 'g:i' : 'H:i') }}{{ $seconds ? $now->format(':s') : '' }}</span>
         @if ($hour12)
-            <span data-clock-period class="text-[0.45em] font-medium tracking-normal">{{ $now->format('A') }}</span>
+            <span data-clock-period class="text-[0.45em] font-medium tracking-normal">{{ $icu($now, 'a', 'A') }}</span>
         @endif
     </time>
 
     @if ($date)
-        <span data-clock-date class="text-foreground/70 text-sm">{{ $now->format('l, j F') }}</span>
+        <span data-clock-date class="text-foreground/70 text-sm">{{ $icu($now, '{EEEEdMMMM}', 'l, j F') }}</span>
     @endif
 </div><?php /* No newline after this: PHP drops it after a closing tag, so no space trails the component in running text. */ ?>

@@ -7,9 +7,11 @@ import { addDays, addMonths, alignedLeft, DAY_BASE, daysInMonth, EARLIEST, fillY
 
 // Day shape (DAY_BASE) and the today ring (TODAY_MARK) come from the datepicker, so restyling its days restyles these too.
 const DAY_TONE = {
-    endpoint: 'bg-primary-fill font-semibold text-on-primary',
+    // forced-colors: High Contrast removes the band and paints the ends the page colour. The ends fill, the days
+    // between are outlined.
+    endpoint: 'bg-primary-fill font-semibold text-on-primary forced-color-adjust-none forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]',
     disabled: 'cursor-not-allowed text-muted/50',
-    inRange: 'text-foreground hover:bg-primary/20',
+    inRange: 'text-foreground hover:bg-primary/20 forced-colors:outline-1 forced-colors:-outline-offset-1 forced-colors:outline-[Highlight]',
     today: 'font-semibold text-primary hover:bg-field',
     default: 'text-foreground hover:bg-field',
 };

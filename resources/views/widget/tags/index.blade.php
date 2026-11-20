@@ -63,7 +63,7 @@
     typed, a pasted list adds each item, and Backspace in the empty box removes the last tag. resources/js/widget/tags
     keeps the hidden select, which is what submits and what wire:model binds, in step with the chips.
 --}}
-<x-widget.field :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" :required="$required" :data-required-message="$required && ! $disabled ? $requiredMessage : false" :box="$below ? 'h-12 items-center px-4' : 'min-h-12 flex-wrap items-center gap-1.5 px-3 py-2'" :class="$attributes->get('class')">
+<x-widget.field :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" :required="$required" :data-required-message="$required && ! $disabled && ! $readonly ? $requiredMessage : false" :box="$below ? 'h-12 items-center px-4' : 'min-h-12 flex-wrap items-center gap-1.5 px-3 py-2'" :class="$attributes->get('class')">
     @unless ($below)
         <ul data-tags-list @if ($label) aria-label="{{ $label }}" @endif class="contents">
             @foreach ($tags as $tag)

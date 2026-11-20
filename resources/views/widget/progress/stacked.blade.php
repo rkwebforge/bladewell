@@ -50,7 +50,8 @@
         @endif
     </div>
 
-    <div role="img" aria-label="{{ $label }}: {{ $description }}" class="bg-field flex h-3 w-full gap-0.5 overflow-hidden rounded-full">
+    {{-- The colours are the information here (the legend matches them), so High Contrast keeps them. --}}
+    <div role="img" aria-label="{{ $label }}: {{ $description }}" class="bg-field flex h-3 w-full gap-0.5 overflow-hidden rounded-full forced-color-adjust-none forced-colors:border forced-colors:border-[CanvasText]">
         @foreach ($parts as $part)
             @if ($part['percent'] > 0)
                 {{-- Whole percents from the ranges at the end of base.css; min-w-0.5 keeps a sliver under 1% visible. --}}
@@ -63,7 +64,7 @@
         <ul class="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs" aria-hidden="true">
             @foreach ($parts as $part)
                 <li class="flex items-center gap-1.5">
-                    <span class="{{ $part['color'] }} size-2.5 shrink-0 rounded-full"></span>
+                    <span class="{{ $part['color'] }} size-2.5 shrink-0 rounded-full forced-color-adjust-none"></span>
                     <span class="text-foreground">{{ $part['label'] }}</span>
                     <span class="text-foreground/70 tabular-nums">{{ $part['text'] }}</span>
                 </li>

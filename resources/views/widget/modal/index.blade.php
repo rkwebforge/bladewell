@@ -114,7 +114,8 @@
     tabindex="-1"
     @if ($title) aria-labelledby="{{ $id }}-title" @elseif ($label) aria-label="{{ $label }}" @endif
     @if ($closeOnBackdrop) data-close-on-backdrop @endif
-    @if ($disableClose) data-disable-close @endif
+    {{-- closedby="none": where supported, the browser itself ignores Esc and the back gesture; the script covers the rest. --}}
+    @if ($disableClose) data-disable-close closedby="none" @endif
     @if ($resetOnClose) data-reset-on-close @endif
     @if ($open) data-open-on-load @endif
     @class([

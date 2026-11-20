@@ -204,6 +204,8 @@ function upload(root, entry) {
     retry.hidden = true;
     track.hidden = false;
     bar.style.width = '0%';
+    track.setAttribute('aria-valuenow', '0');
+    track.setAttribute('aria-label', `Uploading ${entry.file.name}`);
 
     const body = new FormData();
     body.append('file', entry.file);
@@ -217,7 +219,9 @@ function upload(root, entry) {
     xhr.setRequestHeader('X-CSRF-TOKEN', root.dataset.csrf ?? '');
     xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
-            bar.style.width = `${Math.round((event.loaded / event.total) * 100)}%`;
+            const percent = Math.round((event.loaded / event.total) * 100);
+            bar.style.width = `${percent}%`;
+            track.setAttribute('aria-valuenow', String(percent));
         }
     });
     const fail = (message) => {

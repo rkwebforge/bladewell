@@ -73,6 +73,21 @@ function initPriceRoll(root) {
         return { direction, text, spoken };
     }
 
+    // Moves node before `before` in parent without taking it out of the page, where the browser can (moveBefore): it keeps
+    // focus, a pointer capture and any transition running. Elsewhere insertBefore, which takes it out and puts it back.
+    function moveNode(parent, node, before) {
+        if (typeof parent.moveBefore === 'function' && node.isConnected && parent.isConnected) {
+            try {
+                parent.moveBefore(node, before);
+
+                return;
+            } catch {
+                // Not movable that way (from another document, say): the old way below.
+            }
+        }
+        parent.insertBefore(node, before);
+    }
+
     function update() {
         const next = Number(root.dataset.value);
         if (!Number.isFinite(next) || next === current) {
@@ -93,10 +108,20 @@ function initPriceRoll(root) {
             }
             return digitColumn();
         });
-        visual.replaceChildren(...built);
+        // Each in its place, the ones already there left alone: a column still rolling from the last value carries on
+        // instead of jumping. One that has to move keeps rolling too where the browser can move it (moveBefore).
+        built.forEach((el, index) => {
+            const at = visual.children[index] ?? null;
+            if (el !== at) {
+                moveNode(visual, el, at);
+            }
+        });
+        while (visual.children.length > built.length) {
+            visual.lastElementChild.remove();
+        }
 
-        // Flush layout before setting the new digits: re-inserted columns (replaceChildren moves them) and
-        // new ones (at 0) would otherwise take the new --d without a transition, i.e. jump instead of roll.
+        // Flush layout before setting the new digits: columns put back by insertBefore and new ones (at 0) would
+        // otherwise take the new --d without a transition, i.e. jump instead of roll.
         visual.getBoundingClientRect();
         let place = built.filter((el) => el.hasAttribute('data-price-roll-digit')).length;
         built.forEach((el, index) => {

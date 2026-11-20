@@ -60,13 +60,13 @@ export function clearError(field) {
 document.addEventListener('input', clearInvalid);
 document.addEventListener('change', clearInvalid);
 
-// --- Required select, date pickers and time picker -------------------------------------------------
+// --- Required select, date pickers, time picker and one-time code -------------------------------------------------
 
 // Their value lives in hidden inputs, which the browser never validates, so an empty required one would
 // submit. Stop the submit here instead, with the message in the frame's own error style, and focus the first
 // one: its accessible description then reads the message out. Capture phase, so it runs before the submit
 // guard (widget/button) and any other submit handler sees defaultPrevented. The server still validates.
-const CHOICE_TRIGGER = '[data-select-trigger], [data-datepicker-trigger], [data-date-range-trigger], [data-time-picker-trigger], [data-tags-input]';
+const CHOICE_TRIGGER = '[data-select-trigger], [data-datepicker-trigger], [data-date-range-trigger], [data-time-picker-trigger], [data-tags-input], [data-otp-box]';
 const ALERT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="text-error mt-0.5 size-3.5 shrink-0"><circle cx="12" cy="12" r="8.75"/><path d="M12 7.75v5"/><path d="M12 16.25h.01"/></svg>';
 
 // Chosen: a multiple select has at least one value input; otherwise every named value input (both ends of a
@@ -75,6 +75,11 @@ function hasChoice(field) {
     const list = field.querySelector('[data-select-values]');
     if (list) {
         return !list.dataset.name || list.querySelector('input') !== null;
+    }
+    // A one-time code: every box filled, not just some.
+    const code = field.querySelector('[data-otp-value]');
+    if (code) {
+        return !code.name || code.value.length === field.querySelectorAll('[data-otp-box]').length;
     }
     // Tags submit through their hidden multi-select, not through hidden inputs.
     const tags = field.querySelector('[data-tags-value]');
@@ -85,13 +90,13 @@ function hasChoice(field) {
     return [...field.querySelectorAll('input[type="hidden"][name]')].every((input) => input.value !== '');
 }
 
+// Shows the field's required message and returns what to focus. A one-time code goes on at its first empty box, where
+// typing carries on; its message stays on the first box, the field's own control, as the server puts it.
 function showRequired(field) {
     const trigger = field.querySelector(CHOICE_TRIGGER);
-    if (field.querySelector('[data-field-error]') || !trigger) {
-        return trigger;
-    }
+    const shown = field.querySelector('[data-field-error]') || !trigger ? trigger : showError(field, field.dataset.requiredMessage);
 
-    return showError(field, field.dataset.requiredMessage);
+    return [...field.querySelectorAll('[data-otp-box]')].find((box) => box.value === '') ?? shown;
 }
 
 // Shows message as the field's error, in the frame's own style and as the server marks it up, and returns the control
@@ -183,6 +188,11 @@ export function replaceValue(input, clean) {
     const caret = Math.max(0, clean.length - fromEnd);
     input.setSelectionRange(caret, caret);
 }
+
+// True while an input method (Chinese, Japanese, Korean…) is composing: there Enter confirms the characters and the
+// arrows move between candidates, so a list's keys must leave them alone. Safari reports a composition's last Enter
+// with isComposing false, but keyCode 229.
+export const composing = (event) => event.isComposing || event.keyCode === 229;
 
 // --- Livewire renders ----------------------------------------------------------------------------------------
 

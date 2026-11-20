@@ -65,8 +65,13 @@ function activate(root, tab, { focus = false, remember = true } = {}) {
         other.setAttribute('aria-selected', String(open));
         other.tabIndex = open ? 0 : -1;
     }
+    const disabled = new Set(tabsOf(root).filter((other) => other.getAttribute('aria-disabled') === 'true').map((other) => other.dataset.tab));
     root.querySelectorAll(':scope > div > [role="tabpanel"]').forEach((panel) => {
-        panel.hidden = panel.dataset.tabPanel !== key;
+        const shown = panel.dataset.tabPanel === key;
+        // Closed, until-found: find in page still reaches it (beforematch, below). A box of its own is left there, so it
+        // leaves the Tab order. A browser without until-found hides it as before.
+        panel.hidden = shown ? false : (disabled.has(panel.dataset.tabPanel) || 'until-found');
+        panel.tabIndex = shown ? 0 : -1;
     });
     if (focus) {
         tab.focus();
@@ -122,6 +127,15 @@ document.addEventListener('keydown', (event) => {
 });
 
 // --- Opening the remembered tab ---------------------------------------------------------------------------
+
+// Find in page matched text in a closed panel: its tab opens, as a click would, so the tabs say what's showing.
+document.addEventListener('beforematch', (event) => {
+    const panel = event.target instanceof Element ? event.target.closest('[role="tabpanel"][data-tab-panel]') : null;
+    const root = panel?.closest(ROOT);
+    if (root) {
+        activate(root, tabsOf(root).find((tab) => tab.dataset.tab === panel.dataset.tabPanel));
+    }
+});
 
 function openFromHash(scope = document) {
     const pairs = hashPairs();

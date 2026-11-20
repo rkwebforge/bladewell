@@ -10,6 +10,47 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Added
+
+- **field**: `composing(event)` export, true while an input method (Chinese, Japanese, Korean…) is composing.
+- **otp**: `required-message` prop, shown when a required code is submitted with boxes left empty.
+- **chat**: `data-chat-error-live` in the composer, the live region that reads out a message the server turned away.
+- **toast**: `alert-auto-close` prop, how long error and warning toasts stay; `false` keeps them until dismissed. Unset, they follow `auto-close` as before.
+- **image-cropper**: move left, right, up and down buttons (`data-image-cropper-action="pan-left"` and so on, named by `pan-left-label` and the like), so the crop can be moved without dragging, as the arrow keys move it.
+- **time-picker**: `variant="native"`, the browser's own time field, which opens the phone's time picker on a touch screen.
+
+### Fixed
+
+- **all widgets**: keyboard focus shows in Windows High Contrast (forced colours), where the focus ring used to vanish. The rule is in `base.css`.
+- **switch, radio, tabs, progress, stepper, datepicker, date-range-picker, calendar, color-picker**: the on, checked, open, done, chosen and today states stay visible in Windows High Contrast.
+- **phone, select, search, tags**: Enter that confirms characters in an input method no longer picks a country, an option or a suggestion, or adds a tag. Tags already handled this in Chrome and now does in Safari too.
+- **table**: the scrollbars drawn over a table that scrolls inside itself are easier to see.
+- **tooltip, tooltip-cursor**: a tooltip that only repeats its element's name (an icon button labelled Edit, with Edit as its tooltip) is no longer read out twice.
+- **otp**: a required code can't be submitted with boxes left empty, and screen readers hear that it's required.
+- **progress**: with reduced motion, an indeterminate bar or ring slows down instead of stopping on what looked like a value.
+- **table**: tabbing upwards through a table that scrolls inside itself no longer hides the focused row under the header.
+- **pagination**: the previous, next, first and last arrows point the right way in a right-to-left page.
+- **tabs**: a disabled link tab no longer goes to its page when clicked.
+- **sidebar-layout**: on a narrow screen, the open menu and panel are announced as dialogs, and a Livewire render keeps them so.
+- **chat**: a message the server turns away is read out, and focus stays in the chat when Load older messages or Retry goes.
+- **file-upload**: each upload's progress is a progress bar screen readers can follow.
+- **kanban, calendar**: lists stay lists for VoiceOver in Safari, so a kanban column's card count is heard again.
+- **kanban**: a radio in a card being dragged no longer unticks the card's own.
+- **number, phone**: your own `autocomplete` and `inputmode` replace the widget's, instead of being ignored next to them.
+- **modal**: a modal opened again starts with no return value, so an Esc doesn't report the last button again; a locked modal also asks the browser to ignore Esc and the back gesture.
+- **command**: a text selection dragged out of the search box no longer closes the palette, and the page behind no longer scrolls while it's open.
+- **clock**: the date and AM/PM are written in the app's locale, in its own order and words (Sonntag, 27. September; 11月19日星期四), on the first frame and as it ticks. An analog clock's time is read out the locale's way too (午後5:41).
+- **otp, select, tags, datepicker, date-range-picker, time-picker**: a required field that is also readonly no longer stops its form, as a browser doesn't for a readonly input.
+- **toast, alert, chat**: messages are read out with `ariaNotify()` where the browser has it, so the first one is never missed; the live regions still say them elsewhere.
+- **sortable, kanban**: a moved item keeps its focus, and a dragged one its pointer, where the browser can move elements without taking them out of the page (`moveBefore()`).
+- **price-roll**: a new value arriving mid-roll no longer makes the digits still rolling jump.
+- **tabs, tree**: find in page reaches the text in closed tab panels and branches (`hidden="until-found"`), and opens the tab or branch it found it in.
+- **accordion**: an item opened by find in page or a link to something in it closes the others in its group, as a click does.
+- **pagination**: counts are grouped as the app's locale groups them (12.345 in German), where the intl extension is installed.
+- **pagination, tree, table**: Load more, an item's children and a table's next rows give up after 20 seconds with their error, instead of staying busy for good when the server never answers.
+- **captcha**: the basic example plays the code aloud too, and the docs say to give an audio version with every image.
+- **otp, verification-code**: the docs recommend the verification code for codes sent by text or email.
+
 ## [1.5.3] - 2026-11-15
 
 ### Changed

@@ -187,7 +187,14 @@ async function loadOlder(chat) {
             label.textContent = 'Load older messages';
         } else {
             delete chat.dataset.chatHistory;
+            // Focus on the button would drop to the page with it: on to the oldest message instead, where reading goes on.
+            const focused = button.contains(document.activeElement);
             button.parentElement.remove();
+            const first = older.find((node) => node instanceof HTMLElement) ?? log;
+            if (focused) {
+                first.tabIndex = -1;
+                first.focus({ preventScroll: true });
+            }
         }
     } catch {
         label.textContent = "Couldn't load older messages. Try again";
@@ -547,9 +554,17 @@ function sendNow(form, chat) {
     deliver(bubble);
 }
 
+// The announcement each composer has waiting (see showError), so clearing the error cancels it too.
+const announcing = new WeakMap();
+
 function clearError(form) {
+    clearTimeout(announcing.get(form));
     const input = inputOf(form);
     form.querySelector(`#${CSS.escape(input.id)}-error`)?.remove();
+    const live = form.querySelector('[data-chat-error-live]');
+    if (live) {
+        live.textContent = '';
+    }
     input.removeAttribute('aria-invalid');
     input.removeAttribute('aria-describedby');
 }
@@ -561,6 +576,20 @@ function showError(form, message) {
     form.append(note);
     input.setAttribute('aria-invalid', 'true');
     input.setAttribute('aria-describedby', note.id);
+    // The note is new, so a screen reader wouldn't notice it, and focus may not move: say it. ariaNotify where the browser
+    // has it; otherwise the composer's live region, on the page from the start, a moment later, so a region just emptied
+    // announces the same message again.
+    if (typeof document.ariaNotify === 'function') {
+        document.ariaNotify(message, { priority: 'high' });
+
+        return;
+    }
+    const live = form.querySelector('[data-chat-error-live]');
+    if (live) {
+        announcing.set(form, setTimeout(() => {
+            live.textContent = message;
+        }, 100));
+    }
 }
 
 // A message's status, from one of the chat's templates: delivered (Sent) or failed (Not sent, Retry).
@@ -674,8 +703,13 @@ document.addEventListener('click', (event) => {
     if (!bubble || !outgoing.has(bubble) || bubble.hasAttribute('data-chat-delivering')) {
         return;
     }
-    const { chat } = outgoing.get(bubble);
+    const { chat, form } = outgoing.get(bubble);
+    // Retry goes with the status it sits in, and focus would drop to the page: back to the box instead.
+    const focused = retry.contains(document.activeElement);
     bubble.querySelector('[data-chat-meta]')?.classList.remove('text-error');
     bubble.querySelector('[data-chat-status]')?.replaceChildren(...cloneOf(chat, 'outgoing').querySelector('[data-chat-status]').childNodes);
+    if (focused) {
+        inputOf(form)?.focus();
+    }
     deliver(bubble);
 });

@@ -350,6 +350,8 @@
         // whole edge, beside the sticky header too. resources/js/widget/table draws thin overlay thumbs instead
         // (data-table-thumb), the vertical one starting below the header.
         '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden' => $sticky,
+        // Focus scrolled into view lands below the sticky header (40px), not under it.
+        'scroll-pt-12' => $sticky,
         // Everywhere else a thin native scrollbar. Never both: the two scrollbar-width values would fight.
         '[scrollbar-width:thin]' => ! $sticky,
         'overflow-y-auto' => $maxHeight !== null,
@@ -507,9 +509,10 @@
     @if ($sticky)
         {{-- Overlay scrollbars for a table that scrolls inside itself, placed by the JS: the vertical one over the rows
              (below the header), the horizontal one along the bottom when the table is wider than its box.
-             Decorative for assistive tech; wheel, touch and arrow keys scroll natively. Drag them to scroll too. --}}
-        <div data-table-thumb aria-hidden="true" hidden class="bg-line-strong hover:bg-muted active:bg-muted absolute end-0 z-[2] w-1.5 cursor-grab touch-none rounded-full transition-colors select-none active:cursor-grabbing"></div>
-        <div data-table-thumb-x aria-hidden="true" hidden class="bg-line-strong hover:bg-muted active:bg-muted absolute z-[2] h-1.5 cursor-grab touch-none rounded-full transition-colors select-none active:cursor-grabbing"></div>
+             Decorative for assistive tech; wheel, touch and arrow keys scroll natively. Drag them to scroll too. They stand in
+             for the hidden native scrollbar, so they keep 3:1 against the page. --}}
+        <div data-table-thumb aria-hidden="true" hidden class="bg-muted hover:bg-foreground/80 active:bg-foreground/80 absolute end-0 z-[2] w-1.5 cursor-grab touch-none rounded-full transition-colors select-none active:cursor-grabbing"></div>
+        <div data-table-thumb-x aria-hidden="true" hidden class="bg-muted hover:bg-foreground/80 active:bg-foreground/80 absolute z-[2] h-1.5 cursor-grab touch-none rounded-full transition-colors select-none active:cursor-grabbing"></div>
     @endif
 
     @if ($infinite && ! $isEmpty && ! $loading && $rows->hasPages())

@@ -30,9 +30,11 @@
     @for ($step = 1; $step <= $total; $step++)
         <span aria-hidden="true" @class([
             'h-2 rounded-full transition-all duration-300 motion-reduce:transition-none',
-            'bg-primary w-6' => $step === $current,
-            'bg-primary/40 w-2' => $step < $current,
-            'bg-muted/75 w-2' => $step > $current,
+            // High Contrast would paint every dot the page colour: outlined, the current one in the highlight colour.
+            'forced-color-adjust-none forced-colors:border forced-colors:border-[CanvasText]',
+            'bg-primary w-6 forced-colors:bg-[Highlight] forced-colors:border-[Highlight]' => $step === $current,
+            'bg-primary/40 w-2 forced-colors:bg-[CanvasText]' => $step < $current,
+            'bg-muted/75 w-2 forced-colors:bg-[Canvas]' => $step > $current,
         ])></span>
     @endfor
 </div>

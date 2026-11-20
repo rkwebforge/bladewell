@@ -81,6 +81,8 @@
                     @php($optionId = "{$field->id}-{$i}")
                     <label for="{{ $optionId }}" @class([
                         'text-foreground/70 has-checked:bg-surface has-checked:text-foreground has-focus-visible:ring-primary tap-target-y relative rounded-xl px-4 py-2 text-center text-sm font-medium transition-colors has-checked:shadow-sm has-focus-visible:ring-2',
+                        // High Contrast drops the raised look (background and shadow): outline the checked segment.
+                        'forced-colors:has-checked:outline-2 forced-colors:has-checked:-outline-offset-2 forced-colors:has-checked:outline-[Highlight]',
                         'hover:text-foreground cursor-pointer' => ! ($disabled || $readonly || $item['disabled']),
                         'cursor-not-allowed opacity-60' => $disabled || $item['disabled'],
                     ])>

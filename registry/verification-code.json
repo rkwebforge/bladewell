@@ -1,6 +1,6 @@
 {
     "group": "Forms",
-    "description": "A single field for a verification code: digits only, or letters too, cut to its length. For codes typed in one go; see the OTP for one box per character. Works with Livewire wire:model.",
+    "description": "A single field for a verification code: digits only, or letters too, cut to its length. The better choice for a code sent by text or email: the phone can autofill it, it pastes in one go, and screen readers read it as one field. See the OTP for one box per character. Works with Livewire wire:model.",
     "requires": [
         "field"
     ],

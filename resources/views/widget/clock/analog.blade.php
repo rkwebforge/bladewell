@@ -31,10 +31,26 @@
     // The SVG transform attribute, not style="": a Content Security Policy doesn't restrict it, and rotate(a 50 50)
     // turns the hand about the centre by itself.
     $hand = fn (string $name): string => "rotate({$angles[$name]} 50 50)";
+    // AM/PM and the date in the app's locale, from ICU as the browser's Intl does it (resources/js/widget/clock), so the
+    // first frame and the ticks agree word for word. Carbon's own translations differ (Chinese 晚上 for 下午). Without the
+    // intl extension, English.
+    $icuLocale = str_replace('-', '_', app()->getLocale());
+    $icu = static function (\DateTimeInterface $at, string $pattern, string $fallback) use ($icuLocale): string {
+        if (! class_exists(\IntlDateFormatter::class)) {
+            return $at->format($fallback);
+        }
+        // A skeleton (letters in braces) becomes the locale's own pattern: Thursday, November 19 or 11月19日星期四.
+        if (str_starts_with($pattern, '{')) {
+            $pattern = (string) (new \IntlDatePatternGenerator($icuLocale))->getBestPattern(trim($pattern, '{}'));
+        }
+
+        return (string) (new \IntlDateFormatter($icuLocale, \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, $at->getTimezone(), null, $pattern))->format($at) ?: $at->format($fallback);
+    };
 @endphp
 
 <div
     data-clock="analog"
+    data-locale="{{ str_replace('_', '-', app()->getLocale()) }}"
     data-timezone="{{ $timezone }}"
     {{ $attributes->class(['inline-flex flex-col items-center gap-2']) }}
 >
@@ -67,5 +83,5 @@
         <span class="text-foreground text-sm font-medium">{{ $label }}</span>
     @endif
     {{-- The face is a picture; this is the time in words for screen readers, updated each minute. --}}
-    <time data-clock-spoken datetime="{{ $now->toIso8601String() }}" class="sr-only">{{ $now->format('g:i A') }}</time>
+    <time data-clock-spoken datetime="{{ $now->toIso8601String() }}" class="sr-only">{{ $icu($now, '{hm}', 'g:i A') }}</time>
 </div><?php /* No newline after this: PHP drops it after a closing tag, so no space trails the component in running text. */ ?>

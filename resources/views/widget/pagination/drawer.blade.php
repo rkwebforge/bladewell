@@ -17,9 +17,9 @@
         ['url' => $paginator->previousPageUrl(), 'off' => $paginator->onFirstPage(), 'icon' => 'chevron-left', 'label' => 'Previous page'],
     ] as $link)
         @if ($link['off'])
-            <span class="{{ $nav }} opacity-40" aria-disabled="true"><x-widget.icon :name="$link['icon']" class="size-6" /></span>
+            <span class="{{ $nav }} opacity-40" aria-disabled="true"><x-widget.icon :name="$link['icon']" class="size-6 rtl:rotate-180" /></span>
         @else
-            <a href="{{ $link['url'] }}" aria-label="{{ $link['label'] }}" class="{{ $nav }} hover:bg-line focus-visible:ring-primary outline-none focus-visible:ring-2"><x-widget.icon :name="$link['icon']" class="size-6" /></a>
+            <a href="{{ $link['url'] }}" aria-label="{{ $link['label'] }}" class="{{ $nav }} hover:bg-line focus-visible:ring-primary outline-none focus-visible:ring-2"><x-widget.icon :name="$link['icon']" class="size-6 rtl:rotate-180" /></a>
         @endif
     @endforeach
 
@@ -35,9 +35,9 @@
         ['url' => $paginator->url($last), 'off' => ! $paginator->hasMorePages(), 'icon' => 'chevrons-right', 'label' => 'Last page'],
     ] as $link)
         @if ($link['off'])
-            <span class="{{ $nav }} opacity-40" aria-disabled="true"><x-widget.icon :name="$link['icon']" class="size-6" /></span>
+            <span class="{{ $nav }} opacity-40" aria-disabled="true"><x-widget.icon :name="$link['icon']" class="size-6 rtl:rotate-180" /></span>
         @else
-            <a href="{{ $link['url'] }}" aria-label="{{ $link['label'] }}" class="{{ $nav }} hover:bg-line focus-visible:ring-primary outline-none focus-visible:ring-2"><x-widget.icon :name="$link['icon']" class="size-6" /></a>
+            <a href="{{ $link['url'] }}" aria-label="{{ $link['label'] }}" class="{{ $nav }} hover:bg-line focus-visible:ring-primary outline-none focus-visible:ring-2"><x-widget.icon :name="$link['icon']" class="size-6 rtl:rotate-180" /></a>
         @endif
     @endforeach
 </nav>

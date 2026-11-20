@@ -230,6 +230,8 @@
                                     <div class="px-1 pt-1">
                                         <time datetime="{{ $day->iso }}" @class([
                                             'in-data-today:bg-primary-fill in-data-today:text-on-primary in-data-today:font-semibold grid size-7 place-items-center rounded-full text-xs',
+                                            // High Contrast would paint today's circle the page colour.
+                                            'in-data-today:forced-color-adjust-none in-data-today:forced-colors:bg-[Highlight] in-data-today:forced-colors:text-[HighlightText]',
                                             $day->inMonth ? 'text-foreground' : 'text-muted',
                                         ])>{{ $day->number }}</time>
                                     </div>
@@ -314,7 +316,7 @@
                         <div data-calendar-column="{{ $day->iso }}" class="border-line relative h-[72rem] border-s bg-[repeating-linear-gradient(to_bottom,var(--color-line)_0_1px,transparent_1px_3rem)]">
                             @if ($calendar->blocks[$day->iso] !== [])
                                 {{-- One list per day, named by it, in time order. --}}
-                                <ol aria-labelledby="{{ $id }}-day-{{ $day->iso }}">
+                                <ol role="list" aria-labelledby="{{ $id }}-day-{{ $day->iso }}">
                                     @foreach ($calendar->blocks[$day->iso] as $block)
                                         @php
                                             $event = $block->event;
@@ -412,7 +414,7 @@
             @if ($agenda === [])
                 <p class="text-muted border-line border-t py-6 text-center text-sm">{{ $empty }}</p>
             @else
-                <ol aria-labelledby="{{ $id }}-title" class="divide-line border-line divide-y border-t">
+                <ol role="list" aria-labelledby="{{ $id }}-title" class="divide-line border-line divide-y border-t">
                     @foreach ($agenda as $day)
                         <li data-calendar-day="{{ $day->iso }}" @if ($day->today) data-today aria-current="date" @endif class="flex gap-4 py-3">
                             {{-- The day, big for the eye; the full date for screen readers. --}}
@@ -422,7 +424,7 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <p class="sr-only">{{ $day->label }}</p>
-                                <ul class="flex flex-col gap-3">
+                                <ul role="list" class="flex flex-col gap-3">
                                     @foreach ($day->events as $event)
                                         <x-widget.calendar.entry :event="$event" :day="$day" :calendar="$calendar" />
                                     @endforeach

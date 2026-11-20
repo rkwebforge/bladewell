@@ -54,8 +54,19 @@ function targetOf(root) {
         ?? root;
 }
 
-// As the tooltip does: aria-describedby on the element (its own ids kept), a title saying the same dropped, and the
-// tooltip's text as the name of an icon with no text of its own.
+// The target's name, as in the tooltip widget: aria-labelledby, else aria-label, else its own text. Folded, to compare.
+const fold = (text) => text.trim().replace(/\s+/g, ' ').toLowerCase();
+function nameOf(target, bubble) {
+    const labelledBy = target.getAttribute('aria-labelledby');
+    if (labelledBy) {
+        return fold(labelledBy.split(' ').map((id) => document.getElementById(id)?.textContent ?? '').join(' '));
+    }
+
+    return fold(target.getAttribute('aria-label') ?? [...target.childNodes].filter((node) => node !== bubble).map((node) => node.textContent).join(' '));
+}
+
+// As the tooltip does: aria-describedby on the element (its own ids kept) unless the tooltip only repeats its name, a
+// title saying the same dropped, and the tooltip's text as the name of an icon with no text of its own.
 function link(root) {
     const bubble = bubbleOf(root);
     const target = targetOf(root);
@@ -80,10 +91,11 @@ function link(root) {
 
         return;
     }
+    // A tooltip saying what the target is already called (an icon button labelled Edit, with Edit as its tooltip) would
+    // be read twice, "Edit, button, Edit": it describes nothing more, so it isn't a description.
     const ids = new Set((target.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean));
-    if (!ids.has(bubble.id)) {
-        target.setAttribute('aria-describedby', [...ids, bubble.id].join(' '));
-    }
+    nameOf(target, bubble) === fold(bubble.textContent) ? ids.delete(bubble.id) : ids.add(bubble.id);
+    ids.size ? target.setAttribute('aria-describedby', [...ids].join(' ')) : target.removeAttribute('aria-describedby');
     if (target.getAttribute('title')?.trim() === bubble.textContent.trim()) {
         target.removeAttribute('title');
     }
@@ -158,6 +170,8 @@ function place(root) {
 
 function show(root) {
     clearTimeout(showTimer);
+    // The text may have changed since the page loaded: whether it only repeats the name goes with it.
+    link(root);
     if (open === root) {
         return;
     }

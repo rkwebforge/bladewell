@@ -10,7 +10,8 @@
     'value' => null,
     // list: a menu of times, step minutes apart. columns: hour, minute (and AM/PM) columns, for any exact minute.
     // segmented: typed straight into the field, hour and minute, with the arrow keys. slots: a grid of times to choose
-    // one of, for bookings.
+    // one of, for bookings. native: the browser's own time field, which opens the phone's time picker on a touch screen;
+    // it writes the time the browser's way, so hour12 and locale don't apply.
     'variant' => 'list',
     // Shown while no time is picked; "Choose a time" by default (list and columns).
     'placeholder' => null,
@@ -44,8 +45,8 @@
 @php
     $readonly = $readonly && ! $disabled;
     // A typo fails loudly, naming the values that work, instead of quietly rendering something else.
-    if (! in_array($variant, ['list', 'columns', 'segmented', 'slots'], true)) {
-        throw new \InvalidArgumentException("Unknown variant [{$variant}] for <x-widget.time-picker>. Use one of: list, columns, segmented, slots.");
+    if (! in_array($variant, ['list', 'columns', 'segmented', 'slots', 'native'], true)) {
+        throw new \InvalidArgumentException("Unknown variant [{$variant}] for <x-widget.time-picker>. Use one of: list, columns, segmented, slots, native.");
     }
     $field = \Bladewell\Support\FormField::make($name, $id, $errors ?? null, $error, $bag, 'time', attributes: $attributes);
     $id = $field->id;
@@ -59,7 +60,7 @@
     $format = static fn (string $time): string => \Bladewell\Support\TimeOfDay::format($time, $pattern, $periods);
     $min = \Bladewell\Support\TimeOfDay::normalize($min) ?? '00:00';
     $max = \Bladewell\Support\TimeOfDay::normalize($max) ?? '23:59';
-    $step = max(1, (int) ($step ?? (in_array($variant, ['columns', 'segmented'], true) ? 1 : 15)));
+    $step = max(1, (int) ($step ?? (in_array($variant, ['columns', 'segmented', 'native'], true) ? 1 : 15)));
     $within = static fn (string $time): bool => $time >= $min && $time <= $max;
     $display = $value ? $format($value) : null;
     $placeholder ??= 'Choose a time';
@@ -99,8 +100,8 @@
 --}}
 <x-widget.field
     :required="$required"
-    :announce-required="$variant !== 'slots'"
-    :data-required-message="$required && ! $disabled && $variant !== 'slots' ? $requiredMessage : false"
+    :announce-required="! in_array($variant, ['slots', 'native'], true)"
+    :data-required-message="$required && ! $disabled && ! $readonly && ! in_array($variant, ['slots', 'native'], true) ? $requiredMessage : false"
     :data-time-picker="$variant"
     :data-pattern="$pattern"
     :data-periods="json_encode($periods)"
@@ -202,6 +203,25 @@
         </div>
     @endif
 
+    @if ($variant === 'native')
+        {{-- The browser's own field: it takes required, min, max and step itself, submits HH:MM, and on a touch screen opens
+             the phone's time picker, so nothing here needs the script. step is in seconds there. --}}
+        <input
+            type="time"
+            id="{{ $id }}"
+            @if ($name) name="{{ $name }}" @endif
+            value="{{ $value }}"
+            min="{{ $min }}"
+            max="{{ $max }}"
+            step="{{ $step * 60 }}"
+            @disabled($disabled)
+            @readonly($readonly)
+            {{ $field->controlAttributes($attributes, (bool) $info)->class([
+                'h-full w-full min-w-0 bg-transparent px-5 tabular-nums outline-none disabled:cursor-not-allowed disabled:opacity-50 read-only:cursor-default',
+            ]) }}
+        >
+    @endif
+
     @if ($variant === 'slots')
         {{-- Real radio buttons: the arrow keys, required and wire:model work as the browser has them, with no script. --}}
         <div
@@ -234,7 +254,7 @@
                 </label>
             @endforeach
         </div>
-    @else
+    @elseif ($variant !== 'native')
         <input type="hidden" @if ($name) name="{{ $name }}" @endif value="{{ $value }}" data-time-picker-input {{ $field->forwarded($attributes)->except(['required']) }}>
     @endif
 

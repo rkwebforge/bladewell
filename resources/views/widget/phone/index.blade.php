@@ -61,13 +61,12 @@
         id="{{ $field->id }}"
         value="{{ $national }}"
         placeholder="{{ $placeholder }}"
-        inputmode="tel"
-        autocomplete="tel-national"
         data-phone-national
         @disabled($disabled)
         @readonly($readonly)
         {{-- The visible field gets required, autofocus and the like, so the browser checks it and screen readers hear it. --}}
-        {{ $field->visibleAttributes($attributes, (bool) $info)->class([
+        {{-- inputmode and autocomplete as defaults, so yours win instead of sitting beside them. --}}
+        {{ $field->visibleAttributes($attributes, (bool) $info)->merge(['inputmode' => 'tel', 'autocomplete' => 'tel-national'])->class([
             'h-full w-full min-w-0 bg-transparent ps-3 pe-5 tabular-nums outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 read-only:cursor-default',
             'group-data-invalid/field:placeholder:text-error group-data-invalid/field:focus:placeholder:text-muted',
         ]) }}

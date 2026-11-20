@@ -265,7 +265,15 @@ function choose(dialog, item, { viaClick = false } = {}) {
     }
 }
 
+let pressedOnBackdrop = false;
+document.addEventListener('pointerdown', (event) => {
+    pressedOnBackdrop = event.target.matches?.(DIALOG) ?? false;
+});
+
 document.addEventListener('click', (event) => {
+    // Read once and cleared, as the modal does: a press that never became a click mustn't count for a later one.
+    const fromBackdrop = pressedOnBackdrop;
+    pressedOnBackdrop = false;
     const opener = event.target.closest?.('[data-command-open]');
     if (opener) {
         open(opener.dataset.commandOpen);
@@ -276,9 +284,12 @@ document.addEventListener('click', (event) => {
     if (!dialog) {
         return;
     }
-    // The dimmed area around the panel is the dialog itself: a click there closes it.
+    // The dimmed area around the panel is the dialog itself: a click there closes it. Only when the press started there
+    // too: a text selection dragged out of the search box ends with a click on the dialog, and must keep the query.
     if (event.target === dialog) {
-        close(dialog);
+        if (fromBackdrop) {
+            close(dialog);
+        }
 
         return;
     }

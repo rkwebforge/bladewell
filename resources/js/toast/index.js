@@ -75,6 +75,8 @@ function adopt() {
     config = {
         position: container.dataset.position,
         autoClose: container.dataset.autoClose === 'false' ? false : Number(container.dataset.autoClose),
+        // Errors and warnings (role="alert") can keep their own; without alert-auto-close they follow autoClose.
+        alertAutoClose: container.dataset.alertAutoClose === undefined ? undefined : (container.dataset.alertAutoClose === 'false' ? false : Number(container.dataset.alertAutoClose)),
         showProgress: container.dataset.showProgress === 'true',
         pauseOnHover: container.dataset.pauseOnHover === 'true',
         pauseOnFocusLoss: container.dataset.pauseOnFocusLoss === 'true',
@@ -129,6 +131,13 @@ function announce(role, text) {
         // Each one ends as a sentence, so a reader pauses between them.
         const said = pending[key].length === 1 ? pending[key][0] : pending[key].map((one) => (/[.!?…]$/.test(one) ? one : `${one}.`)).join(' ');
         pending[key] = [];
+        // Where the browser has it, ariaNotify says it straight out, with no region to have been on the page first;
+        // errors and warnings ahead of anything else being read. The regions are for the rest.
+        if (typeof document.ariaNotify === 'function') {
+            document.ariaNotify(said, { priority: key === 'alert' ? 'high' : 'normal' });
+
+            return;
+        }
         const region = regions?.[key];
         if (!region) {
             return;
@@ -217,7 +226,8 @@ function render(t, type, message, options) {
     const spec = TYPES[kind];
 
     t.type = kind;
-    t.autoClose = pick(options, 'autoClose');
+    // A toast's own autoClose wins; then alert-auto-close for errors and warnings; then the container's.
+    t.autoClose = options.autoClose !== undefined || spec.role !== 'alert' || config.alertAutoClose === undefined ? pick(options, 'autoClose') : config.alertAutoClose;
     t.showProgress = pick(options, 'showProgress');
     t.pauseOnHover = pick(options, 'pauseOnHover');
     t.pauseOnFocusLoss = pick(options, 'pauseOnFocusLoss');

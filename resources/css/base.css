@@ -11,8 +11,9 @@
         cursor: pointer;
     }
 
-    /* Lock page scroll while a modal is open; the gutter stops the layout jumping when the scrollbar goes. */
-    html:has(dialog[data-modal]:modal) {
+    /* Lock page scroll while a modal or the command palette is open; the gutter stops the layout jumping when the
+       scrollbar goes. */
+    html:has(dialog[data-modal]:modal, dialog[data-command]:modal) {
         overflow: hidden;
         scrollbar-gutter: stable;
     }
@@ -49,6 +50,22 @@
 [data-theme-changing] *::before,
 [data-theme-changing] *::after {
     transition: none;
+}
+
+/*
+ * Windows High Contrast (forced colours) drops box-shadows, and widgets draw focus as a shadow ring on an outline-none
+ * control, so a keyboard user would see no focus at all. Give every focused control a real outline there instead.
+ * Some controls are a hidden input standing behind something drawn (a segment, a swatch, a file button): the outline
+ * goes on the label holding the input, or on what follows it. Inputs only: an app's own sr-only skip link that shows on
+ * focus keeps its own look. Outside any layer, so it beats outline-none.
+ */
+@media (forced-colors: active) {
+    :focus-visible,
+    :has(> input.sr-only:focus-visible),
+    input.sr-only:focus-visible + * {
+        outline: 2px solid CanvasText;
+        outline-offset: 2px;
+    }
 }
 
 /*
@@ -188,6 +205,13 @@
     }
     [data-tree][data-variant='org'] [role='group'] > [role='treeitem']:last-child::before {
         border-inline-end: 1px solid var(--tree-line, var(--color-line-strong));
+    }
+    /* A closed branch is hidden="until-found", which keeps a box of its own (so find in page can reach it) where hidden
+       would leave none: no room for it, not even the org chart's drop to its children. */
+    [data-tree] [role='group'][hidden] {
+        margin: 0;
+        padding: 0;
+        border: 0;
     }
 }
 

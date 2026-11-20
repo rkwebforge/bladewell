@@ -29,6 +29,31 @@ function setCollapsed(root, collapsed) {
     }
 }
 
+// Over the page (below lg, with the page behind inert), the sidebar and the panel act as dialogs, so screen readers say
+// so and keep to them. Beside the page they're a menu and a region again. The sidebar has no name of its own: Menu,
+// as its button says, while it's a dialog.
+function asDialog(element, on, name = null) {
+    if (!element) {
+        return;
+    }
+    if (on) {
+        element.setAttribute('role', 'dialog');
+        element.setAttribute('aria-modal', 'true');
+        if (name && !element.hasAttribute('aria-label')) {
+            element.setAttribute('aria-label', name);
+            element.dataset.sidebarNamed = '';
+        }
+
+        return;
+    }
+    element.removeAttribute('role');
+    element.removeAttribute('aria-modal');
+    if ('sidebarNamed' in element.dataset) {
+        element.removeAttribute('aria-label');
+        delete element.dataset.sidebarNamed;
+    }
+}
+
 function open(root) {
     if (wide.matches || isOpen(root)) {
         return;
@@ -36,6 +61,7 @@ function open(root) {
     closePanel(root, { restoreFocus: false });
     root.setAttribute('data-sidebar-open', '');
     contentOf(root).inert = true;
+    asDialog(sidebarOf(root), true, 'Menu');
     root.querySelectorAll('[data-sidebar-menu]').forEach((button) => button.setAttribute('aria-expanded', 'true'));
     // The current page's link if there is one, so a keyboard user starts where they are; otherwise the first thing.
     const sidebar = sidebarOf(root);
@@ -49,6 +75,7 @@ function close(root, { restoreFocus = true } = {}) {
     }
     root.removeAttribute('data-sidebar-open');
     contentOf(root).inert = false;
+    asDialog(sidebarOf(root), false);
     const button = root.querySelector('[data-sidebar-menu]');
     root.querySelectorAll('[data-sidebar-menu]').forEach((each) => each.setAttribute('aria-expanded', 'false'));
     if (restoreFocus) {
@@ -72,6 +99,7 @@ function openPanel(root) {
     hideFlyouts(root);
     root.setAttribute('data-sidebar-panel-open', '');
     contentOf(root).inert = !wide.matches;
+    asDialog(panel, !wide.matches);
     root.querySelectorAll('[data-sidebar-panel-toggle]').forEach((button) => button.setAttribute('aria-expanded', 'true'));
     // Straight to where to type, if there's somewhere (a chat's box), so the person can start writing.
     (panel.querySelector('[autofocus], [data-chat-input], textarea, input:not([type="hidden"])') ?? panel.querySelector(FOCUSABLE))?.focus({ preventScroll: true });
@@ -85,6 +113,7 @@ function closePanel(root, { restoreFocus = true } = {}) {
     const fromInside = sidePanelOf(root).contains(document.activeElement);
     root.removeAttribute('data-sidebar-panel-open');
     contentOf(root).inert = false;
+    asDialog(sidePanelOf(root), false);
     root.querySelectorAll('[data-sidebar-panel-toggle]').forEach((button) => button.setAttribute('aria-expanded', 'false'));
     if (restoreFocus && fromInside) {
         root.querySelector('[data-sidebar-panel-toggle]')?.focus();
@@ -345,6 +374,7 @@ wide.addEventListener('change', () => document.querySelectorAll(ROOT).forEach((r
     // An open panel stays open: beside the page now, which can be used, or over it, which can't.
     if (isPanelOpen(root)) {
         contentOf(root).inert = !wide.matches;
+        asDialog(sidePanelOf(root), !wide.matches);
     }
     hideTip(root);
     hideFlyouts(root);

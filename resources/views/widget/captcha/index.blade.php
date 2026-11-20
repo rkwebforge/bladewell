@@ -5,7 +5,8 @@
     'id' => null,
     // The image URL (e.g. route('captcha')); refreshing fetches it again, for a new code.
     'src' => null,
-    // The URL of a spoken version: adds a play button.
+    // The URL of a spoken version: adds a play button. Give one with every image: without it, someone who can't see the
+    // image has no way through the form (WCAG 1.1.1).
     'audioSrc' => null,
     // inline (the image beside the field) or stacked (large, above it).
     'layout' => 'inline',

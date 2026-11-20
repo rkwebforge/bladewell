@@ -1,7 +1,7 @@
 // Drives <x-widget.select>. Open/close, Esc and click-outside come from the native popover;
 // this adds keyboard navigation, type-to-jump, search filtering (or, with search-url, searching your app) and positioning
 // under the field.
-import { chipIn, chipOut, closeIfOutOfView, placeBeside } from '../field';
+import { chipIn, chipOut, closeIfOutOfView, composing, placeBeside } from '../field';
 
 const VIEWPORT_EDGE = 16;
 const GAP = 4;
@@ -433,6 +433,9 @@ function typeahead(select, character) {
 
 // The keys the trigger and the search box share. True when it took the key.
 function handleListKeys(select, event) {
+    if (composing(event)) {
+        return false;
+    }
     const { popup } = select;
     switch (event.key) {
         case 'ArrowDown':

@@ -70,6 +70,7 @@
     <div
         id="{{ $id }}"
         data-sidebar
+        wire:ignore.self
         @class([
             // Below lg: a panel off the start edge, slid in over the page while open. invisible keeps the closed one
             // out of the Tab order and away from screen readers. Opening turns it visible at once (only translate eases),

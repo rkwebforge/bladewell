@@ -784,16 +784,12 @@ function uniquifyIds(rows) {
 }
 
 async function fetchTablePage(url) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
     try {
-        const response = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin', signal: controller.signal });
+        const response = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin', signal: AbortSignal.timeout(TIMEOUT_MS) });
 
         return response.ok ? parsePage(await response.text()) : null;
     } catch {
         return null;
-    } finally {
-        clearTimeout(timer);
     }
 }
 

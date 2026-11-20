@@ -32,6 +32,8 @@
     'masked' => false,
     // Letters and digits (shown in capitals) instead of digits only.
     'alphanumeric' => false,
+    // Shown when the form is submitted with required and the code isn't all there.
+    'requiredMessage' => 'Enter the whole code.',
 ])
 
 @php
@@ -61,7 +63,9 @@
     $look = $variants[$variant];
 @endphp
 
-<x-widget.field :required="$attributes->has('required')" :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" bare :class="$attributes->get('class')">
+{{-- data-required-message: the code goes in a hidden input, which the browser never validates, so resources/js/widget/field
+     stops a submit with boxes left empty instead. --}}
+<x-widget.field :required="$attributes->has('required')" :data-required-message="$attributes->has('required') && ! $disabled && ! $readonly ? $requiredMessage : false" :id="$field->id" :label="$label" :error="$field->errors" :info="$info" :disabled="$disabled" :readonly="$readonly" bare :class="$attributes->get('class')">
     {{-- The boxes have no name; the hidden input carries the joined code on submit, with the caller's attributes. --}}
     {{-- dir="ltr": a code reads left to right in every language, so the boxes and the arrow keys do too. --}}
     <div data-otp dir="ltr" @if ($alphanumeric) data-alphanumeric @endif role="group" aria-label="{{ $label ?? 'One-time code' }}" class="flex w-full items-start gap-2 sm:gap-3">
@@ -81,6 +85,7 @@
                     aria-label="{{ $alphanumeric ? 'Character' : 'Digit' }} {{ $i + 1 }} of {{ $length }}"
                     @if ($alphanumeric) autocapitalize="characters" @endif
                     data-otp-box
+                    @if ($attributes->has('required')) aria-required="true" @endif
                     @disabled($disabled)
                     @readonly($readonly)
                     @if ($autofocus && $i === 0) autofocus @endif

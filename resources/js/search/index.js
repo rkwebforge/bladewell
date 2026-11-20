@@ -1,6 +1,6 @@
 // Behaviour for <x-widget.search>: the clear button, the keyboard shortcut, and suggestions as you type (suggest-url). Delegated from `document`, so fields added later work without
 // re-initialising. Client-side filtering is only for convenience; the Form Request must validate the same rules.
-import { closeIfOutOfView, on, placeBeside } from '../field';
+import { closeIfOutOfView, composing, on, placeBeside } from '../field';
 
 // --- Search: the clear button ----------------------------------------------------------
 
@@ -280,7 +280,7 @@ document.addEventListener('input', (event) => {
 
 document.addEventListener('keydown', (event) => {
     const input = event.target;
-    if (!(input instanceof HTMLInputElement) || !input.dataset.searchSuggest) {
+    if (!(input instanceof HTMLInputElement) || !input.dataset.searchSuggest || composing(event)) {
         return;
     }
     const box = suggestionsFor(input);

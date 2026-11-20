@@ -130,7 +130,7 @@
 <x-widget.field
     :required="$attributes->has('required')"
     :announce-required="true"
-    :data-required-message="$attributes->has('required') && ! $disabled ? $requiredMessage : false"
+    :data-required-message="$attributes->has('required') && ! $disabled && ! $readonly ? $requiredMessage : false"
     data-date-range
     data-min="{{ $min }}"
     data-max="{{ $max }}"

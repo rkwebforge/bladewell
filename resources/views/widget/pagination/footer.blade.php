@@ -24,6 +24,10 @@
         ->filter(fn (mixed $value): bool => is_scalar($value))
         // Arr::dot gives "filter.status"; a form field needs "filter[status]".
         ->mapWithKeys(fn (mixed $value, string $key): array => [preg_replace('/\.([^.]+)/', '[$1]', $key) => $value]);
+    // Counts grouped as the app's locale groups them (1.234 in German) where intl is there, with 0-9 digits like the page
+    // links beside them; plain 1,234 where it isn't.
+    $formatter = class_exists(\NumberFormatter::class) ? new \NumberFormatter(str_replace('-', '_', app()->getLocale()).'@numbers=latn', \NumberFormatter::DECIMAL) : null;
+    $count = static fn (int $n): string => (string) ($formatter?->format($n) ?: number_format($n));
 @endphp
 
 <div {{ $attributes->class(['flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-0 py-5 text-sm sm:justify-between sm:p-5']) }}>
@@ -58,12 +62,12 @@
     <div class="flex items-center gap-4">
         <p class="text-foreground/75 tabular-nums">
             {{-- No rows on this page (past the last one, or none at all): no range to show, so 0, not 0–0. --}}
-            <span class="text-foreground font-medium">{{ $paginator->firstItem() === null ? '0' : number_format($paginator->firstItem()).'–'.number_format($paginator->lastItem()) }}</span>
-            of {{ number_format($paginator->total()) }}
+            <span class="text-foreground font-medium">{{ $paginator->firstItem() === null ? '0' : $count($paginator->firstItem()).'–'.$count($paginator->lastItem()) }}</span>
+            of {{ $count($paginator->total()) }}
         </p>
         <nav aria-label="Pagination" class="flex items-center gap-1">
-            <x-widget.button variant="neutral" size="sm" icon="chevron-left" label="Previous page" :href="$paginator->previousPageUrl()" :disabled="$paginator->onFirstPage()" rel="prev" />
-            <x-widget.button variant="neutral" size="sm" icon="chevron-right" label="Next page" :href="$paginator->nextPageUrl()" :disabled="! $paginator->hasMorePages()" rel="next" />
+            <x-widget.button variant="neutral" size="sm" icon="chevron-left" label="Previous page" class="rtl:[&_svg]:rotate-180" :href="$paginator->previousPageUrl()" :disabled="$paginator->onFirstPage()" rel="prev" />
+            <x-widget.button variant="neutral" size="sm" icon="chevron-right" label="Next page" class="rtl:[&_svg]:rotate-180" :href="$paginator->nextPageUrl()" :disabled="! $paginator->hasMorePages()" rel="next" />
         </nav>
     </div>
 </div>

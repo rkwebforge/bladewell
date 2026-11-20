@@ -172,7 +172,7 @@
                     <span data-file-size class="text-foreground/70 shrink-0 text-xs"></span>
                 </p>
                 <p data-file-error class="text-error mt-0.5 text-xs" hidden></p>
-                <div data-file-progress-track class="bg-field mt-2 h-1 overflow-hidden rounded-full" hidden>
+                <div data-file-progress-track role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="bg-field mt-2 h-1 overflow-hidden rounded-full" hidden>
                     <div data-file-progress class="bg-primary h-full w-0 transition-[width] duration-200 motion-reduce:transition-none"></div>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 {
     "title": "Time picker",
     "group": "Forms",
-    "description": "A time of day, four ways: a list of times step minutes apart, hour and minute columns, segments typed straight into the field, or a grid of slots for bookings. Within min and max, on the locale's 12- or 24-hour clock, and always submits HH:MM. Works with Livewire wire:model, name optional.",
+    "description": "A time of day, five ways: a list of times step minutes apart, hour and minute columns, segments typed straight into the field, a grid of slots for bookings, or the browser's own time field. Within min and max, on the locale's 12- or 24-hour clock, and always submits HH:MM. Works with Livewire wire:model, name optional.",
     "requires": [
         "field",
         "icon"
@@ -37,6 +37,7 @@
         "list",
         "columns",
         "segmented",
+        "native",
         "slots",
         "clocks",
         "states"

@@ -58,6 +58,9 @@ function say(board, message) {
 function count(column) {
     const text = numbers().format(cardsIn(column).length);
     column.querySelector('[data-kanban-count]').textContent = text;
+    // A list while it has cards (Safari drops a styled list's role otherwise); an empty column isn't one.
+    const list = column.querySelector('[data-kanban-cards]');
+    cardsIn(column).length > 0 ? list?.setAttribute('role', 'list') : list?.removeAttribute('role');
     const jump = [...boardOf(column).querySelectorAll('[data-kanban-jump] button')].find((button) => button.dataset.kanbanJumpTo === idOf(column));
     jump?.querySelector('[data-kanban-jump-count]')?.replaceChildren(text);
 }
@@ -129,13 +132,28 @@ function slide(board, change) {
     }
 }
 
+// Moves node before `before` in parent without taking it out of the page, where the browser can (moveBefore): it keeps
+// focus, a pointer capture and any transition running. Elsewhere insertBefore, which takes it out and puts it back.
+function moveNode(parent, node, before) {
+    if (typeof parent.moveBefore === 'function' && node.isConnected && parent.isConnected) {
+        try {
+            parent.moveBefore(node, before);
+
+            return;
+        } catch {
+            // Not movable that way (from another document, say): the old way below.
+        }
+    }
+    parent.insertBefore(node, before);
+}
+
 // Puts the card at index in column (counted without the card itself), and keeps focus on it if it had it: taking an
 // element out of the page drops its focus. Scrolled into view, except while dragged: the pointer is already there.
 function place(card, column, index, { scroll = true } = {}) {
     const focused = card.contains(document.activeElement) ? document.activeElement : null;
     const from = columnOf(card);
     const others = cardsIn(column).filter((other) => other !== card);
-    slide(boardOf(column), () => listOf(column).insertBefore(card, others[index] ?? null));
+    slide(boardOf(column), () => moveNode(listOf(column), card, others[index] ?? null));
     count(column);
     if (from !== column) {
         count(from);
@@ -653,6 +671,19 @@ function startDrag(event) {
     }
     ghost.removeAttribute('data-kanban-card');
     ghost.removeAttribute('wire:key');
+    // Its fields show what the card's show, but aren't fields: no name, so a radio in it can't untick the card's own,
+    // and nothing in it could be submitted. Values set after, which a select's clone doesn't keep. As in the sortable.
+    const fields = card.querySelectorAll('input, select, textarea');
+    ghost.querySelectorAll('input, select, textarea').forEach((copy, index) => {
+        copy.removeAttribute('name');
+        copy.removeAttribute('form');
+        copy.removeAttribute('wire:model');
+        if (copy.type === 'checkbox' || copy.type === 'radio') {
+            copy.checked = fields[index].checked;
+        } else if (copy.type !== 'file') {
+            copy.value = fields[index].value;
+        }
+    });
     ghost.setAttribute('aria-hidden', 'true');
     ghost.inert = true;
     ghost.className = `${ghost.className} ${GHOST}`;

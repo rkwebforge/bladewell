@@ -101,19 +101,22 @@
                     'peer bg-muted/75 absolute inset-0 appearance-none rounded-full transition-colors outline-none',
                     'checked:bg-primary focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
                     'group-data-invalid/field:ring-error group-data-invalid/field:ring-1 disabled:cursor-not-allowed',
+                    // High Contrast would paint the track the page colour: an outlined track, filled when on.
+                    'forced-color-adjust-none forced-colors:bg-[Canvas] forced-colors:border forced-colors:border-[CanvasText] forced-colors:checked:bg-[Highlight] forced-colors:checked:border-[Highlight]',
                     'cursor-pointer' => ! $disabled && ! $readonly,
                 ]) }}
             >
             {{-- The knob travels toward the end edge: right, or left in RTL. --}}
             <span @class([
                 'bg-surface pointer-events-none absolute start-0.5 top-0.5 grid place-items-center rounded-full shadow transition-transform duration-200 motion-reduce:transition-none',
+                'forced-color-adjust-none forced-colors:bg-[CanvasText] forced-colors:group-has-checked/switch:bg-[HighlightText]',
                 $size['knob'],
                 $size['travel'],
             ])>
                 {{-- icons: a tick when on and a cross when off, so the state doesn't rest on colour alone. --}}
                 @if ($icons)
-                    <x-widget.icon name="check" :class="'text-primary col-start-1 row-start-1 opacity-0 transition-opacity group-has-checked/switch:opacity-100 '.$size['icon']" />
-                    <x-widget.icon name="x" :class="'text-muted col-start-1 row-start-1 transition-opacity group-has-checked/switch:opacity-0 '.$size['icon']" />
+                    <x-widget.icon name="check" :class="'text-primary forced-colors:text-[Highlight] col-start-1 row-start-1 opacity-0 transition-opacity group-has-checked/switch:opacity-100 '.$size['icon']" />
+                    <x-widget.icon name="x" :class="'text-muted forced-colors:text-[Canvas] col-start-1 row-start-1 transition-opacity group-has-checked/switch:opacity-0 '.$size['icon']" />
                 @endif
             </span>
         </span>

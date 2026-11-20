@@ -1,6 +1,6 @@
 {
     "group": "Forms",
-    "description": "An image captcha, inline or stacked large above the answer, with an optional audio version and a refresh button. Or Cloudflare Turnstile, reCAPTCHA or hCaptcha, checked on the server with the Captcha rule. In Livewire the image (or the provider's widget) stays put through every render, so the code being answered never changes under you.",
+    "description": "An image captcha, inline or stacked large above the answer, with an audio version (give one with every image, or people who can't see it can't get through) and a refresh button. Or Cloudflare Turnstile, reCAPTCHA or hCaptcha, checked on the server with the Captcha rule. In Livewire the image (or the provider's widget) stays put through every render, so the code being answered never changes under you.",
     "requires": [
         "field",
         "icon"

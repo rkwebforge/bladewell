@@ -1,7 +1,7 @@
 {
     "title": "OTP",
     "group": "Forms",
-    "description": "One-time passwords in one box per character, digits or letters, with a pasted code filling them all. Filled, outline or underline boxes, groups with a dash between, and masked for a PIN. Submits one value. Works with Livewire wire:model.",
+    "description": "One-time passwords in one box per character, digits or letters, with a pasted code filling them all. Filled, outline or underline boxes, groups with a dash between, and masked for a PIN. Submits one value. Works with Livewire wire:model. For a code sent by text or email, prefer the verification code: one field works better with the phone's code autofill, pasting and screen readers than a box per character.",
     "requires": [
         "field"
     ],

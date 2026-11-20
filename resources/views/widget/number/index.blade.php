@@ -92,8 +92,6 @@
         @if ($name && ! $grouped) name="{{ $name }}" @endif
         value="{{ $grouped ? ($groupedDisplay ?? $value) : $value }}"
         placeholder="{{ $placeholder }}"
-        inputmode="{{ $mobile ? 'tel' : ($decimals > 0 ? 'decimal' : 'numeric') }}"
-        autocomplete="{{ $mobile ? 'tel' : 'off' }}"
         {{-- With a stepper, ArrowUp/ArrowDown step the value (the buttons are pointer-only), so say so the ARIA way. --}}
         @if ($stepper)
             role="spinbutton"
@@ -111,7 +109,11 @@
         @if ($grouped) data-grouped @endif
         @disabled($disabled)
         @readonly($readonly)
-        {{ ($grouped ? $field->visibleAttributes($attributes, (bool) $info) : $field->controlAttributes($attributes, (bool) $info))->class([
+        {{-- inputmode and autocomplete as defaults: yours win (autocomplete="postal-code", say), not sit beside them. --}}
+        {{ ($grouped ? $field->visibleAttributes($attributes, (bool) $info) : $field->controlAttributes($attributes, (bool) $info))->merge([
+            'inputmode' => $mobile ? 'tel' : ($decimals > 0 ? 'decimal' : 'numeric'),
+            'autocomplete' => $mobile ? 'tel' : 'off',
+        ])->class([
             'h-full w-full min-w-0 bg-transparent outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 read-only:cursor-default',
             'ps-5' => ! $mobile && ! $prefix && ! $stepper,
             // Between - and + the value sits centred.

@@ -30,6 +30,21 @@
         -1 => 'Yesterday',
         default => null,
     };
+    // AM/PM and the date in the app's locale, from ICU as the browser's Intl does it (resources/js/widget/clock), so the
+    // first frame and the ticks agree word for word. Carbon's own translations differ (Chinese 晚上 for 下午). Without the
+    // intl extension, English.
+    $icuLocale = str_replace('-', '_', app()->getLocale());
+    $icu = static function (\DateTimeInterface $at, string $pattern, string $fallback) use ($icuLocale): string {
+        if (! class_exists(\IntlDateFormatter::class)) {
+            return $at->format($fallback);
+        }
+        // A skeleton (letters in braces) becomes the locale's own pattern: Thursday, November 19 or 11月19日星期四.
+        if (str_starts_with($pattern, '{')) {
+            $pattern = (string) (new \IntlDatePatternGenerator($icuLocale))->getBestPattern(trim($pattern, '{}'));
+        }
+
+        return (string) (new \IntlDateFormatter($icuLocale, \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, $at->getTimezone(), null, $pattern))->format($at) ?: $at->format($fallback);
+    };
 @endphp
 
 <ul aria-label="{{ $label }}" {{ $attributes->class(['grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]']) }}>
@@ -42,6 +57,7 @@
         <li
             data-clock="world"
             data-timezone="{{ $zone['timezone'] }}"
+            data-locale="{{ str_replace('_', '-', app()->getLocale()) }}"
             @if ($hour12) data-hour12 @endif
             class="border-line bg-surface flex items-start justify-between gap-3 rounded-2xl border p-4"
         >
@@ -50,7 +66,7 @@
                 <time datetime="{{ $there->toIso8601String() }}" class="text-foreground text-2xl leading-none font-semibold tabular-nums">
                     <span data-clock-time>{{ $there->format($hour12 ? 'g:i' : 'H:i') }}</span>
                     @if ($hour12)
-                        <span data-clock-period class="text-xs font-medium">{{ $there->format('A') }}</span>
+                        <span data-clock-period class="text-xs font-medium">{{ $icu($there, 'a', 'A') }}</span>
                     @endif
                 </time>
                 <span class="text-foreground/70 text-xs">

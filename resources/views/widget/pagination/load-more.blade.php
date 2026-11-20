@@ -16,6 +16,10 @@
     $total = $paginator instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator ? $paginator->total() : null;
     // Items seen so far, counting earlier pages: loading more keeps them on screen.
     $seen = method_exists($paginator, 'lastItem') ? $paginator->lastItem() : null;
+    // Counts grouped as the app's locale groups them (1.234 in German) where intl is there, with 0-9 digits like the page
+    // links beside them; plain 1,234 where it isn't.
+    $formatter = class_exists(\NumberFormatter::class) ? new \NumberFormatter(str_replace('-', '_', app()->getLocale()).'@numbers=latn', \NumberFormatter::DECIMAL) : null;
+    $count = static fn (int $n): string => (string) ($formatter?->format($n) ?: number_format($n));
 @endphp
 
 {{--
@@ -24,7 +28,7 @@
 --}}
 <div id="{{ $id }}" data-load-more data-target="{{ $target }}" @if ($perPageModel) data-per-page-model="{{ $perPageModel }}" data-per-page="{{ $paginator->perPage() }}" @endif {{ $attributes->class(['flex flex-col items-center gap-3 px-0 py-5 sm:p-5']) }}>
     @if ($total !== null && $seen !== null)
-        <p class="text-foreground/75 text-sm tabular-nums">Showing {{ number_format($seen) }} of {{ number_format($total) }}</p>
+        <p class="text-foreground/75 text-sm tabular-nums">Showing {{ $count($seen) }} of {{ $count($total) }}</p>
         {{-- A thin bar for how far through the list you are; the text above says the same for screen readers. --}}
         <div class="bg-field h-1 w-40 overflow-hidden rounded-full" aria-hidden="true">
             {{-- A whole-percent class from the ranges at the end of base.css, not style="". --}}

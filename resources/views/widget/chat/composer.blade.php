@@ -116,4 +116,6 @@
     @if ($error)
         <p id="{{ $id }}-error" class="text-error mx-auto mt-2 max-w-3xl px-1 text-sm">{{ $error }}</p>
     @endif
+    {{-- Says a message the script turns away (422) out loud: a live region has to be on the page before it changes. --}}
+    <p data-chat-error-live role="status" class="sr-only"></p>
 </form>

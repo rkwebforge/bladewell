@@ -3,7 +3,7 @@
 // field, with names from Intl.DisplayNames in the page's language and emoji flags, so it costs nothing until used.
 // Pasting or autofilling a full +44… number switches the country to match.
 
-import { closeIfOutOfView, latinDigits, onLivewireMorph, placeBeside } from '../field';
+import { closeIfOutOfView, composing, latinDigits, onLivewireMorph, placeBeside } from '../field';
 
 const VIEWPORT_EDGE = 16;
 const GAP = 4;
@@ -203,6 +203,9 @@ function initPhone(root) {
 
     search.addEventListener('input', filter);
     search.addEventListener('keydown', (event) => {
+        if (composing(event)) {
+            return;
+        }
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
             setActive(Math.max(0, Math.min(visible().length - 1, active + (event.key === 'ArrowDown' ? 1 : -1))));

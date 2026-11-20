@@ -67,7 +67,7 @@
                             "hover:bg-field transition-colors motion-reduce:transition-none {$focus}" => $event->href,
                         ])
                     >
-                        <span aria-hidden="true" class="size-2 shrink-0 rounded-full {{ $dots[$event->tone] }}"></span>
+                        <span aria-hidden="true" class="size-2 shrink-0 rounded-full forced-color-adjust-none {{ $dots[$event->tone] }}"></span>
                         <span aria-hidden="true" class="text-muted hidden shrink-0 tabular-nums @4xl:inline">{{ $calendar->time($event->start) }}</span>
                         <span class="min-w-0 flex-1 truncate">{{ $event->title }}</span>
                         <span class="sr-only">, {{ $calendar->when($event) }}@if ($event->status), {{ $event->status }}@endif</span>
@@ -90,7 +90,7 @@
                 <span @class(['text-muted hover:text-foreground hover:bg-field h-6 items-center rounded-md px-1.5 transition-colors motion-reduce:transition-none', $compact ? 'hidden @2xl:flex' : 'flex'])>{{ $calendar->number($day->hidden) }} more<span class="sr-only"> events on {{ $day->label }}</span></span>
             @endif
         </x-slot:trigger>
-        <ul class="flex flex-col gap-3">
+        <ul role="list" class="flex flex-col gap-3">
             @foreach ($day->events as $event)
                 <x-widget.calendar.entry :event="$event" :day="$day" :calendar="$calendar" />
             @endforeach

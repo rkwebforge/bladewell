@@ -34,6 +34,8 @@
         {{-- The list says how many cards it holds; this is for the eye. --}}
         <span data-kanban-count aria-hidden="true" class="text-muted shrink-0 text-xs tabular-nums">{{ $count }}</span>
     </header>
-    <ol data-kanban-cards aria-labelledby="{{ $domId }}-title" class="flex min-h-12 flex-col gap-2">{{ $slot }}</ol>
+    {{-- role="list" while it holds cards: Safari drops a styled list's role, and the count above is hidden on the strength of
+         it. An empty one goes without, as a list with no items would be wrong. resources/js/widget/kanban keeps it in step. --}}
+    <ol data-kanban-cards @if ($count > 0) role="list" @endif aria-labelledby="{{ $domId }}-title" class="flex min-h-12 flex-col gap-2">{{ $slot }}</ol>
     <p data-kanban-empty class="text-muted px-1 py-3 text-center text-sm group-has-[[data-kanban-card]]/column:hidden">{{ $empty }}</p>
 </section><?php /* No newline after this: PHP drops it after a closing tag, so no space trails the component in running text. */ ?>

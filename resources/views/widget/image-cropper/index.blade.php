@@ -60,6 +60,14 @@
     'zoomInLabel' => 'Zoom in',
     // The reset button's text: the whole image, unrotated.
     'resetLabel' => 'Reset',
+    // The move left button's name: it moves the crop over the picture, as the left arrow key does, without dragging.
+    'panLeftLabel' => 'Move crop left',
+    // The move right button's name.
+    'panRightLabel' => 'Move crop right',
+    // The move up button's name.
+    'panUpLabel' => 'Move crop up',
+    // The move down button's name.
+    'panDownLabel' => 'Move crop down',
     // With for: the button that crops the picked image and hands it to the input.
     'applyLabel' => 'Apply',
     // With for: the button that drops the picked image.
@@ -152,6 +160,14 @@
                     <x-widget.button variant="neutral" size="sm" icon="rotate-ccw" :label="$rotateRightLabel" data-image-cropper-action="rotate-right" class="[&_svg]:-scale-x-100" />
                     <x-widget.button variant="neutral" size="sm" icon="minus" :label="$zoomOutLabel" data-image-cropper-action="zoom-out" />
                     <x-widget.button variant="neutral" size="sm" icon="plus" :label="$zoomInLabel" data-image-cropper-action="zoom-in" />
+                    {{-- Moving the crop without dragging (WCAG 2.5.7): the arrow keys do it from the keyboard, these from a
+                         pointer, a switch or a voice command, the same way round. --}}
+                    <span class="flex gap-2">
+                        <x-widget.button variant="neutral" size="sm" icon="arrow-left" :label="$panLeftLabel" data-image-cropper-action="pan-left" />
+                        <x-widget.button variant="neutral" size="sm" icon="arrow-up" :label="$panUpLabel" data-image-cropper-action="pan-up" />
+                        <x-widget.button variant="neutral" size="sm" icon="arrow-down" :label="$panDownLabel" data-image-cropper-action="pan-down" />
+                        <x-widget.button variant="neutral" size="sm" icon="arrow-right" :label="$panRightLabel" data-image-cropper-action="pan-right" />
+                    </span>
                     <x-widget.button variant="neutral" size="sm" data-image-cropper-action="reset">{{ $resetLabel }}</x-widget.button>
                     @if ($for)
                         <span class="ms-auto flex gap-2">

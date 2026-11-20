@@ -84,7 +84,7 @@
                     {{-- form points at no form, so the swatches group together but never submit. --}}
                     <label class="relative cursor-pointer">
                         <input type="radio" form="{{ $field->id }}-no-form" name="{{ $field->id }}-swatch" value="{{ $swatch['color'] }}" data-color-swatch @checked($swatch['color'] === $current) @disabled($disabled) aria-label="{{ $swatch['name'] }}" class="peer sr-only">
-                        <span data-color="{{ $swatch['color'] }}" class="border-line peer-checked:ring-primary peer-focus-visible:ring-primary peer-focus-visible:ring-offset-surface block size-8 rounded-full border bg-(--color-swatch) peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-offset-surface peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"></span>
+                        <span data-color="{{ $swatch['color'] }}" class="forced-color-adjust-none forced-colors:peer-checked:outline-2 forced-colors:peer-checked:outline-offset-2 forced-colors:peer-checked:outline-[Highlight] border-line peer-checked:ring-primary peer-focus-visible:ring-primary peer-focus-visible:ring-offset-surface block size-8 rounded-full border bg-(--color-swatch) peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-offset-surface peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"></span>
                     </label>
                 @endforeach
             </div>

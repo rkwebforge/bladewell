@@ -83,7 +83,7 @@
         @if ($complete) data-complete @endif
         @if ($failed) data-failed @endif
         @if ($disabled) aria-disabled="true" @endif
-        @class(['group/progress bg-field relative w-full min-w-0 overflow-hidden rounded-[14px]', $height, '@container' => $inside])
+        @class(['group/progress bg-field relative w-full min-w-0 overflow-hidden rounded-[14px] forced-colors:border forced-colors:border-[CanvasText]', $height, '@container' => $inside])
     >
         {{-- Inline width is the one dynamic value; progress.set() updates it and the transition animates it. --}}
         <div
@@ -91,9 +91,12 @@
             @class([
                 $fill,
                 'absolute inset-y-0 start-0 rounded-[10px] transition-[width,background-color] duration-500 ease-in-out motion-reduce:transition-none',
+                // High Contrast would paint the fill the page colour, leaving an empty bar.
+                'forced-color-adjust-none forced-colors:bg-[Highlight]',
                 'bg-[linear-gradient(45deg,rgb(255_255_255/0.25)_25%,transparent_25%,transparent_50%,rgb(255_255_255/0.25)_50%,rgb(255_255_255/0.25)_75%,transparent_75%,transparent)] bg-size-[1rem_1rem] animate-progress-stripes motion-reduce:animate-none' => $striped,
-                // Indeterminate: a short bar sliding across. Reduced motion gets a still bar instead.
-                'group-data-indeterminate/progress:w-2/5! group-data-indeterminate/progress:animate-progress-slide rtl:group-data-indeterminate/progress:animate-progress-slide-rtl motion-reduce:group-data-indeterminate/progress:animate-none',
+                // Indeterminate: a short bar sliding across. Reduced motion slows it rather than stopping it: a still bar
+                // would read as 40% done.
+                'group-data-indeterminate/progress:w-2/5! group-data-indeterminate/progress:animate-progress-slide rtl:group-data-indeterminate/progress:animate-progress-slide-rtl motion-reduce:group-data-indeterminate/progress:[animation-duration:10s]',
                 // A class, not style="": see the ranges at the end of base.css.
                 "w-[{$percent}%]",
                 // Inside labels: the fill clips its own white copy of the label (below).

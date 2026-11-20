@@ -958,7 +958,12 @@ document.addEventListener('click', (event) => {
 
         return;
     }
-    if (action === 'rotate-left' || action === 'rotate-right') {
+    // The pan buttons move as the arrow keys do with Shift: fifty screen pixels a press, at any zoom.
+    const pans = { 'pan-left': [-1, 0], 'pan-right': [1, 0], 'pan-up': [0, -1], 'pan-down': [0, 1] };
+    if (pans[action]) {
+        state.cx += (pans[action][0] * 50) / state.zoom;
+        state.cy += (pans[action][1] * 50) / state.zoom;
+    } else if (action === 'rotate-left' || action === 'rotate-right') {
         turn(state, action === 'rotate-right');
     } else if (action === 'zoom-in') {
         zoomCentre(root, state, 1.25);
