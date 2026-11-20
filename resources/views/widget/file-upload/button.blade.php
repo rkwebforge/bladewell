@@ -64,6 +64,7 @@
     :disabled="$disabled"
     bare
     data-file-upload="button"
+    data-locale="{{ str_replace('_', '-', app()->getLocale()) }}"
     :data-max-bytes="$limits->maxBytes ?? false"
     :data-accept="$accept ?? false"
     :data-messages="json_encode($messages)"

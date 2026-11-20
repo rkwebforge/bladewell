@@ -45,16 +45,33 @@ final readonly class UploadLimits
         return $parts === [] ? null : ucfirst(implode(', ', $parts));
     }
 
-    /** 5242880 → "5 MB", 512000 → "500 KB". */
-    public static function size(int $bytes): string
+    /**
+     * 5242880 → "5 MB", 512000 → "500 KB". The number is written as the locale writes it ("2,5 MB" in German), the app's
+     * by default, where the intl extension is installed; plainly ("2.5 MB") where it isn't.
+     */
+    public static function size(int $bytes, ?string $locale = null): string
     {
         foreach (array_reverse(self::UNITS, true) as $unit => $factor) {
             if ($bytes >= $factor) {
-                return rtrim(rtrim(number_format($bytes / $factor, 1, '.', ''), '0'), '.').' '.$unit;
+                return self::number($bytes / $factor, $locale).' '.$unit;
             }
         }
 
-        return "{$bytes} bytes";
+        return self::number($bytes, $locale).' bytes';
+    }
+
+    /** One decimal at most, rounded half up, as resources/js/widget/file-upload writes it with Intl. */
+    private static function number(float|int $number, ?string $locale): string
+    {
+        $plain = rtrim(rtrim(number_format($number, 1, '.', ''), '0'), '.');
+        if (! class_exists(\NumberFormatter::class)) {
+            return $plain;
+        }
+        $formatter = new \NumberFormatter(str_replace('-', '_', $locale ?? app()->getLocale()), \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 1);
+        $formatter->setAttribute(\NumberFormatter::ROUNDING_MODE, \NumberFormatter::ROUND_HALFUP);
+
+        return $formatter->format($number) ?: $plain;
     }
 
     private static function bytes(int|string|null $maxSize): ?int

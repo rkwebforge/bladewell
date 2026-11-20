@@ -11,7 +11,7 @@ Blade + Tailwind CSS v4 widgets for Laravel that you copy into your app, then ow
 - PHP 8.3+, Laravel 12 or 13
 - Tailwind CSS 4.1+ and Vite (the default Laravel setup), and pages rendered with Blade
 - `datepicker`, `date-range-picker`, `time-picker` and `price-roll` need the PHP `intl` extension
-- Browsers: Chrome/Edge 117+, Firefox 129+, Safari 17.5+ (all 2024). Chrome/Edge 114–116, Firefox 128 and Safari 17–17.4 work with some animations skipped. Older browsers can't open the popover-based widgets (select, date pickers, the time picker's list and columns, phone country list, dropdown, tooltips).
+- Browsers: Chrome/Edge 117+, Firefox 129+, Safari 17.5+ (all 2024). Chrome/Edge 114–116, Firefox 128 and Safari 17–17.4 work with some animations skipped. Older browsers can't open the popover-based widgets (select, date pickers, the time picker's list and columns, phone country list, dropdown, tooltips, toasts).
 - On iOS/iPadOS before 18.3, tapping outside an open popover doesn't close it ([WebKit bug 267688](https://webkit.org/b/267688)).
 
 Works under a strict Content Security Policy (`default-src 'self'`, no `'unsafe-inline'`): no widget renders inline scripts, event handlers or `style` attributes. The one opt-in exception is `remember` on the accordion menu: its small inline script carries your nonce if you set one with `Vite::useCspNonce()`, and where a CSP blocks it the menu still works, opening at the current page without remembering. Sizes the server works out are classes from the `@source inline()` ranges at the end of `base.css` (about 2 KB gzipped). Examples that call a widget's JS come with a `{slug}.js` for your own script. The captcha's provider options need that provider's domain in `script-src` and `frame-src`.

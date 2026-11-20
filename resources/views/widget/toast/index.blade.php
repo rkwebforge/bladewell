@@ -13,6 +13,8 @@
     'pauseOnHover' => true,
     // Holds the timer while the window is in the background or the tab is hidden.
     'pauseOnFocusLoss' => true,
+    // The button above the stack, while two or more toasts are up (three on a phone), that closes them all.
+    'dismissAllLabel' => 'Dismiss all',
 ])
 
 @php
@@ -66,6 +68,7 @@
     data-show-progress="{{ $showProgress ? 'true' : 'false' }}"
     data-pause-on-hover="{{ $pauseOnHover ? 'true' : 'false' }}"
     data-pause-on-focus-loss="{{ $pauseOnFocusLoss ? 'true' : 'false' }}"
+    data-dismiss-all-label="{{ $dismissAllLabel }}"
     {{-- Never taller than the screen: past what fits, the toasts scroll, so none is out of reach. The 0.5rem of padding
          (and as much negative margin, so nothing moves) keeps their shadows and slide-in from being clipped. --}}
     {{ $attributes->class([$positions[$position], 'pointer-events-none fixed inset-auto -m-2 max-h-[calc(100dvh-1rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[min(25rem,calc(100vw-1rem))] gap-3 overflow-y-auto overscroll-contain border-0 bg-transparent p-2 [scrollbar-width:thin] open:flex']) }}
@@ -75,4 +78,16 @@
     {{-- A fresh id per page: a copy of this page brought back later (wire:navigate's Back and Forward) carries the same
          one, and the script shows each id once. --}}
     <script type="application/json" data-toast-flash="{{ \Illuminate\Support\Str::random(16) }}">@json($flashed)</script>
+    {{-- Without JavaScript nothing turns those into toasts, so they're shown here instead: plainly, where the toasts would
+         be, and left on the page. Titles as the script's. --}}
+    <noscript>
+        <div role="region" aria-label="Notifications" @class([$positions[$position], 'fixed z-50 flex w-[min(25rem,calc(100vw-2rem))] gap-3'])>
+            @foreach ($flashed as $flash)
+                <p class="bg-surface text-foreground ring-line rounded-xl p-4 text-sm shadow-lg ring-1 ring-inset">
+                    <strong class="block font-semibold">{{ $flash['title'] ?? ['success' => 'Successful', 'error' => 'Error', 'warning' => 'Warning', 'info' => 'Info', 'comingSoon' => 'Coming Soon'][$flash['type']] }}</strong>
+                    <span class="text-foreground/75 break-words">{{ $flash['message'] }}</span>
+                </p>
+            @endforeach
+        </div>
+    </noscript>
 @endif

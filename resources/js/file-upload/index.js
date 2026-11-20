@@ -17,15 +17,17 @@ const messagesOf = (root) => {
 };
 const say = (template, values) => Object.entries(values).reduce((text, [key, value]) => text.replaceAll(`:${key}`, value), template ?? '');
 
-// Same wording as the server's UploadLimits::size(): 1024-based, one decimal at most.
-function size(bytes) {
+// Same wording as the server's UploadLimits::size(): 1024-based, one decimal at most, the number as the app's locale
+// writes it (data-locale: "2,5 MB" in German).
+function size(bytes, root) {
+    const number = (value) => new Intl.NumberFormat(root.dataset.locale || 'en', { maximumFractionDigits: 1 }).format(value);
     for (const [unit, factor] of [['GB', 1024 ** 3], ['MB', 1024 ** 2], ['KB', 1024]]) {
         if (bytes >= factor) {
-            return `${Number((bytes / factor).toFixed(1))} ${unit}`;
+            return `${number(bytes / factor)} ${unit}`;
         }
     }
 
-    return `${bytes} bytes`;
+    return `${number(bytes)} bytes`;
 }
 
 // accept=".pdf,image/*": an extension matches the name's end, type/* the MIME type's group, anything else exactly.
@@ -48,7 +50,7 @@ function problem(root, file) {
         return say(messages.wrongType, { name: file.name });
     }
     if (maxBytes && file.size > maxBytes) {
-        return say(messages.tooBig, { name: file.name, size: size(maxBytes) });
+        return say(messages.tooBig, { name: file.name, size: size(maxBytes, root) });
     }
 
     return null;
@@ -101,7 +103,7 @@ function syncInput(root) {
 function row(root, file, error) {
     const item = root.querySelector('[data-file-template]').content.firstElementChild.cloneNode(true);
     item.querySelector('[data-file-name]').textContent = file.name;
-    item.querySelector('[data-file-size]').textContent = size(file.size);
+    item.querySelector('[data-file-size]').textContent = size(file.size, root);
     const remove = item.querySelector('[data-file-remove]');
     remove.setAttribute('aria-label', `${remove.getAttribute('aria-label')} ${file.name}`);
     if (error) {
@@ -377,7 +379,7 @@ function pickedButton(root, input) {
         input.value = '';
     }
     const kept = why ? [] : files;
-    shown.textContent = kept.length === 0 ? shown.dataset.empty : kept.length === 1 ? `${kept[0].name} (${size(kept[0].size)})` : say(messagesOf(root).count, { count: kept.length });
+    shown.textContent = kept.length === 0 ? shown.dataset.empty : kept.length === 1 ? `${kept[0].name} (${size(kept[0].size, root)})` : say(messagesOf(root).count, { count: kept.length });
     clear.hidden = kept.length === 0;
 }
 

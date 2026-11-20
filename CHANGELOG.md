@@ -10,6 +10,30 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.5.5] - 2026-11-20
+
+### Added
+
+- **toast**: "Dismiss all" above the stack while two or more toasts are up (three on a phone, where its row takes room and two are quickly swiped away); its text is the `dismiss-all-label` prop. Focus goes back where it was.
+- **toast**: an action button, like Undo: `toast.success('Invoice deleted.', { action: { label: 'Undo', onClick } })`. A toast with one stays until it's used or dismissed, is never merged with another, and is read out with "Actions available".
+- **toast**: each toast is marked `data-toast-item`.
+- **toast**: on a touch screen, a toast swipes away sideways, either way: past a third of its width or on a flick. A shorter swipe springs it back, up and down still scroll the stack, and its time holds while it's in the finger.
+
+### Changed
+
+- **theme**: the light theme's warning colour is amber (`#b54708`) instead of yellow, so warning dots, borders, icons and bar segments can be seen: 5.4:1 on white, where the yellow was 1.3:1. The dark theme keeps its yellow. If you set `--color-warning` yourself, nothing changes for you.
+- **file-upload**: sizes are written as the app's locale writes numbers ("2,5 MB" in German), in the hint, the file list and the too-big message, where the intl extension is installed. Large ones are grouped ("1,000 MB"). `UploadLimits::size()` takes an optional locale.
+- **toast**: the layout snippet now sets `:alert-auto-close="false"`, so errors and warnings stay until they're dismissed. The default is unchanged: add it to your layout to get the same.
+- **toast**: the same toast shown again while it's still up (same kind, title and message) no longer stacks a copy: the one showing counts it (×3), comes back to the top, starts its time again and is read out again. Loading toasts are left as they are. `toast.success()` and the others return the id of the toast that showed it; `merge: false` always gives a toast of its own.
+
+### Fixed
+
+- **toast**: past what fits on screen, the stack scrolls; the toasts were squeezed shorter instead, cutting off their messages.
+- **toast**: the same toast shown twice at once is read out once, not twice in a row.
+- **toast**: flashed messages show without JavaScript too, plainly, where the toasts would be.
+- **toast**: flashed messages show after Turbo and htmx page swaps, not only after a full load or Livewire's `wire:navigate`.
+- **toast**: on a touch screen, Dismiss all and an action button take a finger from 44px, as the close button does.
+
 ## [1.5.4] - 2026-11-20
 
 ### Added
@@ -452,7 +476,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.4...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.5...HEAD
+[1.5.5]: https://github.com/rkwebforge/bladewell/compare/v1.5.4...v1.5.5
 [1.5.4]: https://github.com/rkwebforge/bladewell/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/rkwebforge/bladewell/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/rkwebforge/bladewell/compare/v1.5.1...v1.5.2

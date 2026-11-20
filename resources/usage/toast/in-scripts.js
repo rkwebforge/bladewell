@@ -8,5 +8,12 @@ toast.info('New version available.');
 const id = toast.loading('Processing payment...');
 toast.update(id, 'success', 'Payment confirmed.');
 
+// The same toast shown again while it's still up (same kind, title and message) isn't repeated: the one showing
+// counts it (×2) and returns its id. merge: false always gives a toast of its own, for code that keeps its id.
+const saved = toast.success('Saved.', { merge: false });
+
+// An action, like Undo: the toast stays until it's used or dismissed, and goes once it's used.
+toast.success('Invoice deleted.', { action: { label: 'Undo', onClick: () => restoreInvoice(42) } });
+
 toast.dismiss(id); // one toast
 toast.dismiss();   // all of them

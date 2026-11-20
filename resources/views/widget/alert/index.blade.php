@@ -16,7 +16,7 @@
 
 @php
     // [box, icon colour, default icon]. Tints and text follow the table badge's mixes, so each tone stays AA.
-    // Warning's yellow is too light to colour an icon on its own tint, so it's mixed towards the text colour.
+    // Warning's icon is mixed towards the text colour, so a light warning of your own (a yellow) still reads on its tint.
     $tones = [
         'info' => ['border-link/25 bg-link/5', 'text-link', 'info'],
         'success' => ['border-success/30 bg-success/5', 'text-[color-mix(in_oklab,var(--color-success)_75%,var(--color-foreground))]', 'circle-check'],
