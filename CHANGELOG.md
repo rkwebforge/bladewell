@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.5.4] - 2026-11-20
+
 ### Added
 
 - **field**: `composing(event)` export, true while an input method (Chinese, Japanese, Korean…) is composing.
@@ -18,6 +20,12 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - **toast**: `alert-auto-close` prop, how long error and warning toasts stay; `false` keeps them until dismissed. Unset, they follow `auto-close` as before.
 - **image-cropper**: move left, right, up and down buttons (`data-image-cropper-action="pan-left"` and so on, named by `pan-left-label` and the like), so the crop can be moved without dragging, as the arrow keys move it.
 - **time-picker**: `variant="native"`, the browser's own time field, which opens the phone's time picker on a touch screen.
+
+### Changed
+
+- **clock**: dates follow the locale's own order and words, so in English they now read "Sunday, September 27" (en_GB: "Sunday 27 September"). AM/PM comes from ICU too, with a narrow no-break space before it.
+- **command**: a click on the dimmed area closes the palette only when the press started there as well, as the modal already did.
+- **tabs**: closed panels are `hidden="until-found"` and out of the Tab order (`tabindex="-1"`). If your CSS keeps closed panels laid out (stacked in one grid cell, say), add `content-visibility: visible` to that rule.
 
 ### Fixed
 
@@ -444,7 +452,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.3...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.4...HEAD
+[1.5.4]: https://github.com/rkwebforge/bladewell/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/rkwebforge/bladewell/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/rkwebforge/bladewell/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/rkwebforge/bladewell/compare/v1.5.0...v1.5.1
