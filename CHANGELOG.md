@@ -10,6 +10,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+## [1.5.6] - 2026-11-24
+
 ### Added
 
 - **MCP server** (`bladewell:mcp`): `get_component` takes `brief: true`, for about half the tokens: the first example and the first usage snippet that isn't Livewire (often the controller the routes need), with the rest in `more-examples` and `more-usage`, each by title and first sentence. Props, slots and `consider` notes are always whole.
@@ -487,7 +489,8 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 - `bladewell.lock`, so updates replace only files you haven't edited.
 - Livewire 3 and 4 support, with `wire:model` on every form control.
 
-[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.5...HEAD
+[Unreleased]: https://github.com/rkwebforge/bladewell/compare/v1.5.6...HEAD
+[1.5.6]: https://github.com/rkwebforge/bladewell/compare/v1.5.5...v1.5.6
 [1.5.5]: https://github.com/rkwebforge/bladewell/compare/v1.5.4...v1.5.5
 [1.5.4]: https://github.com/rkwebforge/bladewell/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/rkwebforge/bladewell/compare/v1.5.2...v1.5.3
