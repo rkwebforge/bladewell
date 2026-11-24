@@ -1,6 +1,6 @@
 {
     "group": "Forms",
-    "description": "A slider on the native range input, so its keyboard (arrows, Page Up and Down, Home, End) and screen reader support stay: one thumb, or two on one track for a span such as a price range. Min, max and step, a prefix or suffix on the value shown beside the label and read out per thumb, in the page's number format. Range values submit as name[] and bind with wire:model. Right to left fills from the right.",
+    "description": "A slider on the native range input, so its keyboard and screen reader support stay: one thumb, or two for a span such as a price range. A prefix or suffix on the value, in the page's number format. Range values submit as name[] and bind with wire:model.",
     "requires": [
         "field"
     ],

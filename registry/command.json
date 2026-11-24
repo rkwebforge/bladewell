@@ -1,6 +1,6 @@
 {
     "title": "Command palette",
-    "description": "A command palette: Ctrl+K (Cmd+K on a Mac) opens a search box over the page that finds pages and actions as you type, by label or keywords, in groups. With suggest-url it adds your app's own results, and recent keeps the last few choices. The arrow keys move through it with focus staying in the box; Enter opens a page or clicks an action, so wire:click works. command.open() from scripts, and command-open events from Livewire.",
+    "description": "A command palette: Ctrl+K (Cmd+K on a Mac) opens a search box that finds pages and actions as you type, in groups. With suggest-url it adds your app's own results, and recent keeps the last few choices. Enter opens a page or clicks an action, so wire:click works.",
     "requires": [
         "icon"
     ],

@@ -1,6 +1,6 @@
 {
     "group": "Forms",
-    "description": "A search box that fills itself from the query string, in two sizes, with a clear button, the icon at either end and an optional keyboard shortcut. With suggest-url it suggests as you type, like a store's search: from your own endpoint, with details, links straight to a page, and groups. It searches as you type in a table's filters slot or with Livewire's wire:model.live; on its own it submits its form.",
+    "description": "A search box that fills itself from the query string, with a clear button and an optional keyboard shortcut. With suggest-url it suggests as you type, from your own endpoint. On its own it submits its form; in a table's filters slot or with wire:model.live it searches as you type.",
     "requires": [
         "field",
         "icon"
@@ -40,12 +40,12 @@
         "livewire"
     ],
     "examples": [
+        "search-form",
         "suggestions",
         "keyboard-shortcut",
         "suggestions-with-details",
         "suggestions-that-open-a-page",
         "grouped-suggestions",
-        "search-form",
         "icon-at-the-start",
         "sizes-and-widths"
     ]

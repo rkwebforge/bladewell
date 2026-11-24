@@ -10,6 +10,17 @@ Component names, props and their values, `data-*` hooks, JS exports, the `bladew
 
 ## [Unreleased]
 
+### Added
+
+- **MCP server** (`bladewell:mcp`): `get_component` takes `brief: true`, for about half the tokens: the first example and the first usage snippet that isn't Livewire (often the controller the routes need), with the rest in `more-examples` and `more-usage`, each by title and first sentence. Props, slots and `consider` notes are always whole.
+- **MCP server**: `get_component` takes `examples` and `usage`, which give the ones named by title.
+- **MCP server**: `list_components` takes `brief: true`, for about a third of the tokens: each component's name, group, a one-sentence `summary` and whether it's installed.
+
+### Changed
+
+- **phone**: spaces, dashes and brackets can still be typed, but once the box is left it shows the digits alone, as it does after a reload, so `11--23--3` doesn't stay on screen. The submitted number is unchanged.
+- **MCP server**: its instructions and the Boost guidelines tell agents to search with `query`, read each component once with `brief`, and work from the installed files after that. Without the new arguments, every tool answers as before.
+
 ## [1.5.5] - 2026-11-20
 
 ### Added

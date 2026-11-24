@@ -1,5 +1,5 @@
 {
-    "description": "Events by month, week or day: bookings, appointments, shifts, a team's leave. Multi-day events run as bars, overlapping ones sit side by side, busy days get a \"more\" list, and on a phone it becomes an agenda. All-day events keep their dates in any timezone; times show in the timezone you give, and ends are exclusive. views adds a switch between views, and the arrows change the period without reloading the page. Pass arrays, or your models with keys. Read-only: events can link to your pages. Works with Livewire.",
+    "description": "Events by month, week or day: bookings, appointments, shifts, a team's leave. Multi-day events run as bars, overlapping ones sit side by side, and on a phone it becomes an agenda. Pass arrays or your models. Read-only: events can link to your pages. Works with Livewire.",
     "requires": [
         "button",
         "icon",

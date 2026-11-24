@@ -1,7 +1,7 @@
 {
     "title": "Sortable list",
     "group": "Forms",
-    "description": "Items people put in order: FAQs, menu links, a product's photos. Each item has a handle that drags with a mouse, a pen or a finger, or picks the item up for the arrow keys, and Move up and Move down buttons. Every move is announced and can be undone, focus stays where it was, and the item rings for a moment where it lands. A move fires sortable:move, and with move-url is sent to your app one at a time, which keeps it or sends the list back to its last saved order with a reason; with a version, a change someone else made first is caught and the person offered a reload. With a name the order submits with its form as name[], and comes back after a failed submit. Lists or wrapping grids of tiles, right to left too. Every item moves: keep pinned ones, like a Home link, outside the list, and make a filtered or paged list readonly, where an order means nothing for the items not shown. Works inside Livewire components, with wire:model or wire:sortable-move.",
+    "description": "Items people put in order: FAQs, menu links, a product's photos, as a list or a grid of tiles. Drag by the handle, or use the arrow keys or Move buttons; every move is announced and can be undone. move-url saves each move to your app, or the order submits with its form. Keep pinned items, like a Home link, outside the list. Works inside Livewire components.",
     "requires": [
         "field",
         "button",
@@ -37,8 +37,8 @@
         "in-scripts"
     ],
     "examples": [
-        "images",
         "faqs",
+        "images",
         "menu-links"
     ],
     "slots": {

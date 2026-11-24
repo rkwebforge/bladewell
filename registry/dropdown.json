@@ -1,5 +1,5 @@
 {
-    "description": "Menu button on the native popover: row actions, account menus, \"More\" buttons. Items are links, buttons, or forms that submit with any method (a delete comes with its CSRF token), and confirm=\"…\" asks with modal.confirm() first. Arrow keys, Home/End and type-to-jump, flips above when there's no room, and never clipped by a table or a modal. Works inside Livewire components: items take wire:click, confirm included.",
+    "description": "Menu button on the native popover: row actions, account menus, \"More\" buttons. Items are links, buttons or forms with any method, and confirm=\"…\" asks first. Never clipped by a table or a modal. Works inside Livewire components: items take wire:click, confirm included.",
     "requires": [
         "button",
         "icon",

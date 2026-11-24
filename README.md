@@ -92,10 +92,17 @@ What you build on is only ever added to, never renamed or removed: component nam
 
 | Tool | What it does |
 | --- | --- |
-| `list_components` | The catalogue, with whether each is installed; `query` narrows it |
-| `get_component` | One component's tags, props, slots, usage (Livewire included) and examples |
+| `list_components` | The catalogue, with whether each is installed; `query` narrows it, and `brief: true` gives a line each |
+| `get_component` | One component's tags, props, slots, usage (Livewire included) and examples. `brief: true` gives the first example and the first usage snippet that isn't Livewire, listing the rest by title and first sentence in `more-examples` and `more-usage`; `examples` and `usage` ask for those by title |
 | `project_status` | What's installed, which installed files are out of date or edited (from `bladewell.lock`), and the Tailwind/Vite check |
 | `add_components` | A dry run by default: lists the files it would write. Writes only with `confirm: true`, and never over edited files unless `force: true`, which covers the components named, not the theme or those brought along |
+
+Each answer stays in the agent's context and is sent again on every turn, so the server tells agents to keep them few. You can help:
+
+- Name the components in your prompt ("a settings page with tabs, a form and a toast"): the agent can skip `list_components`, whose whole list is around 7K tokens.
+- Otherwise let it search: `list_components` with a `query` such as "date" returns only the matches, and `brief: true` cuts the whole list to under 3K.
+- `get_component` costs 1–9K tokens a component (`table` is the largest), about half that with `brief: true`, so build with the ones you need rather than asking it to survey the catalogue.
+- Once a component is installed, its files in your app are the source: ask for changes to them rather than for the component again.
 
 Add it to your agent. Claude Code, from the app's root:
 

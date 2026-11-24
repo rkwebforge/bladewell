@@ -1,6 +1,6 @@
 {
     "group": "Layouts",
-    "description": "An app's frame: a sidebar with your brand, navigation and footer, a top bar that stays put, and the page scrolling under it. On large screens the sidebar collapses to a rail of icons, naming each on hover or focus, and can remember that in a cookie; on phones and tablets it slides in from the menu button, over a dimmed page that waits inert until it closes. Takes an accordion menu with icons. Works inside Livewire components.",
+    "description": "An app's frame: a sidebar with your brand, navigation and footer, and a top bar that stays put while the page scrolls. On large screens the sidebar collapses to a rail of icons; on phones and tablets it slides in from a menu button. Works inside Livewire components.",
     "requires": [
         "accordion",
         "icon"

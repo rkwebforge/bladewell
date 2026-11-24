@@ -29,7 +29,11 @@ final class Server
     private const array PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 
     private const string INSTRUCTIONS = 'Bladewell copies Blade + Tailwind CSS v4 components into this Laravel app, where they become the app\'s own files, used as <x-widget.{name}>. '
+        // Models that don't know the name yet take it for a typo of the older library and write its tags from memory.
+        .'Bladewell is not BladewindUI, a different library: never write <x-bladewind.*> tags or follow its docs here. '
         .'Find components with list_components, read one with get_component (props, slots, examples, Livewire usage) before writing it into a view, and check project_status for what is installed and edited. '
+        // Every answer stays in the agent's context and is sent again each turn: the whole list is ~7K tokens, a table ~9K.
+        .'To keep the context small, give list_components a query (brief: true for a line each), or skip it when the person named the components; call get_component once for each component you use, as its answer does not change, with brief: true, then ask for the examples or usage you need by their titles in more-examples and more-usage; once installed, the component\'s files in the app are its source. '
         .'Before writing the routes a component calls or submits to, read its consider notes in get_component (security, and server cost such as paging and caching): apply what fits the app, and tell the person which you left out. '
         .'add_components without confirm is a dry run: show the person its file list, and call it again with confirm: true only once they agree. It never overwrites files they edited unless force is true. '
         .'After installing, the assets need rebuilding (npm run build, or a running npm run dev).';
@@ -104,10 +108,13 @@ final class Server
             [
                 'name' => 'list_components',
                 'title' => 'List components',
-                'description' => 'The Bladewell components, each with its description, group (Forms…), what it requires and whether this app has it installed. Narrow it with query, which matches names and descriptions.',
+                'description' => 'The Bladewell components, each with its description, group (Forms…), what it requires and whether this app has it installed. The whole list is long: pass query, which matches names and descriptions, whenever you know what you need.',
                 'inputSchema' => [
                     'type' => 'object',
-                    'properties' => ['query' => ['type' => 'string', 'description' => 'Words to look for, e.g. "date" or "upload".']],
+                    'properties' => [
+                        'query' => ['type' => 'string', 'description' => 'Words to look for, e.g. "date" or "upload".'],
+                        'brief' => ['type' => 'boolean', 'default' => false, 'description' => 'Each component as name, group, a one-sentence summary and whether it is installed: about a third of the size.'],
+                    ],
                 ],
                 'annotations' => ['readOnlyHint' => true],
             ],
@@ -117,7 +124,12 @@ final class Server
                 'description' => 'Everything about one component: its Blade tags with every prop (default, required, what it does) and slot, its requirements, usage snippets (Livewire included) and working examples. Read it before writing the component into a view.',
                 'inputSchema' => [
                     'type' => 'object',
-                    'properties' => ['name' => ['type' => 'string', 'enum' => $names, 'description' => 'The component, e.g. "datepicker".']],
+                    'properties' => [
+                        'name' => ['type' => 'string', 'enum' => $names, 'description' => 'The component, e.g. "datepicker".'],
+                        'brief' => ['type' => 'boolean', 'default' => false, 'description' => 'Only the first example and the first usage snippet that isn\'t Livewire (often the controller the routes need); more-examples and more-usage list the rest, each with its title and first sentence. Props, slots and consider notes are always whole.'],
+                        'examples' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Titles of the examples to give in full, e.g. ["Filters"]; [] for none. Without it, all of them (the first with brief).'],
+                        'usage' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Titles of the usage snippets to give in full, e.g. ["Livewire"]; [] for none. Without it, all of them (the first that isn\'t Livewire with brief).'],
+                    ],
                     'required' => ['name'],
                 ],
                 'annotations' => ['readOnlyHint' => true],
@@ -157,8 +169,8 @@ final class Server
 
         try {
             $data = match ($params['name'] ?? null) {
-                'list_components' => $this->listComponents(is_string($arguments['query'] ?? null) ? $arguments['query'] : ''),
-                'get_component' => $this->getComponent((string) ($arguments['name'] ?? '')),
+                'list_components' => $this->listComponents(is_string($arguments['query'] ?? null) ? $arguments['query'] : '', ($arguments['brief'] ?? false) === true),
+                'get_component' => $this->getComponent((string) ($arguments['name'] ?? ''), $arguments),
                 'project_status' => $this->projectStatus(),
                 'add_components' => $this->addComponents($arguments),
                 default => throw new InvalidArgumentException('Unknown tool: '.json_encode($params['name'] ?? null).'. See tools/list.'),
@@ -180,7 +192,7 @@ final class Server
     /**
      * @return array<string, mixed>
      */
-    private function listComponents(string $query): array
+    private function listComponents(string $query, bool $brief = false): array
     {
         $installed = $this->installer->installed();
         $words = array_filter(preg_split('/\s+/', mb_strtolower(trim($query))) ?: []);
@@ -197,6 +209,16 @@ final class Server
             return true;
         });
 
+        if ($brief) {
+            return ['components' => array_values(array_map(static fn (Widget $widget): array => [
+                'name' => $widget->name,
+                'group' => $widget->group,
+                // The first sentence: the rest of a description is what get_component is for.
+                'summary' => self::firstSentence($widget->description),
+                'installed' => in_array($widget->name, $installed, true),
+            ], $matches))];
+        }
+
         return ['components' => array_values(array_map(static fn (Widget $widget): array => [
             'name' => $widget->name,
             'title' => $widget->title(),
@@ -209,19 +231,92 @@ final class Server
     }
 
     /**
+     * @param  array<mixed>  $arguments
      * @return array<string, mixed>
      */
-    private function getComponent(string $name): array
+    private function getComponent(string $name, array $arguments = []): array
     {
         $widget = $this->registry->get($name);
-
-        return [
+        $component = [
             'name' => $widget->name,
             'title' => $widget->title(),
             'install' => "php artisan bladewell:add {$widget->name}",
             'installed' => in_array($widget->name, $this->installer->installed(), true),
             ...(new WidgetDetails($this->registry))->describe($widget),
         ];
+
+        $brief = ($arguments['brief'] ?? false) === true;
+        if (!$brief && !array_key_exists('examples', $arguments) && !array_key_exists('usage', $arguments)) {
+            // Asked as before: the same answer as before, with no more-* keys.
+            return $component;
+        }
+
+        /** @var list<array{title: string, description?: string|null}> $examples */
+        $examples = $component['examples'];
+        /** @var list<array{title: string, description?: string|null}> $usage */
+        $usage = $component['usage'];
+        $firstExample = static fn (array $items): array => array_slice($items, 0, 1);
+        // The first snippet that isn't Livewire: the controller, Form Request or layout line the examples send people
+        // to ("as Usage shows"), where the safe way to write the route is. An app without Livewire never needs those.
+        $firstUsage = static fn (array $items): array => array_slice(array_values(array_filter($items, static fn (array $item): bool => !str_contains(mb_strtolower($item['title']), 'livewire'))), 0, 1);
+
+        [$component['examples'], $component['more-examples']] = $this->pick($examples, $arguments['examples'] ?? null, $brief ? $firstExample : null, 'example', $widget->name);
+        [$component['usage'], $component['more-usage']] = $this->pick($usage, $arguments['usage'] ?? null, $brief ? $firstUsage : null, 'usage snippet', $widget->name);
+
+        return $component;
+    }
+
+    /**
+     * The items asked for by title (or, when none were named, those $byDefault keeps, or all when it is null), and the
+     * rest as title and first sentence, so an agent can tell which to ask for next.
+     *
+     * @param  list<array{title: string, description?: string|null}>  $items
+     * @param  (callable(list<array{title: string, description?: string|null}>): list<array{title: string, description?: string|null}>)|null  $byDefault
+     * @return array{0: list<array{title: string, description?: string|null}>, 1: list<array{title: string, summary: string|null}>}
+     */
+    private function pick(array $items, mixed $titles, ?callable $byDefault, string $kind, string $widget): array
+    {
+        // "Livewire view", "livewire-view" and "LIVEWIRE VIEW" all name the same snippet: titles come from file names.
+        $key = static fn (string $title): string => mb_strtolower(str_replace('-', ' ', trim($title)));
+
+        // One title sent bare, as agents sometimes do: ignoring it would send back everything, the most tokens of all.
+        if (is_string($titles)) {
+            $titles = [$titles];
+        }
+
+        if (is_array($titles)) {
+            $known = array_map(static fn (array $item): string => $key($item['title']), $items);
+            $wanted = [];
+            $unknown = [];
+            foreach ($titles as $title) {
+                if (is_string($title) && in_array($key($title), $known, true)) {
+                    $wanted[] = $key($title);
+                } else {
+                    // As sent, so the agent recognises what it asked for.
+                    $unknown[] = (string) json_encode($title, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                }
+            }
+            if ($unknown !== []) {
+                $available = implode(', ', array_map(static fn (array $item): string => '"'.$item['title'].'"', $items)) ?: 'none';
+                throw new InvalidArgumentException("No {$kind} of {$widget} is called ".implode(', ', $unknown).". Its {$kind}s: {$available}.");
+            }
+            $chosen = array_filter($items, static fn (array $item): bool => in_array($key($item['title']), $wanted, true));
+        } else {
+            $chosen = $byDefault === null ? $items : $byDefault($items);
+        }
+
+        $rest = array_udiff($items, $chosen, static fn (array $a, array $b): int => strcmp($a['title'], $b['title']));
+
+        // A title alone ("Compact", "Stacked") rarely says whether it fits the task: the first sentence does, for a few tokens.
+        return [array_values($chosen), array_values(array_map(static fn (array $item): array => [
+            'title' => $item['title'],
+            'summary' => self::firstSentence($item['description'] ?? null),
+        ], $rest))];
+    }
+
+    private static function firstSentence(?string $text): ?string
+    {
+        return $text === null || $text === '' ? null : (preg_split('/(?<=[.!?])\s+(?=[A-Z])/u', $text, 2)[0] ?? $text);
     }
 
     /**

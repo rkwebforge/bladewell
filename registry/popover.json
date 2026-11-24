@@ -1,5 +1,5 @@
 {
-    "description": "A panel of anything beside a button: a note, a short form, a profile card, links. On the native popover, so a table or a modal never clips it; flips above when there's no room below. Focus moves into it as it opens and back as it closes, and Esc, a click outside or Tab past its end closes it. popover.open(), close() and toggle() from scripts, and popover-open and popover-close events from Livewire.",
+    "description": "A panel of anything beside a button: a note, a short form, a profile card, links. On the native popover, so a table or a modal never clips it. Focus moves in as it opens and back as it closes. popover.open() from scripts, and popover-open events from Livewire.",
     "requires": [
         "button",
         "icon"

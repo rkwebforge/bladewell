@@ -143,6 +143,16 @@ function initPhone(root) {
         commit();
     });
 
+    // While typing, people group a number as they write it: (020) 7946-0958. Once they leave the box it shows the
+    // digits alone, as the server draws it after a reload, so the number doesn't change shape between the two. What's
+    // submitted is the same either way, so nothing is sent again.
+    national.addEventListener('blur', () => {
+        const digits = national.value.replace(/\D/g, '');
+        if (digits !== national.value) {
+            national.value = digits;
+        }
+    });
+
     function build() {
         const collator = new Intl.Collator(locale);
         options = Object.keys(codes)

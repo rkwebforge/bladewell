@@ -1,6 +1,6 @@
 {
     "group": "Forms",
-    "description": "Lets people build their own filters: rows of a field, a condition and a value, matching all or any. Conditions follow the field's type: contains or starts with for text, more than or between for numbers, before, between or in the last N days for dates, any of for choices. Sent as one field, so it filters a table in place and keeps a shareable link. Comes with Filters, which reads the request against your own list of fields, turns down anything else with the reason, and applies it to a query or collection with every value bound. Editing the filters needs JavaScript; without it, the current ones show and are sent unchanged.",
+    "description": "Lets people build their own filters: rows of a field, a condition and a value, matching all or any. Conditions follow each field's type, for text, numbers, dates and choices. It filters a table in place with a shareable link, and Filters checks every value against your own list before it reaches a query. Editing needs JavaScript.",
     "requires": [
         "field",
         "repeater",
